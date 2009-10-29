@@ -1,0 +1,17 @@
+This is just my .bashrc .  I name it .bashrc.jas so it doesn't
+immediately clobber whatever .bashrc is on whatever new system I am
+on.  I usually rename an existing .bashrc to .bashrc.orig, then create
+a symlink for .bashrc to this file.
+
+Sourcing this file loads all environment variables in this file and
+creates the files it creates.  At one time it also created the
+afore-mentioned symlink.
+
+Calling this file as a program, either by chmod'ing it +x or by
+calling it with `bash', then giving it the argument `incr', will
+increment the ${JAS_ROX} variable to today's date.  I use this to let
+me know what version of this file is currently on the current system.
+This will probably change, now that I'll be tracking it in `git'.
+This also copies the file to all the various machines that I expect
+this file to be updated on.  This probably needs to be refactored to
+read a file with a list of machines.
