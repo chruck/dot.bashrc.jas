@@ -1,82 +1,21 @@
 #!/bin/bash
 # Jas' .bashrc file for all OSes
 
-# The name of this file
-THISFILE=$_
-THISFILENAME=.bashrc.jas
-#case $0 in
-    #-*|/bin/bash)
-        ## sourced
-        #THISFILE=~jas/${THISFILENAME}
-        #;;
-    #*)
-        ## executed
-        #THISFILE=$0
-        #;;
-#esac
-
-# version
-JAS_ROX=2009.10.22
+### Versioning
+THISFILE=$_   # This must be the first line of this file
+JAS_ROX=2012.09.17
 
 # Section to increment the above automatically, when this file is
 # updated, then automatically publish to appropriate machines.
-# Usage:  . ~/.bashrc.jas incr
-#    or:  sh ~/.bashrc.jas incr
-#    or:  ~/.bashrc.jas incr
-if [[ "incr" == $1 ]] ; then
-    DATE=$(date +%Y.%m.%d)
-    sed -i "/^JAS[_]ROX/s/[0-9.]\+/${DATE}/" ${THISFILE}
-    JAS_ROX=${DATE}
-    MACHINES="jas.is-a-geek.com jeckard@68.143.17.240
-              builder jas-dev.jas-dev jas5.jas-dev
-              jas8.jas-dev"
-    for i in ${MACHINES} ; do
-        echo --- ${i} ---
-        scp ${THISFILE} ${i}:
-    done
+# Usage:  ~/.bashrc.jas incr
+if [[ ${THISFILE} == $0 && "incr" == $1 ]] ; then
+        DATE=$(date +%Y.%m.%d)
+        # TODO:  fix for MacOS 'sed`
+        sed -i "/^JAS[_]ROX/s/[0-9.]\+/${DATE}/" ${THISFILE}
+        JAS_ROX=${DATE}
 fi
 
-mkprofile() {
-    cat <<EOFPROFILE > ~/.bash_profile
-# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
-
-source .bashrc
-EOFPROFILE
-}
-
-## if this file is not already symlinked, do so now, unless user root
-## skip this section on NetWare
-#if [[ netware != ${DISTRO} ]] ; then
-#    if [[ 0 != ${UID} ]] ; then
-#        cd
-#        if [[ -f .bashrc && ! -L .bashrc ]] ; then
-#            # exists, and is a regular file, and not a symlink
-#            mv .bashrc .bashrc.orig
-#            ln -s ${THISFILE} .bashrc
-#        fi
-#        if [[ ! -e .bashrc ]] ; then
-#            # doesn't exist
-#            ln -s ${THISFILE} .bashrc
-#        fi
-#        if [[ ( -f .bash_profile && ! -L .bash_profile )
-#              # exists, and is a regular file, and not a symlink
-#              || ( ! -e .bash_profile ) || ( -L .bash_profile ) ]] ; then
-#              # or doesn't exist or is a symlink
-#            mv .bash_profile .bash_profile.orig 2> /dev/null
-#            #ln -s .bashrc .bash_profile
-#            mkprofile
-#        fi
-#        #if [[ ! -e .bash_profile ]] ; then
-#            ## doesn't exist
-#            ##ln -s .bashrc .bash_profile
-#            #mkprofile
-#        #fi
-#    else 
-#        # root needs a symlink to this file, even if the .bash_profile and
-#        # .bashrc are unchanged
-#        ln -s $(dirname ${THISFILE})/${THISFILENAME} ${HOME}
-#    fi
-#fi
+### BASH settings
 
 # use `vi' editing at the bash commandline
 set -o vi
@@ -88,70 +27,80 @@ shopt -s cdspell
 shopt -s histappend
 # failed history substitions get another try
 shopt -s histreedit
+# make sure the TAB character does completion (esp in cygwin/screen)
+bind 'TAB: complete'
+
+### Distro detect 
 
 if [[ -e /etc/redhat-release ]] ; then
-    DISTRO="redhat"
-    RELEASE="$(cat /etc/redhat-release)"
+        DISTRO="redhat"
+        RELEASE="$(cat /etc/redhat-release)"
 elif [[ -e /etc/SuSE-release ]] ; then
-    DISTRO="suse"
-    RELEASE="$(cat /etc/SuSE-release)"
+        DISTRO="suse"
+        RELEASE="$(cat /etc/SuSE-release)"
 elif [[ "$(uname)x" == "Darwinx" ]] ; then
-    DISTRO="macosx"
+        DISTRO="macosx"
 else case ${OSTYPE} in
-      cygwin)
-        DISTRO="cygwin"
-        ;;
-      NetWare)
-        DISTRO="netware"
-        ;;
-      linux)
-        DISTRO="undetermined"
-        ;;
-    esac
+        cygwin)
+                DISTRO="cygwin"
+                ;;
+        NetWare)
+                DISTRO="netware"
+                ;;
+        linux)
+                DISTRO="undetermined"
+                ;;
+        esac
 fi
 
 ISMEDSRV=no
 
-if [[ netware != ${DISTRO} ]] && grep medsrv /etc/passwd > /dev/null
-then
-    ISMEDSRV=yes
+if [[ netware != ${DISTRO} ]] && grep medsrv /etc/passwd > /dev/null ; then
+        ISMEDSRV=yes
 fi
 
-if [[ -f /etc/profile.d/bash-completion ]] ; then
-    source /etc/profile.d/bash-completion
+if [[ -e $HOME/.bash_completion ]] ; then
+        source $HOME/.bash_completion
+elif [[ -f /etc/profile.d/bash-completion ]] ; then  # RedHat?
+        source /etc/profile.d/bash-completion
+elif [[ -e /etc/bash_completion ]] ; then  # Debian, Cygwin, SuSE
+        source /etc/bash_completion
+elif [[ -s /etc/profile.d/complete.bash ]] ; then
+        source /etc/profile.d/complete.bash
 fi
+
+for script in /etc/bash_completion.d/*.sh ; do
+        test -r ${script} && source ${script}
+done
 
 # For GoboLinux:
 #. ~/Programs/Rootless/Settings/StartGobo
 
+### Environment variables
+
 # At home:
 #export NNTPSERVER=newsgroups.bellsouth.net
 
-# Jas' favs
-
-# Necessary?
-#umask 022
-
 if [[ "${DISTRO}" == "macosx" ]] ; then
-    export LS_OPTIONS='-G'
+        export LS_OPTIONS='-G'
 else
-    export LS_OPTIONS='--color=auto'
+        export LS_OPTIONS='--color=auto'
 fi
 
 #export LS_COLORS='no=00:fi=00:di=01;34:ln=01;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.gz=01;31:*.bz2=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.avi=01;35:*.fli=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.ogg=01;35:*.mp3=01;35:*.wav=01;35:'
 export LS_COLORS='*.Z=01;31:*.arj=01;31:*.bat=01;32:*.avi=01;35:*.bmp=01;35:*.btm=01;32:*.bz2=01;31:*.bz=01;31:*.cmd=01;32:*.com=01;32:*.cpio=01;31:*.csh=01;32:*.exe=01;32:*.deb=01;31:*.dl=01;35:*.fli=01;35:*.gif=01;35:*.gl=01;35:*.gz=01;31:*.jar=01;31:*.jpeg=01;35:*.jpg=01;35:*.lzh=01;31:*.mov=01;35:*.mp3=01;35:*.mpeg=01;35:*.mpg=01;35:*.ogg=01;35:*.pbm=01;35:*.pgm=01;35:*.png=01;35:*.ppm=01;35:*.rpm=01;31:*.sh=01;32:*.tar=01;31:*.taz=01;31:*.tga=01;35:*.tgz=01;31:*.tif=01;35:*.tiff=01;35:*.tz=01;31:*.wav=01;35:*.xbm=01;35:*.xcf=01;35:*.xpm=01;35:*.xwd=01;35:*.z=01;31:*.zip=01;31:bd=40;33;01:cd=40;33;01:di=01;34:do=01;35:ex=01;32:fi=00:ln=01;36:mi=01;05;37;41:no=00:or=40;31;01:pi=40;33:so=01;35:'
 export LESS="-ReXM"
-#export LANG=C  # Since RedHat likes en-US
+#export LANG=C       # Since RedHat likes en-US
 export LC_ALL=      # Unset LC_ALL
 export LC_COLLATE=C # Okay, so en-US.UTF8 is okay, but I prefer ASCII ordering
 
 ## Someone decided $VISUAL should be `joe' on boardwalk:
 #if [[ "${DISTRO}" == "redhat" && "$(hostname -s)x" == "boardwalkx" ]] ; then
-    #export -n VISUAL
+        #export -n VISUAL
 #fi
 export VISUAL=vi
 export EDITOR=vi
-export CDPATH=.:~:~/FSF_2.5/eDir/Linux  # for my current project
+#export CDPATH=.:~:~/FSF_2.5/eDir/Linux  # for my current project
 export HISTTIMEFORMAT='%F %T '          # add timestamp to history
 
 # Necessary for Gentoo?
@@ -162,26 +111,28 @@ export HISTTIMEFORMAT='%F %T '          # add timestamp to history
 [[ -e /usr/lib/ccache/bin ]] && export PATH=/usr/lib/ccache/bin:$PATH
 
 # Sun's JDK
-[[ -e /usr/java/default/bin ]] && export PATH=/usr/java/default/bin:$PATH
+#[[ -e /usr/java/default/bin ]] && export PATH=/usr/java/default/bin:$PATH
 
 # for Macintosh
 if [[ "${DISTRO}" == "macosx" ]] ; then
-    # add X
-    [[ -e /usr/X11R6/bin ]] && export PATH=$PATH:/usr/X11R6/bin
-    # add MacPorts' /opt
-    [[ -e /opt/local ]] && export PATH=/opt/local/bin:/opt/local/sbin:$PATH
-    # add Fink's /sw
-    [[ -e /sw ]] && export PATH=/sw/bin:/sw/sbin:$PATH
+        # add X
+        [[ -e /usr/X11R6/bin ]] && export PATH=$PATH:/usr/X11R6/bin
+        # add Homebrew's /usr/local
+        [[ -e /usr/local ]] && export PATH=/usr/local/bin:/usr/local/sbin:$PATH
+        # add MacPorts' /opt
+        [[ -e /opt/local ]] && export PATH=/opt/local/bin:/opt/local/sbin:$PATH
+        # add Fink's /sw
+        [[ -e /sw ]] && export PATH=/sw/bin:/sw/sbin:$PATH
 fi
 
 # eRad's MedServ
 if [[ ${ISMEDSRV} == "yes" ]] ; then
-    export PATH=~/component/tools:~/component/utils/bin:$PATH
+        export PATH=~/component/tools:~/component/utils/bin:$PATH
 fi
 
 # If the Novell Client for Linux (ncl) exists on this machine:
 if [[ -d /opt/novell/ncl/bin ]] ; then
-    export PATH=/opt/novell/ncl/bin:$PATH
+        export PATH=/opt/novell/ncl/bin:$PATH
 fi
 
 # This user's programs
@@ -189,7 +140,7 @@ fi
 
 # Set a place to display if none is set
 if [[ "${DISPLAY}x" == "x" ]] ; then
-    export DISPLAY=:0.0
+        export DISPLAY=:0.0
 fi
 
 # For SuSE's `build' program:
@@ -211,6 +162,11 @@ if [[ -e /usr/bin/enlightenment_start ]] ; then
     export WINDOWMANAGER=/usr/bin/enlightenment_start
 fi
 
+RLWRAP=$(type -p rlwrap)  # the readline wrapper program, if on system
+SUDO=$(type -p sudo)
+
+### Aliases
+
 # Red Hat de-stupified
 unalias rm cp mv 2> /dev/null  
 
@@ -223,22 +179,22 @@ alias ll='ls $LS_OPTIONS -al'
 alias ls='ls $LS_OPTIONS'
 alias path='echo $PATH'
 alias unharden="gcc-config 5; source /etc/profile;"
-alias wipessh="sed -i '/jas.is-a-geek.com/d;/192.168.25.6/d' /home/jas/.ssh/known_hosts"
-alias clear="echo Type 'clearr' to clear the screen"
-alias clearr=/usr/bin/clear
-alias randpass="curl -k https://intranet.eradimagemedical.com/pwdgen.cgi"
-[[ netware != ${DISTRO} ]] && alias scp="rsync -Pave ssh"
-[[ netware != ${DISTRO} ]] && alias cp="rsync -Pav"
+alias randpass="curl -k https://intranet.erad.com/pwdgen.cgi"
 alias hist="history"
-alias sentry="TERM=linux ssh -tY jeckard@216.105.130.240 ssh -Y jas@68.143.17.111"
 alias ssh="ssh -Y"
 alias which="type -p"  # prefer bash's `type' to whichever `which' is
                        # on system
+alias nslookup="${RLWRAP} $(which nslookup)"
+
+if [[ netware != ${DISTRO} ]] && RSYNC=$(type -p rsync) ; then
+        alias scp="${RSYNC} -Pave ssh"
+        alias cp="${RSYNC} -Pav"
+fi
 
 # Make sure this system's `vi' is vim
 [[ "netware" != "${DISTRO}" ]] && VI_1ST_WORD=$(vi -h | head -1 | cut -d\  -f1)
 if [[ 'xVIM' == "x${VI_1ST_WORD}" ]] ; then
-    PATH_TO_VIM=$(type -P vim)
+        PATH_TO_VIM=$(type -P vim)
 	alias vi="${PATH_TO_VIM} -u ~/.vimrc.jas"
 	alias gvim=~/bin/gvim.sh
 	alias vim="${PATH_TO_VIM} -u ~/.vimrc.jas"
@@ -248,97 +204,172 @@ if [[ 'xVIM' == "x${VI_1ST_WORD}" ]] ; then
 fi
 
 # My favs for indent:
+TABSIZE=8
 JASINDENT="--k-and-r-style --blank-lines-after-declarations --no-tabs \
            --break-before-boolean-operator --cuddle-do-while \
            --line-length75 --comment-line-length75 --no-space-after-casts \
            --swallow-optional-blank-lines --space-special-semicolon "
            #--comment-indentation2 --declaration-comment-column2 \
            #--else-endif-column2 --line-comments-indentation2"
-JASINDENT_ORIG="$JASINDENT --continuation-indentation8 --case-indentation8 \
-                --indent-level8 --tab-size8"
-JASINDENT="$JASINDENT --continuation-indentation4 --case-indentation4 \
-           --indent-level4 --tab-size4"
-alias jasindent_orig="indent $JASINDENT_ORIG"
+JASINDENT="$JASINDENT --continuation-indentation${TABSIZE} \
+           --case-indentation${TABSIZE} \
+           --indent-level${TABSIZE} --tab-size${TABSIZE}"
 # Now in ~/bin (see below)
 #alias jasindent="indent $JASINDENT"
-
-## Cygwin's which apparently doesn't have all these bells and whistles
-## and Mac's BSD which doesn't have long opts
-#if [[ "${DISTRO}" != cygwin && "${DISTRO}" != macosx && "${DISTRO}" != debian ]] ; then
-#    # Stolen from Red Hat:
-#    alias which='alias | /usr/bin/which --tty-only --read-alias --show-dot --show-tilde'
-#fi
 
 # it turns out that Red Hat has a better LESSOPEN than Debian (at
 # least now) --Jas
 case ${DISTRO} in
-    redhat)
-        alias mm=less
-        ;;
-    debian)
-        alias mm=zless
-        ;;
-    netware)
-        alias mm=more
-        ;;
-    *)
-        alias mm=zless
-        ;;
+        redhat)
+                alias mm=less
+                # Clear the screen after logout is really annoying
+                alias clear="echo Type 'clearr' to clear the screen"
+                alias clearr=/usr/bin/clear
+                ;;
+        debian)
+                alias mm=zless
+                ;;
+        netware)
+                alias mm=more
+                ;;
+        *)
+                alias mm=zless
+                ;;
 esac
 
-function proml {
-    case $TERM in
-        xterm*)
-            TITLEBAR="\[\033]0;[\$(lastcmd)] (\$?) \w\007\]"
-            ;;
-        *)
-            TITLEBAR=''
-            ;;
-    esac
-    HOST_NAME='\h'
-    [[ -e /etc/HOSTNAME ]] && HOST_NAME=$(</etc/HOSTNAME)
-    PS1="${TITLEBAR}\[\033[40m\]\[\033[33m\]${HOST_NAME/.*}\[\033[1;33m\][\t]\[\033[1;34m\](\$?)\[\033[1;36m\]\w\[\033[31m\]\\$\\[\033[0m\] "
+# This section is from http://lkml.org/lkml/2010/11/16/330 .
+# In addition to these, root has to:
+#mount -t cgroup cgroup /sys/fs/cgroup/cpu -o cpu
+#mkdir -m 0777 /sys/fs/cgroup/cpu/user
+
+if [[ "cygwin" -ne ${DISTRO} && "$PS1" ]] ; then  
+        mkdir -m 0700 /sys/fs/cgroup/cpu/user/$$
+        echo $$ > /sys/fs/cgroup/cpu/user/$$/tasks
+fi
+
+function proml() {
+        case $TERM in
+                xterm*)
+                        TITLEBAR="\[\033]0;[\$(lastcmd)] (\$?) \w\007\]"
+                        ;;
+                *)
+                        TITLEBAR=''
+                        ;;
+        esac
+        HOST_NAME='\h'
+        [[ -e /etc/HOSTNAME ]] && HOST_NAME=$(</etc/HOSTNAME)
+        PS1="${TITLEBAR}\[\033[40m\]\[\033[33m\]${HOST_NAME/.*}\[\033[1;33m\][\t]\[\033[1;34m\](\$?)\[\033[1;36m\]\w\[\033[31m\]\\$\\[\033[0m\] "
 }
 
 proml
-
-## For medsrv machines.
-#if [[ "${ISMEDSRV}" == "yes" ]] ; then
-    ## Want medsrv environment, but don't want to change $HOME.
-    #eval $( cat /home/medsrv/etc/setenv.sh | grep -v ^HOME= )
-#
-    ## Copy this file to medsrv user as well
-    #if [[ "$(whoami)x" = "rootx" ]] ; then
-        #rsync /root/.bash_profile.jas /home/medsrv
-        #chown medsrv /home/medsrv/.bash_profile.jas
-    #fi
-#fi
 
 # If I ever get keychain working again:
 #/usr/bin/keychain ~/.ssh/id_dsa
 # Redirect .ssh-agent's 'Agent PID' msg
 #source ~/.keychain/$HOSTNAME-sh > /dev/null
 
-# So I don't have to carry .vimrc.jas file around separate from this
-# file, incorporate it here:
-# NOTE:  tabstop and shiftwidth changed from 8 to 4
+# Directories to be created if they don't exist (to be used in the
+# following section)
+[[ ! -e ~/.ssh ]] && mkdir ~/.ssh
+[[ ! -e ~/.vim/templates ]] && mkdir -p ~/.vim/templates
+[[ ! -e ~/bin ]] && mkdir ~/bin
+
+### FILES ###
+# This section is a set of files included in this file so that I don't
+# have to carry them around separate from this file.
+
+## ~/.jas_rox_file
+# Whenever this bashrc is changed (JAS_ROX gets incremented), just
+# recreate all the files below.  Done via version file
+# ~/.jas_rox_file .
+FILES_BASHRC_CREATES="${HOME}/.vimrc.jas ${HOME}/bin/gvim.sh
+                      ${HOME}/bin/gvimdiff.sh ${HOME}/.vim/templates/src.c
+                      ${HOME}/.vim/templates/src.h ${HOME}/.gdbinit
+                      ${HOME}/bin/gfilt ${HOME}/bin/jasindent
+                      ${HOME}/bin/myscreensessionname ${HOME}/.screenrc
+                      ${HOME}/.ssh/config ${HOME}/.Xdefaults
+                      ${HOME}/.inputrc ${HOME}/bin/myscreensessionname"
+FILES_BASHRC_CREATES_FOR_ROOT="/root/bin/mntmountall /root/bin/build32
+                               /root/bin/build32on64"
+JAS_ROX_FNAME=~/2012.09.17jas_rox_file
+if [[ ! -e ${JAS_ROX_FNAME} ]] ; then
+        rm -f ${FILES_BASHRC_CREATES}
+        [[ "root" == $(whoami) ]] && rm -f ${FILES_BASHRC_CREATES_FOR_ROOT}
+        echo "JAS_ROX_FILE=${JAS_ROX}" > ${JAS_ROX_FNAME}
+else
+        source ${JAS_ROX_FNAME}
+        if [[ ${JAS_ROX_FILE} != ${JAS_ROX} ]] ; then
+                rm -f ${FILES_BASHRC_CREATES}
+                [[ "root" == $(whoami) ]] && rm -f ${FILES_BASHRC_CREATES_FOR_ROOT}
+                echo "JAS_ROX_FILE=${JAS_ROX}" > ${JAS_ROX_FNAME}
+        fi
+fi
+
+## ~/.bash_profile
+# The reason this is a function instead of simply done is that I don't
+# want to automatically clobber ~/.bash_profile .
+function mkprofile() {
+        cat <<EOFPROFILE > ~/.bash_profile
+# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+
+source .bashrc
+EOFPROFILE
+}  # mkprofile
+
+## ~/.vim/systags
+# Add a tags file for all headers in /usr/include .  This file is used
+# by the vimrc created above.
+#if [[ netware != ${DISTRO} ]] && type ctags > /dev/null 2>&1 ; then
+if [[ netware != ${DISTRO} ]] && CTAGS=$(type -p ctags) &&
+   [[ ! -e ~/.vim/systags ]] ; then
+        INCLUDEPATH="/usr/include"
+        if [[ -e /usr/local/include ]] ; then
+                INCLUDEPATH="${INCLUDEPATH} /usr/local/include"
+        fi
+        if [[ -e /var/opensuse/usr/include ]] ; then
+                INCLUDEPATH="${INCLUDEPATH} /var/opensuse/usr/include"
+        fi
+        if [[ -e /opt/novell/include/xplat ]] ; then
+                INCLUDEPATH="/opt/novell/include/xplat ${INCLUDEPATH}"
+        fi
+        if [[ -e /opt/novell/ndk/novell-cldap-devel-2007.04.17-1linux64/include ]]
+        then
+                INCLUDEPATH="/opt/novell/ndk/novell-cldap-devel-2007.04.17-1linux64/include ${INCLUDEPATH}"
+        fi
+        if [[ -e /opt/novell/ndk/cldap/include ]] ; then
+                INCLUDEPATH="/opt/novell/ndk/cldap/include ${INCLUDEPATH}"
+        fi
+        if [[ -e /cygdrive/c/novell-nwsdkc-devel-2007.02.27-1netware_windows/clib/include ]]
+        then
+                INCLUDEPATH="${INCLUDEPATH} /cygdrive/c/novell-nwsdkc-devel-2007.02.27-1netware_windows/clib/include"
+        fi
+        if [[ -e /opt/cc/include ]] ; then
+                INCLUDEPATH="/opt/cc/include ${INCLUDEPATH}"
+        fi
+        echo "creating ctags file for ${INCLUDEPATH} ." >&2  # to stderr
+        ${CTAGS} -R -f ~/.vim/systags ${INCLUDEPATH}
+fi # ctags
+
+## ~/.vimrc.jas
 if [[ ! -e ~/.vimrc.jas ]] ; then
-    cat <<EOFVIMRC > ~/.vimrc.jas
+        cat <<EOFVIMRC > ~/.vimrc.jas
 " Stuff that I like in vim  --Jas
 " Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 " set number
 
 set autoindent
-set autowrite
+set autoread      " automatically read externally modified files
+set autowrite     " write when leaving buffer
+set autowriteall  " write when leaving buffer (always)
 set background=dark
 set backspace=indent,eol,start
-set backup
+set backup        " backup files
 set cmdheight=2
 set expandtab
 "if has("foldenable")
-    set foldenable
-    set foldmethod=syntax
+        set foldenable
+        set foldmethod=syntax
 "endif
 set history=100
 set hlsearch
@@ -352,10 +383,10 @@ set pastetoggle=<F2>
 set printoptions=paper:letter,duplex:off,formfeed:y  " <CTRL-L> for <FF>
 set ruler
 set shiftround
-set shiftwidth=4
+set shiftwidth=${TABSIZE}
 set showcmd
 set showmatch
-set tabstop=4
+set tabstop=${TABSIZE}
 set textwidth=70
 set viminfo='20,\"50
  
@@ -389,114 +420,218 @@ map ;J Jwdw
 map xml !!XMLLINT_INDENT="    " xmllint --format -<CR>dd
 " Condrey's lprintf() looks terrible after it has been jasindent'd:
 map lp JffA "<ESC>jI           "<ESC>Jff
+" For C++ files:  change 'x(y);\n' to 'x = y;\n'
+map c( 0f(s = <ESC>\$X
+" For C++ files:  change 'x = y;\n' to 'x(y);\n'
+map c= 0t=c2w(<ESC>\$i)<ESC>
+" Goto next/prev fold
+map z<Down> zj
+map z<Up> zk
+
+" Add ^W deletions in insert mode into the undo tree:
+inoremap <C-W> <C-G>u<C-W>
 
 if has("autocmd") 
-    if exists("+omnifunc")
-        autocmd Filetype *
-            \   if &omnifunc == "" |
-            \           setlocal omnifunc=syntaxcomplete#Complete |
-            \   endif
-    endif
-    " To use syntax highlighting with Wikipedia
-    " (see http://en.wikipedia.org/wiki/Wikipedia:Text_editor_support#Vim )
-    au BufRead,BufNewFile *.wiki setfiletype Wikipedia
+        if exists("+omnifunc")
+                "autocmd Filetype *
+                "    \   if &omnifunc == "" |
+                "    \           setlocal omnifunc=syntaxcomplete#Complete |
+                "    \   endif
+                set ofu=syntaxcomplete#Complete
+        endif
+        " To use syntax highlighting with Wikipedia
+        " (see http://en.wikipedia.org/wiki/Wikipedia:Text_editor_support#Vim )
+        au BufRead,BufNewFile *.wiki setfiletype Wikipedia
 
-    " When creating new files, base them on the following template
-    " files:
+        " When creating new files, base them on the following template
+        " files:
 
-    "au BufNewFile *.c so ~/.vim/templates/src.c
-    "au BufNewFile *.cpp so ~/.vim/templates/src.c
-    au BufNewFile *.c{,pp} so ~/.vim/templates/src.c
-    "au BufNewFile *.h so ~/.vim/templates/src.h
-    "au BufNewFile *.hpp so ~/.vim/templates/src.h
-    au BufNewFile *.h{,pp} so ~/.vim/templates/src.h
-    au BufNewFile *.[ch]{,pp} exe "%s/FILE/" . expand("%")
-    au BufNewFile *.h{,pp} exe "%s/FILE_/" . tr( expand("%"), "a-z.", "A-Z_")
-    au BufWritePre,FileWritePre *.[ch]{,pp} exe "normal ma"
-    au BufWritePost,FileWritePost *.[ch]{,pp} exe "normal 'a"
-endif
+        "au BufNewFile *.c so ~/.vim/templates/src.c
+        "au BufNewFile *.cpp so ~/.vim/templates/src.c
+        au BufNewFile *.c{,pp} so ~/.vim/templates/src.c
+        "au BufNewFile *.h so ~/.vim/templates/src.h
+        "au BufNewFile *.hpp so ~/.vim/templates/src.h
+        au BufNewFile *.h{,pp} so ~/.vim/templates/src.h
+        au BufNewFile *.[ch]{,pp} exe "%s/FILE/" . expand("%")
+        au BufNewFile *.h{,pp} exe "%s/FILE_/" . tr( expand("%"), "a-z.", "A-Z_")
+        au BufWritePre,FileWritePre *.[ch]{,pp} exe "normal ma"
+        au BufWritePost,FileWritePost *.[ch]{,pp} exe "normal 'a"
 
+        autocmd FocusLost * silent wall  " gvim:  write on loss of focus
+        endif
+
+" From distrocast's JD:
+"
+"put this in your /etc/vimrc (or your distros' version of it):
+"
+"if v:lang =~ "utf8$" || v:lang =~ "UTF-8$"
+"   set fileencodings=utf-8,latin1
+"endif
+"
+"set nocompatible    " Use Vim defaults (much better!)
+"set bs=indent,eol,start     " allow backspacing over everything in insert mode
+""set ai         " always set autoindenting on
+""set backup     " keep a backup file
+"set viminfo='20,\"50    " read/write a .viminfo file, don't store more
+"            " than 50 lines of registers
+"set history=50      " keep 50 lines of command line history
+"set ruler       " show the cursor position all the time
+"
+"" Only do this part when compiled with support for autocommands
+"if has("autocmd")
+"  " In text files, always limit the width of text to 78 characters
+"  autocmd BufRead *.txt set tw=78
+"  " When editing a file, always jump to the last cursor position
+"  autocmd BufReadPost *
+"  \ if line("'\"") > 0 && line ("'\"") <= line("$") |
+"  \   exe "normal! g'\"" |
+"  \ endif
+"endif
+"
+"if has("cscope") && filereadable("/usr/bin/cscope")
+"   set csprg=/usr/bin/cscope
+"   set csto=0
+"   set cst
+"   set nocsverb
+"   " add any database in current directory
+"   if filereadable("cscope.out")
+"      cs add cscope.out
+"   " else add database pointed to by environment
+"   elseif \$CSCOPE_DB != ""
+"      cs add \$CSCOPE_DB
+"   endif
+"   set csverb
+"endif
+"
+"" Switch syntax highlighting on, when the terminal has colors
+"" Also switch on highlighting the last used search pattern.
+"if &t_Co > 2 || has("gui_running")
+"  syntax on
+"  set hlsearch
+"endif
+"
+"
+"
+"put this in your ~/.vimrc:
+"
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"" Vimrc File                                                                 "
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""
+"" General Settings
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"set nocompatible
+"filetype on
+"set history=1000
+"set cf
+"set ffs=unix,dos,mac
+"filetype indent plugin on
+""set foldmethod=indent
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""
+"" Theme Settings
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"set background=dark
+"syntax on
+"colorscheme easydark
+"
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""
+"" UI Tweaks
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"set lsp=0
+"set ruler
+"set cmdheight=2
+"set backspace=2
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""
+"" Visual Reference
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"set showmatch
+"set mat=10
+"set nohlsearch
+"set incsearch
+"set novisualbell
+"set noerrorbells
+"set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\ [TYPE=%Y]\ [HEX=\%02.2B]\ [BUF=\#%n]\ [POS=%04l,%04v][%p%%]\ [LEN=%L]
+"set laststatus=2
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""
+"" Layout
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"set ai
+"set cindent
+"set tabstop=4
+"set softtabstop=4
+"set shiftwidth=4
+"set noexpandtab
+"set nowrap
+"set smarttab
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""
+"" Macros
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"map <F3> gg=G:w<cr>
+"map <F4> :q!<cr>
+"map <F5> ZZ
+"map <F6> :TlistToggle<cr>
+"map <F7> :BufExplorerVerticalSplit<cr>
+"map <F8> :set paste<CR>
+"map <F9> :set nopaste<CR>
+"imap <F8> <C-O>:set paste<CR>
+"imap <F9> <nop>
+"set pastetoggle=<F9>
+"
+"" JD options
+"" Sets a actual menu for tab-completion.
+"set wildmenu
+"
+"" Allow backgrounding buffers without writing them. This makes multi-buffer
+"" not a pain in the ass. It also remembers marks for backgrounded buffers.
+"set hidden
+"
+"" Wrap on arrowkeys as well as backspace and space (defaults)
+"set whichwrap=<,>,[,],b,s
+"
 EOFVIMRC
-fi
+fi  # ~/.vimrc.jas
 
-# Add a tags file for all headers in /usr/include .  This file is used
-# by the vimrc created above.
-# ctags exists?
-#if [[ netware != ${DISTRO} ]] && which ctags > /dev/null 2>&1 ; then
-if [[ netware != ${DISTRO} ]] && type ctags > /dev/null 2>&1 ; then
-    if [[ ! -e ~/.vim ]] ; then
-        mkdir ~/.vim
-    fi
-    if [[ ! -e ~/.vim/systags ]] ; then
-        INCLUDEPATH="/usr/include"
-        if [[ -e /usr/local/include ]] ; then
-            INCLUDEPATH="${INCLUDEPATH} /usr/local/include"
-        fi
-        if [[ -e /var/opensuse/usr/include ]] ; then
-            INCLUDEPATH="${INCLUDEPATH} /var/opensuse/usr/include"
-        fi
-        if [[ -e /opt/novell/include/xplat ]] ; then
-            INCLUDEPATH="/opt/novell/include/xplat ${INCLUDEPATH}"
-        fi
-        if [[ -e /opt/novell/ndk/novell-cldap-devel-2007.04.17-1linux64/include ]]
-        then
-            INCLUDEPATH="/opt/novell/ndk/novell-cldap-devel-2007.04.17-1linux64/include ${INCLUDEPATH}"
-        fi
-        if [[ -e /opt/novell/ndk/cldap/include ]] ; then
-            INCLUDEPATH="/opt/novell/ndk/cldap/include ${INCLUDEPATH}"
-        fi
-        if [[ -e /cygdrive/c/novell-nwsdkc-devel-2007.02.27-1netware_windows/clib/include ]] ; then
-            INCLUDEPATH="${INCLUDEPATH} /cygdrive/c/novell-nwsdkc-devel-2007.02.27-1netware_windows/clib/include"
-        fi
-        if [[ -e /opt/cc/include ]] ; then
-            INCLUDEPATH="/opt/cc/include ${INCLUDEPATH}"
-        fi
-        echo "creating ctags file for ${INCLUDEPATH} ." >&2  # to stderr
-        ctags -R -f ~/.vim/systags ${INCLUDEPATH}
-    fi
-fi # ctags exists
-
+## ~/bin/gvim.sh
 # Setting up aliases only works at the commandline.  Create a file for
 # gvim stuff:
-if [[ ! -e ~/bin ]] ; then
-    mkdir ~/bin
-fi
 if [[ ! -e ~/bin/gvim.sh ]] ; then
-    cat <<EOFGVIM > ~/bin/gvim.sh
+        cat <<EOFGVIM > ~/bin/gvim.sh
 #!/bin/bash
 
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 \$(type -p gvim) -u ~/.vimrc.jas '+colorscheme ron' '+set number' '+set columns=84' '+set lines=60' \$@
 EOFGVIM
-    chmod +x ~/bin/gvim.sh
+        chmod +x ~/bin/gvim.sh
 fi
+
+## ~/bin/gvimdiff.sh
 if [[ ! -e ~/bin/gvimdiff.sh ]] ; then
-    cat <<EOFGVIMDIFF > ~/bin/gvimdiff.sh
+        cat <<EOFGVIMDIFF > ~/bin/gvimdiff.sh
 #!/bin/bash
 
 \$(type -p gvim) -u ~/.vimrc.jas '+colorscheme ron' '+set number' '+set columns=84' '+set lines=60' '+set columns=168' -d \$@
 EOFGVIMDIFF
-    chmod +x ~/bin/gvimdiff.sh
+        chmod +x ~/bin/gvimdiff.sh
 fi
 
-# So I don't have to carry around ~/.vim/templates/ files 
-if [[ ! -e ~/.vim/templates ]] ; then
-    mkdir -p ~/.vim/templates
-fi
+## ~/.vim/templates/src.c
 if [[ ! -e ~/.vim/templates/src.c ]] ; then
-    cat <<EOFCSRC > ~/.vim/templates/src.c
+        cat <<EOFCSRC > ~/.vim/templates/src.c
 " Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 :insert
-//  \$Id$  
-
 /**
  * @file FILE
- * @author Jas Eckard <jeckard@condreycorp.com>
+ * @author Jas Eckard <jas@eckard.com>
  *
  * @section LICENSE
  *
- * (Condrey license)
+ * (GPL license?)
  * 
  * @section DESCRIPTION
  *
@@ -506,19 +641,19 @@ if [[ ! -e ~/.vim/templates/src.c ]] ; then
 .
 EOFCSRC
 fi
+
+## ~/.vim/templates/src.h
 if [[ ! -e ~/.vim/templates/src.h ]] ; then
-    cat <<EOFHSRC > ~/.vim/templates/src.h
+        cat <<EOFHSRC > ~/.vim/templates/src.h
 " Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 :insert
-//  \$Id$ 
-
 /**
  * @file FILE
- * @author Jas Eckard <jeckard@condreycorp.com>
+ * @author Jas Eckard <jas@eckard.com>
  *
  * @section LICENSE
  *
- * (Condrey license)
+ * (GPL license?)
  * 
  * @section DESCRIPTION
  *
@@ -533,8 +668,7 @@ if [[ ! -e ~/.vim/templates/src.h ]] ; then
 EOFHSRC
 fi
 
-# So I don't have to carry .gdbinit file around separate from this
-# file, incorporate it here:
+## ~/.gdbinit
 if [[ ! -e ~/.gdbinit ]] ; then
     cat <<EOFGDBINIT > ~/.gdbinit
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
@@ -547,10 +681,16 @@ set print pretty
 # only the current thread may run when the inferior is resumed
 set scheduler-locking on
 
-# STL debugging functions from
+# use csh-style ! history commands
+set history expansion on
+set history save on
+
+# STL debugging functions originally from
 # http://staff.science.uva.nl/~afn/gdb_stl_utils
 # packaged from a program found at
 # http://staff.science.uva.nl/~gilad/stl/gdb_stl_utils
+# (The above seems to be gone, and an improved is here:
+# http://www.stanford.edu/~afn/gdb_stl_utils/  )
 
 source ~/.gdb/gdb_stl_utils
 
@@ -560,30 +700,47 @@ source ~/.gdb/gdb_stl_utils
 source ~/.gdb/wchar.gdb
 EOFGDBINIT
 fi
-# Also, suggest using stlfilt with gcc for smaller error messages
 
-# So I don't have to carry ~/bin/jasindent file around separate from this
-# file, incorporate it here:
+## ~/bin/gfilt
+## I like the gfilt program; if it exists, create a symlink in ~/bin;
+## otherwise, it means g++
+#pushd ~/bin > /dev/null 2> /dev/null
+#if [[ ! -e ~/bin/gfilt ]] ; then
+        #DIR=~jas/src/floss/stlfilt/
+        #if [[ -e ${DIR}/gfilt ]] ; then
+                #ln -s ${DIR}/gfilt
+                #ln -s ${DIR}/gSTLFilt.pl
+        #elif [[ -e ~/jas/bin/gfilt ]] ; then
+                #DIR=~/jas/bin/
+                #ln -s ${DIR}/gfilt
+                #ln -s ${DIR}/gSTLFilt.pl
+        #else
+                #if type -p g++; then
+                        #ln -s $(type -p g++) gfilt
+                #fi
+        #fi
+#fi
+#popd > /dev/null 2> /dev/null
+
+## ~/bin/jasindent
 if [[ ! -e ~/bin/jasindent ]] ; then
-    (
-    echo "#!/bin/bash"
-    echo
-    echo "# Created by .bashrc.jas JAS_ROX=${JAS_ROX}"
-    echo
-    echo "if ! type -p indent > /dev/null ; then"
-    echo "    echo Indent is not installed"
-    echo "    exit 1"
-    echo "fi"
-    echo "indent $JASINDENT" | sed 's/  */ /g' | fmt | sed 's/.*/& \\/'
-    echo "\$@ 2> /dev/null"
-    ) > ~/bin/jasindent
-    chmod +x ~/bin/jasindent
+        cat <<EOFJASINDENT > ~/bin/jasindent
+#!/bin/bash
+
+# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+
+if INDENT=\$(type -p indent) ; then
+        echo Indent is not installed
+        exit 1
+fi
+\${INDENT} $JASINDENT \$@ 2> /dev/null
+EOFJASINDENT
+        chmod +x ~/bin/jasindent
 fi
 
-# So I don't have to carry /root/bin/mntmountall file around separate from this
-# file, incorporate it here:
+## /root/bin/mntmountall
 if [[ "root" == $(whoami) && ! -e ~/bin/mntmountall ]] ; then
-    cat <<EOFMNTMOUNTALL > ~/bin/mntmountall
+        cat <<EOFMNTMOUNTALL > ~/bin/mntmountall
 #!/bin/sh
 
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
@@ -597,92 +754,81 @@ mount --bind /proc /mnt/proc
 mount --bind /sys /mnt/sys
 mount --bind /dev/pts /mnt/dev/pts
 chroot /mnt
-
 EOFMNTMOUNTALL
-    chmod +x ~/bin/mntmountall
+        chmod +x ~/bin/mntmountall
 fi
 
-# So I don't have to carry /root/bin/build32 file around separate from this
-# file, incorporate it here:
+## /root/bin/build32
 if [[ "root" == $(whoami) && ! -e ~/bin/build32 ]] ; then
-    cat <<EOFBUILD32 > ~/bin/build32
+        cat <<EOFBUILD32 > ~/bin/build32
 #!/bin/bash
 
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 linux32 build --root /tmp/build32 --arch i586 --rpms \
-               /tmp/rpms:/mnt/sled32/ \$@
+              /tmp/rpms:/mnt/sled32/ \$@
 EOFBUILD32
-    chmod +x ~/bin/build32
+        chmod +x ~/bin/build32
 fi
 
-# So I don't have to carry /root/bin/build32on64 file around separate from this
-# file, incorporate it here:
+## /root/bin/build32on64
 if [[ "root" == $(whoami) && ! -e ~/bin/build32on64 ]] ; then
-    cat <<EOFBUILD32ON64 > ~/bin/build32on64
+        cat <<EOFBUILD32ON64 > ~/bin/build32on64
 #!/bin/bash
 
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 if [[ "x" != "\$@x" ]] ; then
-    names=\${@/.spec}
+        names=\${@/.spec}
 else
-    read -p "Names of Packages: " names
+        read -p "Names of Packages: " names
 fi
 specs=
 for i in \${names}
 do
-    echo \$i > baselibs.conf
-    specs="\$specs \$i*.spec"
+        echo \$i > baselibs.conf
+        specs="\$specs \$i*.spec"
 done
 linux32 build --baselibs --rpms /tmp/rpms:/mnt/sled32/ \
               --root /tmp/build32 --arch i586 \${specs}
 EOFBUILD32ON64
-    chmod +x ~/bin/build32on64
+        chmod +x ~/bin/build32on64
 fi
 
-# So I don't have to carry ~/.screenrc file around separate from this
-# file, incorporate it here:
+## ~/bin/myscreensessionname
+if [[ ! -e ~/bin/myscreensessionname ]] ; then
+        cat <<EOFMYSCREENSESSIONNAME > ~/bin/myscreensessionname
+#!/bin/bash
+
+# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+
+screen -ls | grep \${PPID} | awk '{print \$1}' | cut -f2 -d.
+EOFMYSCREENSESSIONNAME
+        chmod +x ~/bin/myscreensessionname
+fi
+
+## ~/.screenrc
 if [[ ! -e ~/.screenrc ]] ; then
-    cat <<EOFSCREENRC > ~/.screenrc
+        cat <<EOFSCREENRC > ~/.screenrc
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 # Have 10000 lines buffered to go back to via C-a esc
 defscrollback 10000
 # On the OLPC, the 'erase' key becomes 'NUL'.  This fixes:
 bindkey -d "\000" stuff "\010" 
-caption always
-screen su -
+backtick 1 0 0 ${HOME}/bin/myscreensessionname
+#caption always
+hardstatus on
+hardstatus alwayslastline
+hardstatus string "%{.bW}%-w%{.rW}%n %t%{-}%+w %=%{..G} %1\` %H %{..Y}"
+#screen ${SUDO} su -
 screen
 EOFSCREENRC
 fi
 
-# Next 2 sections not on NetWare
-if [[ netware != ${DISTRO} ]] ; then
-
-    ## I like the gfilt program; if it exists, create a symlink in ~/bin;
-    ## otherwise, it means g++
-    #pushd ~/bin > /dev/null 2> /dev/null
-    #if [[ ! -e ~/bin/gfilt ]] ; then
-        #DIR=~jas/src/floss/stlfilt/
-        #if [[ -e ${DIR}/gfilt ]] ; then
-            #ln -s ${DIR}/gfilt
-            #ln -s ${DIR}/gSTLFilt.pl
-        #elif [[ -e ~/jas/bin/gfilt ]] ; then
-            #DIR=~/jas/bin/
-            #ln -s ${DIR}/gfilt
-            #ln -s ${DIR}/gSTLFilt.pl
-        #else
-            #if type -p g++; then
-                #ln -s $(type -p g++) gfilt
-            #fi
-        #fi
-    #fi
-    #popd > /dev/null 2> /dev/null
-
-    # Per-user ssh configuration
-    if [[ ! -e ~/.ssh/config ]] ; then
-        [[ ! -e ~/.ssh ]] && mkdir ~/.ssh
+## ~/.ssh/config
+# Per-user ssh configuration
+if [[ ! -e ~/.ssh/config ]] ; then
         cat <<EOFSSHCONFIG > ~/.ssh/config
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
@@ -690,14 +836,11 @@ if [[ netware != ${DISTRO} ]] ; then
 ControlMaster yes
 EOFSSHCONFIG
         chmod 600 ~/.ssh/config
-    fi
+fi
 
-fi  # not NetWare
-
-# So I don't have to carry ~/.Xdefaults file around separate from this
-# file, incorporate it here (for rxvt{,-unicode}):
+## ~/.Xdefaults (for rxvt{,-unicode}):
 if [[ ! -e ~/.Xdefaults ]] ; then
-    cat <<EOFXDEFAULTS > ~/.Xdefaults
+        cat <<EOFXDEFAULTS > ~/.Xdefaults
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 *customization: -color
@@ -712,10 +855,9 @@ Rxvt.fading: 30
 EOFXDEFAULTS
 fi
 
-# So I don't have to carry ~/.inputrc file around separate from this
-# file, incorporate it here:
+## ~/.inputrc
 if [[ ! -e ~/.inputrc ]] ; then
-    cat <<EOFINPUTRC > ~/.inputrc
+        cat <<EOFINPUTRC > ~/.inputrc
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 # possible completions show immediately
@@ -726,8 +868,29 @@ set show-all-if-ambiguous on
 # will be searched for that command
 "\e[A": history-search-backward
 "\e[B": history-search-forward
-
 EOFINPUTRC
+fi
+
+# Git's diff will use vimdiff:
+# from http://technotales.wordpress.com/2009/05/17/git-diff-with-vimdiff/
+# Call this function to show a Git diff using vim as a pager:
+function git_diff() {
+    git diff --no-ext-diff -w "$@" | vim -R -
+# Add to .gitconfig:
+#[diff]
+#   external = git_diff_wrapper
+#[pager]
+#   diff =
+}  # git_diff
+
+# The above git_diff_wrapper file:
+if [[ ! -e ~/bin/git_diff_wrapper ]] ; then
+        cat <<EOFGITDIFFWRAPPER > ~/bin/git_diff_wrapper
+#!/bin/bash
+# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+vimdiff "\$2" "\$5"
+EOFGITDIFFWRAPPER
+        chmod +x ~/bin/git_diff_wrapper
 fi
 
 # Sometimes backspace doesn't work:
