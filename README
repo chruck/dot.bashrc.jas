@@ -35,3 +35,6 @@ A list of files that .bashrc.jas creates:
         ## ~/.ssh/config
         ## ~/.Xdefaults (for rxvt{,-unicode}):
         ## ~/.inputrc
+        ## ~/.gitconfig
+        ## ~/bin/git_diff_wrapper
+        ## ~/.gitignore
