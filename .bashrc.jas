@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2012.09.17
+JAS_ROX=2012.09.18
 
 # Section to increment the above automatically, when this file is
 # updated, then automatically publish to appropriate machines.
@@ -288,9 +288,10 @@ FILES_BASHRC_CREATES="${HOME}/.vimrc.jas ${HOME}/bin/gvim.sh
                       ${HOME}/bin/gfilt ${HOME}/bin/jasindent
                       ${HOME}/bin/myscreensessionname ${HOME}/.screenrc
                       ${HOME}/.ssh/config ${HOME}/.Xdefaults
-                      ${HOME}/.inputrc ${HOME}/bin/myscreensessionname"
+                      ${HOME}/.inputrc ${HOME}/bin/myscreensessionname
                       ${HOME}/.gitconfig ${HOME}/bin/git_diff_wrapper
                       ${HOME}/.gitignore
+                      "
 FILES_BASHRC_CREATES_FOR_ROOT="/root/bin/mntmountall /root/bin/build32
                                /root/bin/build32on64"
 JAS_ROX_FNAME=${HOME}/.jas_rox_file
@@ -314,7 +315,7 @@ function mkprofile() {
         cat <<EOFPROFILE > ${HOME}/.bash_profile
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
-source .bashrc
+source ${HOME}/.bashrc
 EOFPROFILE
 }  # mkprofile
 
@@ -617,6 +618,8 @@ if [[ ! -e ${HOME}/bin/gvimdiff.sh ]] ; then
         cat <<EOFGVIMDIFF > ${HOME}/bin/gvimdiff.sh
 #!/bin/bash
 
+# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+
 \$(type -p gvim) -u ${HOME}/.vimrc.jas '+colorscheme ron' '+set number' '+set columns=84' '+set lines=60' '+set columns=168' -d \$@
 EOFGVIMDIFF
         chmod +x ${HOME}/bin/gvimdiff.sh
@@ -704,25 +707,25 @@ EOFGDBINIT
 fi
 
 ## ~/bin/gfilt
-## I like the gfilt program; if it exists, create a symlink in ~/bin;
-## otherwise, it means g++
-#pushd ${HOME}/bin > /dev/null 2> /dev/null
-#if [[ ! -e ${HOME}/bin/gfilt ]] ; then
-        #DIR=${HOME}/src/floss/stlfilt/
-        #if [[ -e ${DIR}/gfilt ]] ; then
-                #ln -s ${DIR}/gfilt
-                #ln -s ${DIR}/gSTLFilt.pl
-        #elif [[ -e ${HOME}/bin/gfilt ]] ; then
-                #DIR=${HOME}/bin/
-                #ln -s ${DIR}/gfilt
-                #ln -s ${DIR}/gSTLFilt.pl
-        #else
-                #if type -p g++; then
-                        #ln -s $(type -p g++) gfilt
-                #fi
-        #fi
-#fi
-#popd > /dev/null 2> /dev/null
+# I like the gfilt program; if it exists, create a symlink in ~/bin;
+# otherwise, it means g++
+pushd ${HOME}/bin > /dev/null 2> /dev/null
+if [[ ! -e ${HOME}/bin/gfilt ]] ; then
+        DIR=${HOME}/src/floss/stlfilt/
+        if [[ -e ${DIR}/gfilt ]] ; then
+                ln -s ${DIR}/gfilt
+                ln -s ${DIR}/gSTLFilt.pl
+        elif [[ -e ${HOME}/bin/gfilt ]] ; then
+                DIR=${HOME}/bin/
+                ln -s ${DIR}/gfilt
+                ln -s ${DIR}/gSTLFilt.pl
+        else
+                if GPLUSPLUS=$(type -p g++); then
+                        ln -s ${GPLUSPLUS} gfilt
+                fi
+        fi
+fi
+popd > /dev/null 2> /dev/null
 
 ## ~/bin/jasindent
 if [[ ! -e ${HOME}/bin/jasindent ]] ; then
