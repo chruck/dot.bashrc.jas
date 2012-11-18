@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2012.09.18
+JAS_ROX=2012.11.16
 
 # Section to increment the above automatically, when this file is
 # updated, then automatically publish to appropriate machines.
@@ -11,7 +11,7 @@ JAS_ROX=2012.09.18
 if [[ ${THISFILE} == $0 && "incr" == $1 ]] ; then
         DATE=$(date +%Y.%m.%d)
         # TODO:  fix for MacOS 'sed`
-        sed -i "/^JAS[_]ROX/s/[0-9.]\+/${DATE}/" ${THISFILE}
+        sed -i "/^JAS[_]ROX=/s/[0-9.]\+/${DATE}/" ${THISFILE}
         JAS_ROX=${DATE}
 fi
 
@@ -40,6 +40,13 @@ elif [[ -e /etc/SuSE-release ]] ; then
         RELEASE="$(cat /etc/SuSE-release)"
 elif [[ "$(uname)x" == "Darwinx" ]] ; then
         DISTRO="macosx"
+        if [[ -e ${HOME}/Gentoo/startprefix ]] ; then
+                if [[ "${SHELL}x" == "/bin/bashx" ]] ; then
+                        ${HOME}/Gentoo/startprefix
+                        exit
+                fi
+                DISTRO="macosx-gentoo"
+        fi
 else case ${OSTYPE} in
         cygwin)
                 DISTRO="cygwin"
@@ -55,12 +62,12 @@ fi
 
 ISMEDSRV=no
 
-if [[ netware != ${DISTRO} ]] && grep medsrv /etc/passwd > /dev/null ; then
+if [[ "netware" != "${DISTRO}" ]] && grep medsrv /etc/passwd > /dev/null ; then
         ISMEDSRV=yes
 fi
 
-if [[ -e $HOME/.bash_completion ]] ; then
-        source $HOME/.bash_completion
+if [[ -e ${HOME}/.bash_completion ]] ; then
+        source ${HOME}/.bash_completion
 elif [[ -f /etc/profile.d/bash-completion ]] ; then  # RedHat?
         source /etc/profile.d/bash-completion
 elif [[ -e /etc/bash_completion ]] ; then  # Debian, Cygwin, SuSE
@@ -81,7 +88,8 @@ done
 # At home:
 #export NNTPSERVER=newsgroups.bellsouth.net
 
-if [[ "${DISTRO}" == "macosx" ]] ; then
+# Other BSDs?
+if [[ "macosx" == "${DISTRO}"  ]] ; then
         export LS_OPTIONS='-G'
 else
         export LS_OPTIONS='--color=auto'
@@ -94,10 +102,6 @@ export LESS="-ReXM"
 export LC_ALL=      # Unset LC_ALL
 export LC_COLLATE=C # Okay, so en-US.UTF8 is okay, but I prefer ASCII ordering
 
-## Someone decided $VISUAL should be `joe' on boardwalk:
-#if [[ "${DISTRO}" == "redhat" && "$(hostname -s)x" == "boardwalkx" ]] ; then
-        #export -n VISUAL
-#fi
 export VISUAL=vi
 export EDITOR=vi
 #export CDPATH=.:${HOME}:${HOME}/FSF_2.5/eDir/Linux  # for my current project
@@ -107,36 +111,44 @@ export HISTTIMEFORMAT='%F %T '          # add timestamp to history
 #PATH="/bin:/usr/bin:/usr/local/bin:/usr/bin/X11:/usr/games"
 
 # use ccache 
-[[ -e /usr/lib64/ccache/bin ]] && export PATH=/usr/lib64/ccache/bin:$PATH
-[[ -e /usr/lib/ccache/bin ]] && export PATH=/usr/lib/ccache/bin:$PATH
+[[ -e /usr/lib64/ccache/bin ]] && PATH=/usr/lib64/ccache/bin:${PATH}
+[[ -e /usr/lib/ccache/bin ]] && PATH=/usr/lib/ccache/bin:${PATH}
 
 # Sun's JDK
-#[[ -e /usr/java/default/bin ]] && export PATH=/usr/java/default/bin:$PATH
+#[[ -e /usr/java/default/bin ]] && PATH=/usr/java/default/bin:${PATH}
 
 # for Macintosh
-if [[ "${DISTRO}" == "macosx" ]] ; then
+if [[ "macosx" == "${DISTRO}" || "macosx-gentoo" == "${DISTRO}" ]] ; then
+        PATH=/usr/sbin:/sbin:${PATH}
         # add X
-        [[ -e /usr/X11R6/bin ]] && export PATH=$PATH:/usr/X11R6/bin
+        # (OS X 10.4)
+        [[ -e /usr/X11R6/bin ]] && PATH=${PATH}:/usr/X11R6/bin
+        # (OS X 10.8)
+        [[ -e /opt/X11/bin ]] && PATH=${PATH}:/opt/X11/bin
+fi
+if [[ "macosx" == "${DISTRO}" ]] ; then
         # add Homebrew's /usr/local
-        [[ -e /usr/local ]] && export PATH=/usr/local/bin:/usr/local/sbin:$PATH
+        [[ -e /usr/local ]] && PATH=/usr/local/bin:/usr/local/sbin:${PATH}
         # add MacPorts' /opt
-        [[ -e /opt/local ]] && export PATH=/opt/local/bin:/opt/local/sbin:$PATH
+        [[ -e /opt/local ]] && PATH=/opt/local/bin:/opt/local/sbin:${PATH}
         # add Fink's /sw
-        [[ -e /sw ]] && export PATH=/sw/bin:/sw/sbin:$PATH
+        [[ -e /sw ]] && PATH=/sw/bin:/sw/sbin:${PATH}
 fi
 
 # eRad's MedServ
-if [[ ${ISMEDSRV} == "yes" ]] ; then
-        export PATH=${HOME}/component/tools:${HOME}/component/utils/bin:$PATH
+if [[ "${ISMEDSRV}" == "yes" ]] ; then
+        PATH=${HOME}/component/tools:${HOME}/component/utils/bin:${PATH}
 fi
 
 # If the Novell Client for Linux (ncl) exists on this machine:
 if [[ -d /opt/novell/ncl/bin ]] ; then
-        export PATH=/opt/novell/ncl/bin:$PATH
+        PATH=/opt/novell/ncl/bin:${PATH}
 fi
 
 # This user's programs
-[[ -e ${HOME}/bin ]] && export PATH=${HOME}/bin:$PATH
+[[ -e ${HOME}/bin ]] && PATH=${HOME}/bin:${PATH}
+
+export PATH
 
 # Set a place to display if none is set
 if [[ "${DISPLAY}x" == "x" ]] ; then
@@ -175,9 +187,9 @@ alias port='port -v'       # MacPorts
 alias grep='grep --color'
 alias harden="gcc-config 2; source /etc/profile;"
 alias lastcmd="history|tail -n1|sed -e's/ *[0-9]* *//' "
-alias ll='ls $LS_OPTIONS -al'
-alias ls='ls $LS_OPTIONS'
-alias path='echo $PATH'
+alias ll='ls ${LS_OPTIONS} -al'
+alias ls='ls ${LS_OPTIONS}'
+alias path='echo ${PATH}'
 alias unharden="gcc-config 5; source /etc/profile;"
 alias randpass="curl -k https://intranet.erad.com/pwdgen.cgi"
 alias hist="history"
@@ -186,7 +198,7 @@ alias which="type -p"  # prefer bash's `type' to whichever `which' is
                        # on system
 alias nslookup="${RLWRAP} $(which nslookup)"
 
-if [[ netware != ${DISTRO} ]] && RSYNC=$(type -p rsync) ; then
+if [[ "netware" != "${DISTRO}" ]] && RSYNC=$(type -p rsync) ; then
         alias scp="${RSYNC} -Pave ssh"
         alias cp="${RSYNC} -Pav"
 fi
@@ -211,11 +223,11 @@ JASINDENT="--k-and-r-style --blank-lines-after-declarations --no-tabs \
            --swallow-optional-blank-lines --space-special-semicolon "
            #--comment-indentation2 --declaration-comment-column2 \
            #--else-endif-column2 --line-comments-indentation2"
-JASINDENT="$JASINDENT --continuation-indentation${TABSIZE} \
+JASINDENT="${JASINDENT} --continuation-indentation${TABSIZE} \
            --case-indentation${TABSIZE} \
            --indent-level${TABSIZE} --tab-size${TABSIZE}"
 # Now in ~/bin (see below)
-#alias jasindent="indent $JASINDENT"
+#alias jasindent="indent ${JASINDENT}"
 
 # it turns out that Red Hat has a better LESSOPEN than Debian (at
 # least now) --Jas
@@ -242,13 +254,13 @@ esac
 #mount -t cgroup cgroup /sys/fs/cgroup/cpu -o cpu
 #mkdir -m 0777 /sys/fs/cgroup/cpu/user
 
-if [[ "cygwin" -ne ${DISTRO} && "$PS1" ]] ; then  
+if [[ "${PS1}" && "linux" == "$(uname)" ]] ; then
         mkdir -m 0700 /sys/fs/cgroup/cpu/user/$$
         echo $$ > /sys/fs/cgroup/cpu/user/$$/tasks
 fi
 
 function proml() {
-        case $TERM in
+        case ${TERM} in
                 xterm*)
                         TITLEBAR="\[\033]0;[\$(lastcmd)] (\$?) \w\007\]"
                         ;;
@@ -262,11 +274,6 @@ function proml() {
 }
 
 proml
-
-# If I ever get keychain working again:
-#/usr/bin/keychain ${HOME}/.ssh/id_dsa
-# Redirect .ssh-agent's 'Agent PID' msg
-#source ${HOME}/.keychain/$HOSTNAME-sh > /dev/null
 
 # Directories to be created if they don't exist (to be used in the
 # following section)
@@ -323,7 +330,7 @@ EOFPROFILE
 # Add a tags file for all headers in /usr/include .  This file is used
 # by the vimrc created above.
 #if [[ netware != ${DISTRO} ]] && type ctags > /dev/null 2>&1 ; then
-if [[ netware != ${DISTRO} ]] && CTAGS=$(type -p ctags) &&
+if [[ "netware" != "${DISTRO}" ]] && CTAGS=$(type -p ctags) &&
    [[ ! -e ${HOME}/.vim/systags ]] ; then
         INCLUDEPATH="/usr/include"
         if [[ -e /usr/local/include ]] ; then
@@ -738,7 +745,7 @@ if INDENT=\$(type -p indent) ; then
         echo Indent is not installed
         exit 1
 fi
-\${INDENT} $JASINDENT \$@ 2> /dev/null
+\${INDENT} ${JASINDENT} \$@ 2> /dev/null
 EOFJASINDENT
         chmod +x ${HOME}/bin/jasindent
 fi
@@ -791,8 +798,8 @@ fi
 specs=
 for i in \${names}
 do
-        echo \$i > baselibs.conf
-        specs="\$specs \$i*.spec"
+        echo \${i} > baselibs.conf
+        specs="\${specs} \${i}*.spec"
 done
 linux32 build --baselibs --rpms /tmp/rpms:/mnt/sled32/ \
               --root /tmp/build32 --arch i586 \${specs}
@@ -926,6 +933,10 @@ if [[ ! -e ${HOME}/.gitignore ]] ; then
 *.[oa]
 EOFGITIGNORE
 fi
+
+# Start the ssh-agent:  Still will need to ssh-add or else will be
+# asked for passphrase every time
+eval $(ssh-agent -s) > /dev/null
 
 # Sometimes backspace doesn't work:
 stty sane 2> /dev/null
