@@ -61,12 +61,13 @@ shopt -s histreedit
 # make sure the TAB character does completion (esp in cygwin/screen)
 bind 'TAB: complete'
 
+### eRAD
 ISMEDSRV=no
-
 if [[ "netware" != "${DISTRO}" ]] && grep medsrv /etc/passwd > /dev/null ; then
         ISMEDSRV=yes
 fi
 
+### BASH completion
 if [[ -e ${HOME}/.bash_completion ]] ; then
         source ${HOME}/.bash_completion
 elif [[ -f /etc/profile.d/bash-completion ]] ; then  # RedHat?
@@ -179,6 +180,7 @@ fi
 
 RLWRAP=$(type -p rlwrap)  # the readline wrapper program, if on system
 SUDO=$(type -p sudo)
+GIT=$(type -p git)
 
 ### Aliases
 
@@ -298,10 +300,10 @@ FILES_BASHRC_CREATES="${HOME}/.vimrc.jas ${HOME}/bin/gvim.sh
                       ${HOME}/bin/gfilt ${HOME}/bin/jasindent
                       ${HOME}/bin/myscreensessionname ${HOME}/.screenrc
                       ${HOME}/.ssh/config ${HOME}/.Xdefaults
-                      ${HOME}/.inputrc ${HOME}/bin/myscreensessionname
-                      ${HOME}/.gitconfig ${HOME}/bin/git_diff_wrapper
-                      ${HOME}/.gitignore
-                      "
+                      ${HOME}/.inputrc ${HOME}/bin/myscreensessionname"
+[[ "x" != "x${GIT}" ]] && FILES_BASHRC_CREATES="${HOME}/.gitconfig
+                                                ${HOME}/bin/git_diff_wrapper
+                                                ${HOME}/.gitignore"
 FILES_BASHRC_CREATES_FOR_ROOT="/root/bin/mntmountall /root/bin/build32
                                /root/bin/build32on64"
 JAS_ROX_FNAME=${HOME}/.jas_rox_file
@@ -890,32 +892,34 @@ fi
 # Git's diff will use vimdiff:
 # from http://technotales.wordpress.com/2009/05/17/git-diff-with-vimdiff/
 # Call this function to show a Git diff using vim as a pager:
-function git_diff() {
-    git diff --no-ext-diff -w "$@" | vim -R -
-}
+if [[ "x" != "x${GIT}" ]] ; then
+        function git_diff() {
+                "${GIT}" diff --no-ext-diff -w "$@" | vim -R -
+        }
 
 ## ~/.gitconfig
-if [[ ! -e ${HOME}/.gitconfig ]] ; then
-        # The header
-        cat <<EOFGITCONFIG > ${HOME}/.gitconfig
+        if [[ ! -e ${HOME}/.gitconfig ]] ; then
+                # The header
+                cat <<EOFGITCONFIG > ${HOME}/.gitconfig
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 EOFGITCONFIG
-        # The rest
-        git config --global user.name "Jas Eckard"
-        read -p "Enter email address for git [Jas@Eckard.com]: " EMAIL
-        [[ "x" == "x$EMAIL" ]] && EMAIL="Jas@Eckard.com"
-        git config --global user.email $EMAIL
-        git config --global credential.helper cache
-        git config --global diff.external ${HOME}/bin/git_diff_wrapper
-        git config --global pager.diff ""
-        git config --global core.excludesfile ${HOME}/.gitignore
-        git config --global push.default simple
-fi
+
+                # The rest
+                "${GIT}" config --global user.name "Jas Eckard"
+                read -p "Enter email address for git [Jas@Eckard.com]: " EMAIL
+                [[ "x" == "x$EMAIL" ]] && EMAIL="Jas@Eckard.com"
+                "${GIT}" config --global user.email $EMAIL
+                "${GIT}" config --global credential.helper cache
+                "${GIT}" config --global diff.external ${HOME}/bin/git_diff_wrapper
+                "${GIT}" config --global pager.diff ""
+                "${GIT}" config --global core.excludesfile ${HOME}/.gitignore
+                "${GIT}" config --global push.default simple
+        fi
 
 ## ~/bin/git_diff_wrapper
-if [[ ! -e ${HOME}/bin/git_diff_wrapper ]] ; then
-        cat <<EOFGITDIFFWRAPPER > ${HOME}/bin/git_diff_wrapper
+        if [[ ! -e ${HOME}/bin/git_diff_wrapper ]] ; then
+                cat <<EOFGITDIFFWRAPPER > ${HOME}/bin/git_diff_wrapper
 #!/bin/bash
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
@@ -923,12 +927,13 @@ if [[ ! -e ${HOME}/bin/git_diff_wrapper ]] ; then
 cp "\$2" "/tmp/\$(basename \$1)"
 ${HOME}/bin/gvimdiff.sh "\$1" "/tmp/\$(basename \$1)"
 EOFGITDIFFWRAPPER
-        chmod +x ${HOME}/bin/git_diff_wrapper
-fi
+
+                chmod +x ${HOME}/bin/git_diff_wrapper
+        fi
 
 ## ~/.gitignore
-if [[ ! -e ${HOME}/.gitignore ]] ; then
-        cat <<EOFGITIGNORE > ${HOME}/.gitignore
+        if [[ ! -e ${HOME}/.gitignore ]] ; then
+                cat <<EOFGITIGNORE > ${HOME}/.gitignore
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 # vi editor backups:
@@ -936,7 +941,9 @@ if [[ ! -e ${HOME}/.gitignore ]] ; then
 # objects and archives:
 *.[oa]
 EOFGITIGNORE
-fi
+
+        fi
+fi  #  if `git' is on the system
 
 # Start the ssh-agent:  Still will need to ssh-add or else will be
 # asked for passphrase every time
