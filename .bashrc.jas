@@ -15,23 +15,7 @@ if [[ "${THISFILE}" == $0 && "incr" == $1 ]] ; then
         JAS_ROX="${DATE}"
 fi
 
-### BASH settings
-
-# use `vi' editing at the bash commandline
-set -o vi
-# Update COLUMNS and ROWS
-shopt -s checkwinsize
-# use directory spell checking for `cd'
-shopt -s cdspell
-# append to the history file
-shopt -s histappend
-# failed history substitions get another try
-shopt -s histreedit
-# make sure the TAB character does completion (esp in cygwin/screen)
-bind 'TAB: complete'
-
 ### Distro detect 
-
 DISTRO="unassigned"
 if [[ -e /etc/redhat-release ]] ; then
         DISTRO="redhat"
@@ -62,6 +46,20 @@ else case ${OSTYPE} in
                 ;;
         esac
 fi
+
+### BASH settings
+# use `vi' editing at the bash commandline
+set -o vi
+# Update COLUMNS and ROWS
+shopt -s checkwinsize
+# use directory spell checking for `cd'
+shopt -s cdspell
+# append to the history file
+shopt -s histappend
+# failed history substitions get another try
+shopt -s histreedit
+# make sure the TAB character does completion (esp in cygwin/screen)
+bind 'TAB: complete'
 
 ISMEDSRV=no
 
@@ -109,6 +107,8 @@ export VISUAL=vi
 export EDITOR=vi
 #export CDPATH=.:${HOME}:${HOME}/FSF_2.5/eDir/Linux  # for my current project
 export HISTTIMEFORMAT='%F %T '          # add timestamp to history
+
+### PATH
 
 # Necessary for Gentoo?
 #PATH="/bin:/usr/bin:/usr/local/bin:/usr/bin/X11:/usr/games"
