@@ -200,9 +200,14 @@ alias unharden="gcc-config 5; source /etc/profile;"
 alias randpass="curl -k https://intranet.erad.com/pwdgen.cgi"
 alias hist="history"
 alias ssh="ssh -Y"
-alias which="type -p"  # prefer bash's `type' to whichever `which' is
-                       # on system
-alias nslookup="${RLWRAP} $(which nslookup)"
+alias nslookup="${RLWRAP} $(type -p nslookup)"
+
+WHICH="$(type -p which)"
+function which()
+{
+        echo "type:  $(type $@)"
+        [[ -e "${WHICH}" ]] && echo "${WHICH}: $(${WHICH} $@)"
+}
 
 if [[ "netware" != "${DISTRO}" ]] && RSYNC=$(type -p rsync) ; then
         alias scp="${RSYNC} -Pave ssh"
@@ -262,7 +267,8 @@ if [[ "${PS1}" && "linux" == "$(uname)" ]] ; then
         echo $$ > /sys/fs/cgroup/cpu/user/$$/tasks
 fi
 
-function proml() {
+function proml()
+{
         case ${TERM} in
                 xterm*)
                         TITLEBAR="\[\033]0;[\$(lastcmd)] (\$?) \w\007\]"
@@ -288,7 +294,8 @@ proml
 # This section is a set of files included in this file so that I don't
 # have to carry them around separate from this file.
 
-function bak_files() {
+function bak_files()
+{
         for i in $@
         do
                 mv $i $i.bak
@@ -330,7 +337,8 @@ fi
 ## ~/.bash_profile
 # The reason this is a function instead of simply done is that I don't
 # want to automatically clobber ~/.bash_profile .
-function mkprofile() {
+function mkprofile()
+{
         cat <<EOFPROFILE > ${HOME}/.bash_profile
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
@@ -904,7 +912,8 @@ fi
 # from http://technotales.wordpress.com/2009/05/17/git-diff-with-vimdiff/
 # Call this function to show a Git diff using vim as a pager:
 if [[ "x" != "x${GIT}" ]] ; then
-        function git_diff() {
+        function git_diff()
+        {
                 "${GIT}" diff --no-ext-diff -w "$@" | vim -R -
         }
 
