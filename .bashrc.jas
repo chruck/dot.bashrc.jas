@@ -390,10 +390,10 @@ set backspace=indent,eol,start
 set backup        " backup files
 set cmdheight=2
 set expandtab
-"if has("foldenable")
+if has("foldenable")
         set foldenable
         set foldmethod=syntax
-"endif
+endif
 set history=100
 set hlsearch
 set ignorecase
@@ -412,10 +412,14 @@ set showmatch
 set tabstop=${TABSIZE}
 set textwidth=70
 set viminfo='20,\"50
- 
-syntax on
-filetype plugin on
-filetype indent on
+
+if has("syntax")
+        syntax on
+endif
+if has("filetype")
+        filetype plugin on
+        filetype indent on
+endif
 
 set formatoptions+=tn
 set formatoptions-=l
