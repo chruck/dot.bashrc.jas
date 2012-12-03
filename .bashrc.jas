@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2012.11.27
+JAS_ROX=2012.12.03
 
 # Section to increment the above automatically, when this file is
 # updated, then automatically publish to appropriate machines.
@@ -79,7 +79,7 @@ elif [[ -s /etc/profile.d/complete.bash ]] ; then
 fi
 
 for script in /etc/bash_completion.d/*.sh ; do
-        test -r ${script} && source ${script}
+        [[ -r ${script} ]] && source ${script}
 done
 
 # For GoboLinux:
@@ -111,6 +111,8 @@ export HISTTIMEFORMAT='%F %T '          # add timestamp to history
 
 ### PATH
 
+PATH=/usr/local/sbin:/usr/sbin:/sbin:${PATH}
+
 # Necessary for Gentoo?
 #PATH="/bin:/usr/bin:/usr/local/bin:/usr/bin/X11:/usr/games"
 
@@ -123,7 +125,6 @@ export HISTTIMEFORMAT='%F %T '          # add timestamp to history
 
 # for Macintosh
 if [[ "macosx" == "${DISTRO}" || "macosx-gentoo" == "${DISTRO}" ]] ; then
-        PATH=/usr/sbin:/sbin:${PATH}
         # add X
         # (OS X 10.4)
         [[ -e /usr/X11R6/bin ]] && PATH=${PATH}:/usr/X11R6/bin
@@ -243,13 +244,10 @@ case ${DISTRO} in
                 alias clear="echo Type 'clearr' to clear the screen"
                 alias clearr=/usr/bin/clear
                 ;;
-        debian)
-                alias mm=zless
-                ;;
         netware)
                 alias mm=more
                 ;;
-        *)
+        debian | *)
                 alias mm=zless
                 ;;
 esac
