@@ -288,6 +288,13 @@ proml
 # This section is a set of files included in this file so that I don't
 # have to carry them around separate from this file.
 
+function bak_files() {
+        for i in $@
+        do
+                mv $i $i.bak
+        done
+}
+
 ## ~/.jas_rox_file
 # Whenever this bashrc is changed (JAS_ROX gets incremented), just
 # recreate all the files below.  Done via version file
@@ -298,22 +305,24 @@ FILES_BASHRC_CREATES="${HOME}/.vimrc.jas ${HOME}/bin/gvim.sh
                       ${HOME}/bin/gfilt ${HOME}/bin/jasindent
                       ${HOME}/bin/myscreensessionname ${HOME}/.screenrc
                       ${HOME}/.ssh/config ${HOME}/.Xdefaults
-                      ${HOME}/.inputrc ${HOME}/bin/myscreensessionname"
-[[ "x" != "x${GIT}" ]] && FILES_BASHRC_CREATES="${HOME}/.gitconfig
-                                                ${HOME}/bin/git_diff_wrapper
-                                                ${HOME}/.gitignore"
-FILES_BASHRC_CREATES_FOR_ROOT="/root/bin/mntmountall /root/bin/build32
-                               /root/bin/build32on64"
+                      ${HOME}/.inputrc ${HOME}/bin/myscreensessionname "
+if [[ "x" != "x${GIT}" ]] ; then
+        FILES_BASHRC_CREATES+="${HOME}/.gitconfig ${HOME}/.gitignore
+                               ${HOME}/bin/git_diff_wrapper "
+fi
+if [[ "root" == "$(whoami)" ]] ; then
+        FILES_BASHRC_CREATES+="/root/bin/mntmountall /root/bin/build32
+                               /root/bin/build32on64 "
+fi
+
 JAS_ROX_FNAME=${HOME}/.jas_rox_file
 if [[ ! -e ${JAS_ROX_FNAME} ]] ; then
-        rm -f ${FILES_BASHRC_CREATES}
-        [[ "root" == $(whoami) ]] && rm -f ${FILES_BASHRC_CREATES_FOR_ROOT}
+        bak_files ${FILES_BASHRC_CREATES}
         echo "JAS_ROX_FILE=${JAS_ROX}" > ${JAS_ROX_FNAME}
 else
         source ${JAS_ROX_FNAME}
-        if [[ ${JAS_ROX_FILE} != ${JAS_ROX} ]] ; then
-                rm -f ${FILES_BASHRC_CREATES}
-                [[ "root" == $(whoami) ]] && rm -f ${FILES_BASHRC_CREATES_FOR_ROOT}
+        if [[ "${JAS_ROX_FILE}" != "${JAS_ROX}" ]] ; then
+                bak_files ${FILES_BASHRC_CREATES}
                 echo "JAS_ROX_FILE=${JAS_ROX}" > ${JAS_ROX_FNAME}
         fi
 fi
