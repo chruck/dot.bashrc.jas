@@ -210,9 +210,9 @@ if [[ "netware" != "${DISTRO}" ]] && RSYNC=$(type -p rsync) ; then
 fi
 
 # Make sure this system's `vi' is vim
-[[ "netware" != "${DISTRO}" ]] && VI_1ST_WORD=$(vi -h | head -1 | cut -d\  -f1)
+[[ "netware" != "${DISTRO}" ]] && VI_1ST_WORD=$(vi -h | head -n1 | cut -d' '  -f1)
 if [[ 'xVIM' == "x${VI_1ST_WORD}" ]] ; then
-        PATH_TO_VIM=$(type -P vim)
+        PATH_TO_VIM=$(type -P vi)
 	alias vi="${PATH_TO_VIM} -u ${HOME}/.vimrc.jas"
 	alias gvim=${HOME}/bin/gvim.sh
 	alias vim="${PATH_TO_VIM} -u ${HOME}/.vimrc.jas"
