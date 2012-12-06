@@ -24,6 +24,8 @@ if [[ -e /etc/redhat-release ]] ; then
         # Clear the screen after logout is really annoying
         alias clear="echo Type 'clearr' to clear the screen"
         alias clearr=/usr/bin/clear
+        # Red Hat de-stupified
+        unalias rm cp mv 2> /dev/null  
 elif [[ -e /etc/SuSE-release ]] ; then
         DISTRO="suse"
         RELEASE="$(cat /etc/SuSE-release)"
@@ -46,7 +48,7 @@ else case ${OSTYPE} in
                 DISTRO="netware"
                 ;;
         linux*)
-                DISTRO="undetermined"
+                DISTRO="linux"
                 ;;
         esac
 fi
@@ -103,6 +105,7 @@ fi
 
 #export LS_COLORS='no=00:fi=00:di=01;34:ln=01;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.gz=01;31:*.bz2=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.avi=01;35:*.fli=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.ogg=01;35:*.mp3=01;35:*.wav=01;35:'
 export LS_COLORS='*.Z=01;31:*.arj=01;31:*.bat=01;32:*.avi=01;35:*.bmp=01;35:*.btm=01;32:*.bz2=01;31:*.bz=01;31:*.cmd=01;32:*.com=01;32:*.cpio=01;31:*.csh=01;32:*.exe=01;32:*.deb=01;31:*.dl=01;35:*.fli=01;35:*.gif=01;35:*.gl=01;35:*.gz=01;31:*.jar=01;31:*.jpeg=01;35:*.jpg=01;35:*.lzh=01;31:*.mov=01;35:*.mp3=01;35:*.mpeg=01;35:*.mpg=01;35:*.ogg=01;35:*.pbm=01;35:*.pgm=01;35:*.png=01;35:*.ppm=01;35:*.rpm=01;31:*.sh=01;32:*.tar=01;31:*.taz=01;31:*.tga=01;35:*.tgz=01;31:*.tif=01;35:*.tiff=01;35:*.tz=01;31:*.wav=01;35:*.xbm=01;35:*.xcf=01;35:*.xpm=01;35:*.xwd=01;35:*.z=01;31:*.zip=01;31:bd=40;33;01:cd=40;33;01:di=01;34:do=01;35:ex=01;32:fi=00:ln=01;36:mi=01;05;37;41:no=00:or=40;31;01:pi=40;33:so=01;35:'
+
 export LESS="-ReXM"
 #export LANG=C       # Since RedHat likes en-US
 export LC_ALL=      # Unset LC_ALL
@@ -112,10 +115,11 @@ export VISUAL=vi
 export EDITOR=vi
 #export CDPATH=.:${HOME}:${HOME}/FSF_2.5/eDir/Linux  # for my current project
 export HISTTIMEFORMAT='%F %T '          # add timestamp to history
+export GREP_OPTIONS='--color'
 
 ### PATH
 
-PATH=/usr/local/sbin:/usr/sbin:/sbin:${PATH}
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}
 
 # Necessary for Gentoo?
 #PATH="/bin:/usr/bin:/usr/local/bin:/usr/bin/X11:/usr/games"
@@ -183,30 +187,35 @@ if [[ -e /usr/bin/enlightenment_start ]] ; then
     export WINDOWMANAGER=/usr/bin/enlightenment_start
 fi
 
-RLWRAP=$(type -p rlwrap)  # the readline wrapper program, if on system
-SUDO=$(type -p sudo)
-GIT=$(type -p git)
+# Program full paths
+EMERGE="$(type -p emerge)"  # Gentoo's portage
+GCC_CONFIG="$(type -p gcc-config)"
+GIT="$(type -p git)"
+NSLOOKUP="$(type -p nslookup)"
+PORT="$(type -p port)"      # MacPorts
+RANDPASS="$(type -p curl)"
+RLWRAP="$(type -p rlwrap)"  # the readline wrapper program, if on system
+SED="$(type -p sed)"
+SSH="$(type -p ssh)"
+SUDO="$(type -p sudo)"
+TAIL="$(type -p tail)"
+UNHARDEN="$(type -p gcc-config)"
+WHICH="$(type -p which)"
 
 ### Aliases
-
-# Red Hat de-stupified
-unalias rm cp mv 2> /dev/null  
-
-alias emerge="$(type -p emerge) -va"  # Gentoo's portage
-alias port="$(type -p port) -v"       # MacPorts
-alias grep="$(type -p grep) --color"
-alias harden="$(type -p gcc-config) 2; source /etc/profile;"
-alias lastcmd="history | tail -n1 | sed -e's/ *[0-9]* *//' "
+alias hist="history"
+alias lastcmd="history | ${TAIL} -n1 | ${SED} -e's/ *[0-9]* *//' "
 alias ll='ls ${LS_OPTIONS} -al'
 alias ls='ls ${LS_OPTIONS}'
 alias path='echo ${PATH}'
-alias unharden="$(type -p gcc-config) 5; source /etc/profile;"
-alias randpass="$(type -p curl) -k https://intranet.erad.com/pwdgen.cgi"
-alias hist="history"
-alias ssh="$(type -p ssh) -Y"
-alias nslookup="${RLWRAP} $(type -p nslookup)"
+[[ -e "${CURL}" ]] && alias randpass="${CURL} -k https://intranet.erad.com/pwdgen.cgi"
+[[ -e "${EMERGE}" ]] && alias emerge="${EMERGE} -va"  # Gentoo's portage
+[[ -e "${GCC_CONFIG}" ]] && alias harden="${GCC_CONFIG} 2; source /etc/profile;"
+[[ -e "${GCC_CONFIG}" ]] && alias unharden="${GCC_CONFIG} 5; source /etc/profile;"
+[[ -e "${NSLOOKUP}" ]] && alias nslookup="${RLWRAP} ${NSLOOKUP}"
+[[ -e "${PORT}" ]] && alias port="${PORT} -v"       # MacPorts
+[[ -e "${SSH}" ]] && alias ssh="${SSH} -Y"
 
-WHICH="$(type -p which)"
 function which()
 {
         echo "type:  $(type $@)"
