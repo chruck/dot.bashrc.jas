@@ -33,7 +33,7 @@ elif [[ "$(uname)x" == "Darwinx" ]] ; then
         DISTRO="macosx"
         PREFIXSCRIPT="${HOME}/Gentoo/startprefix"
         if [[ -e "${PREFIXSCRIPT}" ]] ; then
-                if [[ "${BASH}x" == "/bin/bashx" ]] ; then
+                if [[ "x${SHELL}" == "x/bin/bash" ]] ; then
                         ${PREFIXSCRIPT}
                         return
                 else
@@ -97,7 +97,7 @@ done
 #export NNTPSERVER=newsgroups.bellsouth.net
 
 # Other BSDs?
-if [[ "macosx" == "${DISTRO}"  ]] ; then
+if [[ "macosx" == "${DISTRO}" ]] ; then
         export LS_OPTIONS='-G'
 else
         export LS_OPTIONS='--color=auto'
@@ -119,7 +119,7 @@ export GREP_OPTIONS='--color'
 
 ### PATH
 
-PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}
+PATH+=:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # Necessary for Gentoo?
 #PATH="/bin:/usr/bin:/usr/local/bin:/usr/bin/X11:/usr/games"
@@ -135,9 +135,9 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}
 if [[ "macosx" == "${DISTRO}" || "macosx-gentoo" == "${DISTRO}" ]] ; then
         # add X
         # (OS X 10.4)
-        [[ -e /usr/X11R6/bin ]] && PATH=${PATH}:/usr/X11R6/bin
+        [[ -e /usr/X11R6/bin ]] && PATH+=:/usr/X11R6/bin
         # (OS X 10.8)
-        [[ -e /opt/X11/bin ]] && PATH=${PATH}:/opt/X11/bin
+        [[ -e /opt/X11/bin ]] && PATH+=:/opt/X11/bin
 fi
 if [[ "macosx" == "${DISTRO}" ]] ; then
         # add Homebrew's /usr/local
