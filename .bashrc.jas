@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2012.12.03
+JAS_ROX=2012.12.06
 
 # Section to increment the above automatically, when this file is
 # updated, then automatically publish to appropriate machines.
@@ -13,6 +13,7 @@ if [[ "${THISFILE}" == $0 && "incr" == $1 ]] ; then
         # TODO:  fix for MacOS 'sed`
         sed -i "/^JAS[_]ROX=/s/[0-9.]\+/${DATE}/" "${THISFILE}"
         JAS_ROX="${DATE}"
+        exit
 fi
 
 ### Distro detect 
@@ -20,6 +21,9 @@ DISTRO="unassigned"
 if [[ -e /etc/redhat-release ]] ; then
         DISTRO="redhat"
         RELEASE="$(cat /etc/redhat-release)"
+        # Clear the screen after logout is really annoying
+        alias clear="echo Type 'clearr' to clear the screen"
+        alias clearr=/usr/bin/clear
 elif [[ -e /etc/SuSE-release ]] ; then
         DISTRO="suse"
         RELEASE="$(cat /etc/SuSE-release)"
@@ -41,7 +45,7 @@ else case ${OSTYPE} in
         NetWare)
                 DISTRO="netware"
                 ;;
-        linux)
+        linux*)
                 DISTRO="undetermined"
                 ;;
         esac
@@ -188,18 +192,18 @@ GIT=$(type -p git)
 # Red Hat de-stupified
 unalias rm cp mv 2> /dev/null  
 
-alias emerge='emerge -va'  # Gentoo's portage
-alias port='port -v'       # MacPorts
-alias grep='grep --color'
-alias harden="gcc-config 2; source /etc/profile;"
-alias lastcmd="history|tail -n1|sed -e's/ *[0-9]* *//' "
+alias emerge="$(type -p emerge) -va"  # Gentoo's portage
+alias port="$(type -p port) -v"       # MacPorts
+alias grep="$(type -p grep) --color"
+alias harden="$(type -p gcc-config) 2; source /etc/profile;"
+alias lastcmd="history | tail -n1 | sed -e's/ *[0-9]* *//' "
 alias ll='ls ${LS_OPTIONS} -al'
 alias ls='ls ${LS_OPTIONS}'
 alias path='echo ${PATH}'
-alias unharden="gcc-config 5; source /etc/profile;"
-alias randpass="curl -k https://intranet.erad.com/pwdgen.cgi"
+alias unharden="$(type -p gcc-config) 5; source /etc/profile;"
+alias randpass="$(type -p curl) -k https://intranet.erad.com/pwdgen.cgi"
 alias hist="history"
-alias ssh="ssh -Y"
+alias ssh="$(type -p ssh) -Y"
 alias nslookup="${RLWRAP} $(type -p nslookup)"
 
 WHICH="$(type -p which)"
@@ -233,29 +237,18 @@ JASINDENT="--k-and-r-style --blank-lines-after-declarations --no-tabs \
            --line-length75 --comment-line-length75 --no-space-after-casts \
            --swallow-optional-blank-lines --space-special-semicolon "
            #--comment-indentation2 --declaration-comment-column2 \
-           #--else-endif-column2 --line-comments-indentation2"
-JASINDENT="${JASINDENT} --continuation-indentation${TABSIZE} \
-           --case-indentation${TABSIZE} \
-           --indent-level${TABSIZE} --tab-size${TABSIZE}"
+           #--else-endif-column2 --line-comments-indentation2 "
+JASINDENT+="--continuation-indentation${TABSIZE} --tab-size${TABSIZE}
+            --case-indentation${TABSIZE} --indent-level${TABSIZE} "
 # Now in ~/bin (see below)
 #alias jasindent="indent ${JASINDENT}"
 
-# it turns out that Red Hat has a better LESSOPEN than Debian (at
-# least now) --Jas
-case ${DISTRO} in
-        redhat)
-                alias mm=less
-                # Clear the screen after logout is really annoying
-                alias clear="echo Type 'clearr' to clear the screen"
-                alias clearr=/usr/bin/clear
-                ;;
-        netware)
-                alias mm=more
-                ;;
-        debian | *)
-                alias mm=zless
-                ;;
-esac
+alias mm=more
+if LESSPATH="$(type -p less)" ; then
+        alias mm="${LESSPATH}"
+        LESSPIPE="${HOME}/bin/lesspipe.sh"
+        export LESSOPEN="| ${HOME}/bin/lesspipe.sh %s"
+fi
 
 # This section is from http://lkml.org/lkml/2010/11/16/330 .
 # In addition to these, root has to:
@@ -298,7 +291,8 @@ function bak_files()
 {
         for i in $@
         do
-                mv $i $i.bak
+                mv ${i} ${i}.bak
+                chmod -x ${i}.bak
         done
 }
 
@@ -312,7 +306,8 @@ FILES_BASHRC_CREATES="${HOME}/.vimrc.jas ${HOME}/bin/gvim.sh
                       ${HOME}/bin/gfilt ${HOME}/bin/jasindent
                       ${HOME}/bin/myscreensessionname ${HOME}/.screenrc
                       ${HOME}/.ssh/config ${HOME}/.Xdefaults
-                      ${HOME}/.inputrc ${HOME}/bin/myscreensessionname "
+                      ${HOME}/.inputrc ${HOME}/bin/myscreensessionname
+                      ${LESSPIPE} "
 if [[ "x" != "x${GIT}" ]] ; then
         FILES_BASHRC_CREATES+="${HOME}/.gitconfig ${HOME}/.gitignore
                                ${HOME}/bin/git_diff_wrapper "
@@ -964,6 +959,70 @@ EOFGITIGNORE
 
         fi
 fi  #  if `git' is on the system
+
+if [[ "x" != "x${LESSPIPE}" && ! -e ${LESSPIPE} ]] ; then
+        cat <<EOFLESSPIPE > ${LESSPIPE}
+#!/bin/sh -
+# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+
+# Shamefully stolen from RedHat's /usr/bin/lesspipe.sh:
+
+# To use this filter with less, define LESSOPEN:
+# export LESSOPEN="|/usr/bin/lesspipe.sh %s"
+
+lesspipe() {
+  case "\$1" in
+  *.[1-9n]|*.man|*.[1-9n].bz2|*.man.bz2|*.[1-9].gz|*.[1-9]x.gz|*.[1-9].man.gz)
+        case "\$1" in
+                *.gz)   DECOMPRESSOR="gunzip -c" ;;
+                *.bz2)  DECOMPRESSOR="bunzip2 -c" ;;
+                *)      DECOMPRESSOR="cat" ;;
+        esac
+        if \$DECOMPRESSOR -- "\$1" | file - | grep -q troff; then
+                if echo "\$1" | grep -q ^/; then #absolute path
+                        man -- "\$1" | cat -s
+                else
+                        man -- "./\$1" | cat -s
+                fi
+        else
+                \$DECOMPRESSOR -- "\$1"
+        fi ;;
+  *.tar) tar tvvf "\$1" ;;
+  *.tgz|*.tar.gz|*.tar.[zZ]) tar tzvvf "\$1" ;;
+  *.tar.bz2|*.tbz2) bzip2 -dc "\$1" | tar tvvf - ;;
+  #.xz) xz -dc "\$1" ;;
+  *.[zZ]|*.gz) gzip -dc -- "\$1" ;;
+  *.bz2) bzip2 -dc -- "\$1" ;;
+  *.zip) zipinfo -- "\$1" ;;
+  *.lzma) lzcat "\$1" ;;
+  *.rpm) rpm -qpivl --changelog -- "\$1" ;;
+  *.cpi|*.cpio) cpio -itv < "\$1" ;;
+  *.gif|*.jpeg|*.jpg|*.pcd|*.png|*.tga|*.tiff|*.tif)
+   if [ -x "\`which identify\`" ]; then
+     identify "\$1"
+   else
+     echo "No identify available"
+     echo "Install ImageMagick to browse images"
+   fi ;;
+  *)
+        case "\$1" in
+                *.gz)   DECOMPRESSOR="gunzip -c" ;;
+                *.bz2)  DECOMPRESSOR="bunzip2 -c" ;;
+        esac
+        if [ ! -z \$DECOMPRESSOR ] ; then
+            \$DECOMPRESSOR -- "\$1" ;
+        fi
+  esac
+}
+
+if [ -d "\$1" ] ; then
+        /bin/ls -alF -- "\$1"
+else
+        lesspipe "\$1" 2> /dev/null
+fi
+EOFLESSPIPE
+        chmod +x ${LESSPIPE}
+fi
 
 # Start the ssh-agent:  Still will need to ssh-add or else will be
 # asked for passphrase every time
