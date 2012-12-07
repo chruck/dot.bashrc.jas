@@ -29,12 +29,12 @@ if [[ -e /etc/redhat-release ]] ; then
 elif [[ -e /etc/SuSE-release ]] ; then
         DISTRO="suse"
         RELEASE="$(cat /etc/SuSE-release)"
-elif [[ "$(uname)x" == "Darwinx" ]] ; then
+elif [[ "x$(uname)" == "xDarwin" ]] ; then
         DISTRO="macosx"
         PREFIXSCRIPT="${HOME}/Gentoo/startprefix"
         if [[ -e "${PREFIXSCRIPT}" ]] ; then
                 if [[ "x${SHELL}" == "x/bin/bash" ]] ; then
-                        ${PREFIXSCRIPT}
+                        "${PREFIXSCRIPT}"
                         return
                 else
                         DISTRO="macosx-gentoo"
@@ -74,8 +74,8 @@ if [[ "netware" != "${DISTRO}" ]] && grep medsrv /etc/passwd > /dev/null ; then
 fi
 
 ### BASH completion
-if [[ -e ${HOME}/.bash_completion ]] ; then
-        source ${HOME}/.bash_completion
+if [[ -e "${HOME}/.bash_completion" ]] ; then
+        source "${HOME}/.bash_completion"
 elif [[ -f /etc/profile.d/bash-completion ]] ; then  # RedHat?
         source /etc/profile.d/bash-completion
 elif [[ -e /etc/bash_completion ]] ; then  # Debian, Cygwin, SuSE
@@ -125,11 +125,11 @@ PATH+=:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 #PATH="/bin:/usr/bin:/usr/local/bin:/usr/bin/X11:/usr/games"
 
 # use ccache 
-[[ -e /usr/lib64/ccache/bin ]] && PATH=/usr/lib64/ccache/bin:${PATH}
-[[ -e /usr/lib/ccache/bin ]] && PATH=/usr/lib/ccache/bin:${PATH}
+[[ -e /usr/lib64/ccache/bin ]] && PATH="/usr/lib64/ccache/bin:${PATH}"
+[[ -e /usr/lib/ccache/bin ]] && PATH="/usr/lib/ccache/bin:${PATH}"
 
 # Sun's JDK
-#[[ -e /usr/java/default/bin ]] && PATH=/usr/java/default/bin:${PATH}
+#[[ -e /usr/java/default/bin ]] && PATH="/usr/java/default/bin:${PATH}"
 
 # for Macintosh
 if [[ "macosx" == "${DISTRO}" || "macosx-gentoo" == "${DISTRO}" ]] ; then
@@ -141,30 +141,30 @@ if [[ "macosx" == "${DISTRO}" || "macosx-gentoo" == "${DISTRO}" ]] ; then
 fi
 if [[ "macosx" == "${DISTRO}" ]] ; then
         # add Homebrew's /usr/local
-        [[ -e /usr/local ]] && PATH=/usr/local/bin:/usr/local/sbin:${PATH}
+        [[ -e /usr/local ]] && PATH="/usr/local/bin:/usr/local/sbin:${PATH}"
         # add MacPorts' /opt
-        [[ -e /opt/local ]] && PATH=/opt/local/bin:/opt/local/sbin:${PATH}
+        [[ -e /opt/local ]] && PATH="/opt/local/bin:/opt/local/sbin:${PATH}"
         # add Fink's /sw
-        [[ -e /sw ]] && PATH=/sw/bin:/sw/sbin:${PATH}
+        [[ -e /sw ]] && PATH="/sw/bin:/sw/sbin:${PATH}"
 fi
 
 # eRad's MedServ
-if [[ "${ISMEDSRV}" == "yes" ]] ; then
-        PATH=${HOME}/component/tools:${HOME}/component/utils/bin:${PATH}
+if [[ "yes" == "${ISMEDSRV}" ]] ; then
+        PATH="${HOME}/component/tools:${HOME}/component/utils/bin:${PATH}"
 fi
 
 # If the Novell Client for Linux (ncl) exists on this machine:
 if [[ -d /opt/novell/ncl/bin ]] ; then
-        PATH=/opt/novell/ncl/bin:${PATH}
+        PATH="/opt/novell/ncl/bin:${PATH}"
 fi
 
 # This user's programs
-[[ -e ${HOME}/bin ]] && PATH=${HOME}/bin:${PATH}
+[[ -e "${HOME}/bin" ]] && PATH="${HOME}/bin:${PATH}"
 
 export PATH
 
 # Set a place to display if none is set
-if [[ "${DISPLAY}x" == "x" ]] ; then
+if [[ "x" == "x${DISPLAY}" ]] ; then
         export DISPLAY=:0.0
 fi
 
@@ -180,7 +180,7 @@ export BUILD_ARCH=x86_64:i686:i586:i486:i386    # default anyway
 # Fedora (and by association, the OLPC) apparently compile the socket
 # directory to be non-default, and since it is not on the OLPC,
 # manually set it here:
-export SCREENDIR=${HOME}/.screen
+export SCREENDIR="${HOME}/.screen"
 
 # If this system has Enlightenment, set $WINDOWMANAGER to be that
 if [[ -e /usr/bin/enlightenment_start ]] ; then
@@ -230,12 +230,12 @@ fi
 # Make sure this system's `vi' is vim
 [[ "netware" != "${DISTRO}" ]] && VI_1ST_WORD=$(vi -h | head -n1 | cut -d' '  -f1)
 if [[ 'xVIM' == "x${VI_1ST_WORD}" ]] ; then
-        PATH_TO_VIM=$(type -P vi)
+        PATH_TO_VIM="$(type -P vi)"
 	alias vi="${PATH_TO_VIM} -u ${HOME}/.vimrc.jas"
-	alias gvim=${HOME}/bin/gvim.sh
+	alias gvim="${HOME}/bin/gvim.sh"
 	alias vim="${PATH_TO_VIM} -u ${HOME}/.vimrc.jas"
 	alias vimdiff="${PATH_TO_VIM} -u ${HOME}/.vimrc.jas -d"
-	alias gvimdiff=${HOME}/bin/gvimdiff.sh
+	alias gvimdiff="${HOME}/bin/gvimdiff.sh"
 	alias view="${PATH_TO_VIM} -u ${HOME}/.vimrc.jas -R"
 fi
 
@@ -288,9 +288,9 @@ proml
 
 # Directories to be created if they don't exist (to be used in the
 # following section)
-[[ ! -e ${HOME}/.ssh ]] && mkdir ${HOME}/.ssh
-[[ ! -e ${HOME}/.vim/templates ]] && mkdir -p ${HOME}/.vim/templates
-[[ ! -e ${HOME}/bin ]] && mkdir ${HOME}/bin
+[[ ! -e "${HOME}/.ssh" ]] && mkdir "${HOME}/.ssh"
+[[ ! -e "${HOME}/.vim/templates" ]] && mkdir -p "${HOME}/.vim/templates"
+[[ ! -e "${HOME}/bin" ]] && mkdir "${HOME}/bin"
 
 ### FILES ###
 # This section is a set of files included in this file so that I don't
@@ -326,7 +326,7 @@ if [[ "root" == "$(whoami)" ]] ; then
                                /root/bin/build32on64 "
 fi
 
-JAS_ROX_FNAME=${HOME}/.jas_rox_file
+JAS_ROX_FNAME="${HOME}/.jas_rox_file"
 if [[ ! -e ${JAS_ROX_FNAME} ]] ; then
         bak_files ${FILES_BASHRC_CREATES}
         echo "JAS_ROX_FILE=${JAS_ROX}" > ${JAS_ROX_FNAME}
@@ -343,10 +343,10 @@ fi
 # want to automatically clobber ~/.bash_profile .
 function mkprofile()
 {
-        cat <<EOFPROFILE > ${HOME}/.bash_profile
+        cat <<EOFPROFILE > "${HOME}/.bash_profile"
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
-source ${HOME}/.bashrc
+source "${HOME}/.bashrc"
 screen -wipe
 EOFPROFILE
 }  # mkprofile
@@ -356,7 +356,7 @@ EOFPROFILE
 # by the vimrc created above.
 #if [[ netware != ${DISTRO} ]] && type ctags > /dev/null 2>&1 ; then
 if [[ "netware" != "${DISTRO}" ]] && CTAGS=$(type -p ctags) &&
-   [[ ! -e ${HOME}/.vim/systags ]] ; then
+   [[ ! -e "${HOME}/.vim/systags" ]] ; then
         INCLUDEPATH="/usr/include"
         if [[ -e /usr/local/include ]] ; then
                 INCLUDEPATH="${INCLUDEPATH} /usr/local/include"
@@ -382,12 +382,12 @@ if [[ "netware" != "${DISTRO}" ]] && CTAGS=$(type -p ctags) &&
                 INCLUDEPATH="/opt/cc/include ${INCLUDEPATH}"
         fi
         echo "creating ctags file for ${INCLUDEPATH} ." >&2  # to stderr
-        ${CTAGS} -R -f ${HOME}/.vim/systags ${INCLUDEPATH}
+        ${CTAGS} -R -f "${HOME}/.vim/systags" ${INCLUDEPATH}
 fi # ctags
 
 ## ~/.vimrc.jas
-if [[ ! -e ${HOME}/.vimrc.jas ]] ; then
-        cat <<EOFVIMRC > ${HOME}/.vimrc.jas
+if [[ ! -e "${HOME}/.vimrc.jas" ]] ; then
+        cat <<EOFVIMRC > "${HOME}/.vimrc.jas"
 " Stuff that I like in vim  --Jas
 " Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
@@ -638,32 +638,32 @@ fi  # ~/.vimrc.jas
 ## ~/bin/gvim.sh
 # Setting up aliases only works at the commandline.  Create a file for
 # gvim stuff:
-if [[ ! -e ${HOME}/bin/gvim.sh ]] ; then
-        cat <<EOFGVIM > ${HOME}/bin/gvim.sh
+if [[ ! -e "${HOME}/bin/gvim.sh" ]] ; then
+        cat <<EOFGVIM > "${HOME}/bin/gvim.sh"
 #!/bin/bash
 
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
-\$(type -p gvim) -u ${HOME}/.vimrc.jas '+colorscheme ron' '+set number' '+set columns=84' '+set lines=60' \$@
+\$(type -p gvim) -u "${HOME}/.vimrc.jas" '+colorscheme ron' '+set number' '+set columns=84' '+set lines=60' \$@
 EOFGVIM
-        chmod +x ${HOME}/bin/gvim.sh
+        chmod +x "${HOME}/bin/gvim.sh"
 fi
 
 ## ~/bin/gvimdiff.sh
-if [[ ! -e ${HOME}/bin/gvimdiff.sh ]] ; then
-        cat <<EOFGVIMDIFF > ${HOME}/bin/gvimdiff.sh
+if [[ ! -e "${HOME}/bin/gvimdiff.sh" ]] ; then
+        cat <<EOFGVIMDIFF > "${HOME}/bin/gvimdiff.sh"
 #!/bin/bash
 
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
-\$(type -p gvim) -u ${HOME}/.vimrc.jas '+colorscheme ron' '+set number' '+set columns=84' '+set lines=60' '+set columns=168' -d \$@
+\$(type -p gvim) -u "${HOME}/.vimrc.jas" '+colorscheme ron' '+set number' '+set columns=84' '+set lines=60' '+set columns=168' -d \$@
 EOFGVIMDIFF
-        chmod +x ${HOME}/bin/gvimdiff.sh
+        chmod +x "${HOME}/bin/gvimdiff.sh"
 fi
 
 ## ~/.vim/templates/src.c
-if [[ ! -e ${HOME}/.vim/templates/src.c ]] ; then
-        cat <<EOFCSRC > ${HOME}/.vim/templates/src.c
+if [[ ! -e "${HOME}/.vim/templates/src.c" ]] ; then
+        cat <<EOFCSRC > "${HOME}/.vim/templates/src.c"
 " Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 :insert
 /**
@@ -684,8 +684,8 @@ EOFCSRC
 fi
 
 ## ~/.vim/templates/src.h
-if [[ ! -e ${HOME}/.vim/templates/src.h ]] ; then
-        cat <<EOFHSRC > ${HOME}/.vim/templates/src.h
+if [[ ! -e "${HOME}/.vim/templates/src.h" ]] ; then
+        cat <<EOFHSRC > "${HOME}/.vim/templates/src.h"
 " Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 :insert
 /**
@@ -710,8 +710,8 @@ EOFHSRC
 fi
 
 ## ~/.gdbinit
-if [[ ! -e ${HOME}/.gdbinit ]] ; then
-    cat <<EOFGDBINIT > ${HOME}/.gdbinit
+if [[ ! -e "${HOME}/.gdbinit" ]] ; then
+    cat <<EOFGDBINIT > "${HOME}/.gdbinit"
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 # Notice the space following:
@@ -745,14 +745,14 @@ fi
 ## ~/bin/gfilt
 # I like the gfilt program; if it exists, create a symlink in ~/bin;
 # otherwise, it means g++
-pushd ${HOME}/bin > /dev/null 2> /dev/null
-if [[ ! -e ${HOME}/bin/gfilt ]] ; then
-        DIR=${HOME}/src/floss/stlfilt/
+pushd "${HOME}/bin" > /dev/null 2> /dev/null
+if [[ ! -e "${HOME}/bin/gfilt" ]] ; then
+        DIR="${HOME}/src/floss/stlfilt/"
         if [[ -e ${DIR}/gfilt ]] ; then
                 ln -s ${DIR}/gfilt
                 ln -s ${DIR}/gSTLFilt.pl
-        elif [[ -e ${HOME}/bin/gfilt ]] ; then
-                DIR=${HOME}/bin/
+        elif [[ -e "${HOME}/bin/gfilt" ]] ; then
+                DIR="${HOME}/bin/"
                 ln -s ${DIR}/gfilt
                 ln -s ${DIR}/gSTLFilt.pl
         else
@@ -764,8 +764,8 @@ fi
 popd > /dev/null 2> /dev/null
 
 ## ~/bin/jasindent
-if [[ ! -e ${HOME}/bin/jasindent ]] ; then
-        cat <<EOFJASINDENT > ${HOME}/bin/jasindent
+if [[ ! -e "${HOME}/bin/jasindent" ]] ; then
+        cat <<EOFJASINDENT > "${HOME}/bin/jasindent"
 #!/bin/bash
 
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
@@ -776,12 +776,12 @@ if INDENT=\$(type -p indent) ; then
 fi
 \${INDENT} ${JASINDENT} \$@ 2> /dev/null
 EOFJASINDENT
-        chmod +x ${HOME}/bin/jasindent
+        chmod +x "${HOME}/bin/jasindent"
 fi
 
 ## /root/bin/mntmountall
-if [[ "root" == $(whoami) && ! -e ${HOME}/bin/mntmountall ]] ; then
-        cat <<EOFMNTMOUNTALL > ${HOME}/bin/mntmountall
+if [[ "root" == "$(whoami)" && ! -e "${HOME}/bin/mntmountall" ]] ; then
+        cat <<EOFMNTMOUNTALL > "${HOME}/bin/mntmountall"
 #!/bin/sh
 
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
@@ -796,12 +796,12 @@ mount --bind /sys /mnt/sys
 mount --bind /dev/pts /mnt/dev/pts
 chroot /mnt
 EOFMNTMOUNTALL
-        chmod +x ${HOME}/bin/mntmountall
+        chmod +x "${HOME}/bin/mntmountall"
 fi
 
 ## /root/bin/build32
-if [[ "root" == $(whoami) && ! -e ${HOME}/bin/build32 ]] ; then
-        cat <<EOFBUILD32 > ${HOME}/bin/build32
+if [[ "root" == "$(whoami)" && ! -e "${HOME}/bin/build32" ]] ; then
+        cat <<EOFBUILD32 > "${HOME}/bin/build32"
 #!/bin/bash
 
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
@@ -809,12 +809,12 @@ if [[ "root" == $(whoami) && ! -e ${HOME}/bin/build32 ]] ; then
 linux32 build --root /tmp/build32 --arch i586 --rpms \
               /tmp/rpms:/mnt/sled32/ \$@
 EOFBUILD32
-        chmod +x ${HOME}/bin/build32
+        chmod +x "${HOME}/bin/build32"
 fi
 
 ## /root/bin/build32on64
-if [[ "root" == $(whoami) && ! -e ${HOME}/bin/build32on64 ]] ; then
-        cat <<EOFBUILD32ON64 > ${HOME}/bin/build32on64
+if [[ "root" == "$(whoami)" && ! -e "${HOME}/bin/build32on64" ]] ; then
+        cat <<EOFBUILD32ON64 > "${HOME}/bin/build32on64"
 #!/bin/bash
 
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
@@ -833,24 +833,24 @@ done
 linux32 build --baselibs --rpms /tmp/rpms:/mnt/sled32/ \
               --root /tmp/build32 --arch i586 \${specs}
 EOFBUILD32ON64
-        chmod +x ${HOME}/bin/build32on64
+        chmod +x "${HOME}/bin/build32on64"
 fi
 
 ## ~/bin/myscreensessionname
-if [[ ! -e ${HOME}/bin/myscreensessionname ]] ; then
-        cat <<EOFMYSCREENSESSIONNAME > ${HOME}/bin/myscreensessionname
+if [[ ! -e "${HOME}/bin/myscreensessionname" ]] ; then
+        cat <<EOFMYSCREENSESSIONNAME > "${HOME}/bin/myscreensessionname"
 #!/bin/bash
 
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 screen -ls | grep \${PPID} | awk '{print \$1}' | cut -f2 -d.
 EOFMYSCREENSESSIONNAME
-        chmod +x ${HOME}/bin/myscreensessionname
+        chmod +x "${HOME}/bin/myscreensessionname"
 fi
 
 ## ~/.screenrc
-if [[ ! -e ${HOME}/.screenrc ]] ; then
-        cat <<EOFSCREENRC > ${HOME}/.screenrc
+if [[ ! -e "${HOME}/.screenrc" ]] ; then
+        cat <<EOFSCREENRC > "${HOME}/.screenrc"
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 # Have 10000 lines buffered to go back to via C-a esc
@@ -869,19 +869,19 @@ fi
 
 ## ~/.ssh/config
 # Per-user ssh configuration
-if [[ ! -e ${HOME}/.ssh/config ]] ; then
-        cat <<EOFSSHCONFIG > ${HOME}/.ssh/config
+if [[ ! -e "${HOME}/.ssh/config" ]] ; then
+        cat <<EOFSSHCONFIG > "${HOME}/.ssh/config"
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 # Make ssh connections have a faster initial connect:
 ControlMaster yes
 EOFSSHCONFIG
-        chmod 600 ${HOME}/.ssh/config
+        chmod 600 "${HOME}/.ssh/config"
 fi
 
 ## ~/.Xdefaults (for rxvt{,-unicode}):
-if [[ ! -e ${HOME}/.Xdefaults ]] ; then
-        cat <<EOFXDEFAULTS > ${HOME}/.Xdefaults
+if [[ ! -e "${HOME}/.Xdefaults" ]] ; then
+        cat <<EOFXDEFAULTS > "${HOME}/.Xdefaults"
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 *customization: -color
@@ -897,8 +897,8 @@ EOFXDEFAULTS
 fi
 
 ## ~/.inputrc
-if [[ ! -e ${HOME}/.inputrc ]] ; then
-        cat <<EOFINPUTRC > ${HOME}/.inputrc
+if [[ ! -e "${HOME}/.inputrc" ]] ; then
+        cat <<EOFINPUTRC > "${HOME}/.inputrc"
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 # possible completions show immediately
@@ -922,9 +922,9 @@ if [[ "x" != "x${GIT}" ]] ; then
         }
 
 ## ~/.gitconfig
-        if [[ ! -e ${HOME}/.gitconfig ]] ; then
+        if [[ ! -e "${HOME}/.gitconfig" ]] ; then
                 # The header
-                cat <<EOFGITCONFIG > ${HOME}/.gitconfig
+                cat <<EOFGITCONFIG > "${HOME}/.gitconfig"
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 EOFGITCONFIG
@@ -932,32 +932,32 @@ EOFGITCONFIG
                 # The rest
                 "${GIT}" config --global user.name "Jas Eckard"
                 read -p "Enter email address for git [Jas@Eckard.com]: " EMAIL
-                [[ "x" == "x$EMAIL" ]] && EMAIL="Jas@Eckard.com"
-                "${GIT}" config --global user.email $EMAIL
+                [[ "x" == "x${EMAIL}" ]] && EMAIL="Jas@Eckard.com"
+                "${GIT}" config --global user.email ${EMAIL}
                 "${GIT}" config --global credential.helper cache
-                "${GIT}" config --global diff.external ${HOME}/bin/git_diff_wrapper
+                "${GIT}" config --global diff.external "${HOME}/bin/git_diff_wrapper"
                 "${GIT}" config --global pager.diff ""
-                "${GIT}" config --global core.excludesfile ${HOME}/.gitignore
+                "${GIT}" config --global core.excludesfile "${HOME}/.gitignore"
                 "${GIT}" config --global push.default simple
         fi
 
 ## ~/bin/git_diff_wrapper
-        if [[ ! -e ${HOME}/bin/git_diff_wrapper ]] ; then
-                cat <<EOFGITDIFFWRAPPER > ${HOME}/bin/git_diff_wrapper
+        if [[ ! -e "${HOME}/bin/git_diff_wrapper" ]] ; then
+                cat <<EOFGITDIFFWRAPPER > "${HOME}/bin/git_diff_wrapper"
 #!/bin/bash
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 #vimdiff "\$1" "\$2"   # WAS \$2 \$5
 cp "\$2" "/tmp/\$(basename \$1)"
-${HOME}/bin/gvimdiff.sh "\$1" "/tmp/\$(basename \$1)"
+"${HOME}/bin/gvimdiff.sh" "\$1" "/tmp/\$(basename \$1)"
 EOFGITDIFFWRAPPER
 
-                chmod +x ${HOME}/bin/git_diff_wrapper
+                chmod +x "${HOME}/bin/git_diff_wrapper"
         fi
 
 ## ~/.gitignore
-        if [[ ! -e ${HOME}/.gitignore ]] ; then
-                cat <<EOFGITIGNORE > ${HOME}/.gitignore
+        if [[ ! -e "${HOME}/.gitignore" ]] ; then
+                cat <<EOFGITIGNORE > "${HOME}/.gitignore"
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 # vi editor backups:
@@ -969,8 +969,8 @@ EOFGITIGNORE
         fi
 fi  #  if `git' is on the system
 
-if [[ "x" != "x${LESSPIPE}" && ! -e ${LESSPIPE} ]] ; then
-        cat <<EOFLESSPIPE > ${LESSPIPE}
+if [[ "x" != "x${LESSPIPE}" && ! -e "${LESSPIPE}" ]] ; then
+        cat <<EOFLESSPIPE > "${LESSPIPE}"
 #!/bin/sh -
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
@@ -1030,7 +1030,7 @@ else
         lesspipe "\$1" 2> /dev/null
 fi
 EOFLESSPIPE
-        chmod +x ${LESSPIPE}
+        chmod +x "${LESSPIPE}"
 fi
 
 # Start the ssh-agent:  Still will need to ssh-add or else will be
