@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2012.12.06
+JAS_ROX=2012.12.10
 
 # Section to increment the above automatically, when this file is
 # updated, then automatically publish to appropriate machines.
@@ -119,7 +119,7 @@ export GREP_OPTIONS='--color'
 
 ### PATH
 
-PATH+=:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 # Necessary for Gentoo?
 #PATH="/bin:/usr/bin:/usr/local/bin:/usr/bin/X11:/usr/games"
@@ -135,9 +135,9 @@ PATH+=:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 if [[ "macosx" == "${DISTRO}" || "macosx-gentoo" == "${DISTRO}" ]] ; then
         # add X
         # (OS X 10.4)
-        [[ -e /usr/X11R6/bin ]] && PATH+=:/usr/X11R6/bin
+        [[ -e /usr/X11R6/bin ]] && PATH="${PATH}:/usr/X11R6/bin"
         # (OS X 10.8)
-        [[ -e /opt/X11/bin ]] && PATH+=:/opt/X11/bin
+        [[ -e /opt/X11/bin ]] && PATH="${PATH}:/opt/X11/bin"
 fi
 if [[ "macosx" == "${DISTRO}" ]] ; then
         # add Homebrew's /usr/local
@@ -244,11 +244,11 @@ TABSIZE=8
 JASINDENT="--k-and-r-style --blank-lines-after-declarations --no-tabs \
            --break-before-boolean-operator --cuddle-do-while \
            --line-length75 --comment-line-length75 --no-space-after-casts \
-           --swallow-optional-blank-lines --space-special-semicolon "
+           --swallow-optional-blank-lines --space-special-semicolon \
+           --continuation-indentation${TABSIZE} --tab-size${TABSIZE} \
+           --case-indentation${TABSIZE} --indent-level${TABSIZE} "
            #--comment-indentation2 --declaration-comment-column2 \
            #--else-endif-column2 --line-comments-indentation2 "
-JASINDENT+="--continuation-indentation${TABSIZE} --tab-size${TABSIZE}
-            --case-indentation${TABSIZE} --indent-level${TABSIZE} "
 # Now in ~/bin (see below)
 #alias jasindent="indent ${JASINDENT}"
 
@@ -318,12 +318,14 @@ FILES_BASHRC_CREATES="${HOME}/.vimrc.jas ${HOME}/bin/gvim.sh
                       ${HOME}/.inputrc ${HOME}/bin/myscreensessionname
                       ${LESSPIPE} "
 if [[ "x" != "x${GIT}" ]] ; then
-        FILES_BASHRC_CREATES+="${HOME}/.gitconfig ${HOME}/.gitignore
-                               ${HOME}/bin/git_diff_wrapper "
+        FILES_BASHRC_CREATES="${FILES_BASHRC_CREATES} \
+                              ${HOME}/.gitconfig ${HOME}/.gitignore \
+                              ${HOME}/bin/git_diff_wrapper "
 fi
 if [[ "root" == "$(whoami)" ]] ; then
-        FILES_BASHRC_CREATES+="/root/bin/mntmountall /root/bin/build32
-                               /root/bin/build32on64 "
+        FILES_BASHRC_CREATES="${FILES_BASHRC_CREATES} \
+                              /root/bin/mntmountall /root/bin/build32 \
+                              /root/bin/build32on64 "
 fi
 
 JAS_ROX_FNAME="${HOME}/.jas_rox_file"
