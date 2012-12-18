@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2012.12.10
+JAS_ROX=2012.12.18
 
 # Section to increment the above automatically, when this file is
 # updated, then automatically publish to appropriate machines.
@@ -348,6 +348,7 @@ function mkprofile()
         cat <<EOFPROFILE > "${HOME}/.bash_profile"
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
+[[ -e /etc/profile ]] && source /etc/profile
 source "${HOME}/.bashrc"
 screen -wipe
 EOFPROFILE
