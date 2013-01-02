@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2012.12.21
+JAS_ROX=2013.01.02
 
 # Section to increment the above automatically, when this file is
 # updated, then automatically publish to appropriate machines.
