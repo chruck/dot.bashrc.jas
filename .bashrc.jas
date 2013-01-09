@@ -28,7 +28,7 @@ if [[ -e /etc/redhat-release ]] ; then
         alias clear="echo Type 'clearr' to clear the screen"
         alias clearr=/usr/bin/clear
         # Red Hat de-stupified
-        unalias rm cp mv 2> /dev/null  
+        unalias rm cp mv 2>/dev/null  
 elif [[ -e /etc/SuSE-release ]] ; then
         DISTRO="suse"
         RELEASE="$(cat /etc/SuSE-release)"
@@ -72,7 +72,7 @@ bind 'TAB: complete'
 
 ### eRAD
 ISMEDSRV=no
-if [[ "netware" != "${DISTRO}" ]] && grep medsrv /etc/passwd > /dev/null ; then
+if [[ "netware" != "${DISTRO}" ]] && grep medsrv /etc/passwd >/dev/null ; then
         ISMEDSRV=yes
 fi
 
@@ -272,7 +272,7 @@ fi
 
 if [[ "${PS1}" && "linux" == "$(uname)" ]] ; then
         mkdir -m 0700 /sys/fs/cgroup/cpu/user/$$
-        echo $$ > /sys/fs/cgroup/cpu/user/$$/tasks
+        echo $$ >/sys/fs/cgroup/cpu/user/$$/tasks
 fi
 
 function proml()
@@ -338,12 +338,12 @@ fi
 JAS_ROX_FNAME="${HOME}/.jas_rox_file"
 if [[ ! -e ${JAS_ROX_FNAME} ]] ; then
         bak_files ${FILES_BASHRC_CREATES}
-        echo "JAS_ROX_FILE=${JAS_ROX}" > ${JAS_ROX_FNAME}
+        echo "JAS_ROX_FILE=${JAS_ROX}" >${JAS_ROX_FNAME}
 else
         source ${JAS_ROX_FNAME}
         if [[ "${JAS_ROX_FILE}" != "${JAS_ROX}" ]] ; then
                 bak_files ${FILES_BASHRC_CREATES}
-                echo "JAS_ROX_FILE=${JAS_ROX}" > ${JAS_ROX_FNAME}
+                echo "JAS_ROX_FILE=${JAS_ROX}" >${JAS_ROX_FNAME}
         fi
 fi
 
@@ -352,7 +352,7 @@ fi
 # want to automatically clobber ~/.bash_profile .
 function mkprofile()
 {
-        cat <<EOFPROFILE > "${HOME}/.bash_profile"
+        cat <<EOFPROFILE >"${HOME}/.bash_profile"
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 OLDPATH="\${PATH}"
@@ -366,7 +366,7 @@ EOFPROFILE
 ## ~/.vim/systags
 # Add a tags file for all headers in /usr/include .  This file is used
 # by the vimrc created above.
-#if [[ netware != ${DISTRO} ]] && type ctags > /dev/null 2>&1 ; then
+#if [[ netware != ${DISTRO} ]] && type ctags >/dev/null 2>&1 ; then
 if [[ "netware" != "${DISTRO}" ]] && CTAGS=$(type -p ctags) &&
    [[ ! -e "${HOME}/.vim/systags" ]] ; then
         INCLUDEPATH="/usr/include"
@@ -399,7 +399,7 @@ fi # ctags
 
 ## ~/.vimrc.jas
 if [[ ! -e "${HOME}/.vimrc.jas" ]] ; then
-        cat <<EOFVIMRC > "${HOME}/.vimrc.jas"
+        cat <<EOFVIMRC >"${HOME}/.vimrc.jas"
 " Stuff that I like in vim  --Jas
 " Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
@@ -651,7 +651,7 @@ fi  # ~/.vimrc.jas
 # Setting up aliases only works at the commandline.  Create a file for
 # gvim stuff:
 if [[ ! -e "${HOME}/bin/gvim.sh" ]] ; then
-        cat <<EOFGVIM > "${HOME}/bin/gvim.sh"
+        cat <<EOFGVIM >"${HOME}/bin/gvim.sh"
 #!/bin/bash
 
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
@@ -663,7 +663,7 @@ fi
 
 ## ~/bin/gvimdiff.sh
 if [[ ! -e "${HOME}/bin/gvimdiff.sh" ]] ; then
-        cat <<EOFGVIMDIFF > "${HOME}/bin/gvimdiff.sh"
+        cat <<EOFGVIMDIFF >"${HOME}/bin/gvimdiff.sh"
 #!/bin/bash
 
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
@@ -675,7 +675,7 @@ fi
 
 ## ~/.vim/templates/src.c
 if [[ ! -e "${HOME}/.vim/templates/src.c" ]] ; then
-        cat <<EOFCSRC > "${HOME}/.vim/templates/src.c"
+        cat <<EOFCSRC >"${HOME}/.vim/templates/src.c"
 " Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 :insert
 /**
@@ -697,7 +697,7 @@ fi
 
 ## ~/.vim/templates/src.h
 if [[ ! -e "${HOME}/.vim/templates/src.h" ]] ; then
-        cat <<EOFHSRC > "${HOME}/.vim/templates/src.h"
+        cat <<EOFHSRC >"${HOME}/.vim/templates/src.h"
 " Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 :insert
 /**
@@ -723,7 +723,7 @@ fi
 
 ## ~/.gdbinit
 if [[ ! -e "${HOME}/.gdbinit" ]] ; then
-    cat <<EOFGDBINIT > "${HOME}/.gdbinit"
+    cat <<EOFGDBINIT >"${HOME}/.gdbinit"
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 # Notice the space following:
@@ -757,7 +757,7 @@ fi
 ## ~/bin/gfilt
 # I like the gfilt program; if it exists, create a symlink in ~/bin;
 # otherwise, it means g++
-pushd "${HOME}/bin" > /dev/null 2> /dev/null
+pushd "${HOME}/bin" >/dev/null 2>/dev/null
 if [[ ! -e "${HOME}/bin/gfilt" ]] ; then
         DIR="${HOME}/src/floss/stlfilt/"
         if [[ -e ${DIR}/gfilt ]] ; then
@@ -773,11 +773,11 @@ if [[ ! -e "${HOME}/bin/gfilt" ]] ; then
                 fi
         fi
 fi
-popd > /dev/null 2> /dev/null
+popd >/dev/null 2>/dev/null
 
 ## ~/bin/jasindent
 if [[ ! -e "${HOME}/bin/jasindent" ]] ; then
-        cat <<EOFJASINDENT > "${HOME}/bin/jasindent"
+        cat <<EOFJASINDENT >"${HOME}/bin/jasindent"
 #!/bin/bash
 
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
@@ -786,14 +786,14 @@ if INDENT=\$(type -p indent) ; then
         echo Indent is not installed
         exit 1
 fi
-\${INDENT} ${JASINDENT} \$@ 2> /dev/null
+\${INDENT} ${JASINDENT} \$@ 2>/dev/null
 EOFJASINDENT
         chmod +x "${HOME}/bin/jasindent"
 fi
 
 ## /root/bin/mntmountall
 if [[ "root" == "$(whoami)" && ! -e "${HOME}/bin/mntmountall" ]] ; then
-        cat <<EOFMNTMOUNTALL > "${HOME}/bin/mntmountall"
+        cat <<EOFMNTMOUNTALL >"${HOME}/bin/mntmountall"
 #!/bin/sh
 
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
@@ -813,7 +813,7 @@ fi
 
 ## /root/bin/build32
 if [[ "root" == "$(whoami)" && ! -e "${HOME}/bin/build32" ]] ; then
-        cat <<EOFBUILD32 > "${HOME}/bin/build32"
+        cat <<EOFBUILD32 >"${HOME}/bin/build32"
 #!/bin/bash
 
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
@@ -826,7 +826,7 @@ fi
 
 ## /root/bin/build32on64
 if [[ "root" == "$(whoami)" && ! -e "${HOME}/bin/build32on64" ]] ; then
-        cat <<EOFBUILD32ON64 > "${HOME}/bin/build32on64"
+        cat <<EOFBUILD32ON64 >"${HOME}/bin/build32on64"
 #!/bin/bash
 
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
@@ -839,7 +839,7 @@ fi
 specs=
 for i in \${names}
 do
-        echo \${i} > baselibs.conf
+        echo \${i} >baselibs.conf
         specs="\${specs} \${i}*.spec"
 done
 linux32 build --baselibs --rpms /tmp/rpms:/mnt/sled32/ \
@@ -850,7 +850,7 @@ fi
 
 ## ~/bin/myscreensessionname
 if [[ ! -e "${HOME}/bin/myscreensessionname" ]] ; then
-        cat <<EOFMYSCREENSESSIONNAME > "${HOME}/bin/myscreensessionname"
+        cat <<EOFMYSCREENSESSIONNAME >"${HOME}/bin/myscreensessionname"
 #!/bin/bash
 
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
@@ -862,7 +862,7 @@ fi
 
 ## ~/.screenrc
 if [[ ! -e "${HOME}/.screenrc" ]] ; then
-        cat <<EOFSCREENRC > "${HOME}/.screenrc"
+        cat <<EOFSCREENRC >"${HOME}/.screenrc"
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 # Have 10000 lines buffered to go back to via C-a esc
@@ -882,7 +882,7 @@ fi
 ## ~/.ssh/config
 # Per-user ssh configuration
 if [[ ! -e "${HOME}/.ssh/config" ]] ; then
-        cat <<EOFSSHCONFIG > "${HOME}/.ssh/config"
+        cat <<EOFSSHCONFIG >"${HOME}/.ssh/config"
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 # Make ssh connections have a faster initial connect:
@@ -893,7 +893,7 @@ fi
 
 ## ~/.Xdefaults (for rxvt{,-unicode}):
 if [[ ! -e "${HOME}/.Xdefaults" ]] ; then
-        cat <<EOFXDEFAULTS > "${HOME}/.Xdefaults"
+        cat <<EOFXDEFAULTS >"${HOME}/.Xdefaults"
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 *customization: -color
@@ -910,7 +910,7 @@ fi
 
 ## ~/.inputrc
 if [[ ! -e "${HOME}/.inputrc" ]] ; then
-        cat <<EOFINPUTRC > "${HOME}/.inputrc"
+        cat <<EOFINPUTRC >"${HOME}/.inputrc"
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 # possible completions show immediately
@@ -936,7 +936,7 @@ if [[ "x" != "x${GIT}" ]] ; then
 ## ~/.gitconfig
         if [[ ! -e "${HOME}/.gitconfig" ]] ; then
                 # The header
-                cat <<EOFGITCONFIG > "${HOME}/.gitconfig"
+                cat <<EOFGITCONFIG >"${HOME}/.gitconfig"
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 EOFGITCONFIG
@@ -955,7 +955,7 @@ EOFGITCONFIG
 
 ## ~/bin/git_diff_wrapper
         if [[ ! -e "${HOME}/bin/git_diff_wrapper" ]] ; then
-                cat <<EOFGITDIFFWRAPPER > "${HOME}/bin/git_diff_wrapper"
+                cat <<EOFGITDIFFWRAPPER >"${HOME}/bin/git_diff_wrapper"
 #!/bin/bash
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
@@ -969,7 +969,7 @@ EOFGITDIFFWRAPPER
 
 ## ~/.gitignore
         if [[ ! -e "${HOME}/.gitignore" ]] ; then
-                cat <<EOFGITIGNORE > "${HOME}/.gitignore"
+                cat <<EOFGITIGNORE >"${HOME}/.gitignore"
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 # vi editor backups:
@@ -982,7 +982,7 @@ EOFGITIGNORE
 fi  #  if `git' is on the system
 
 if [[ "x" != "x${LESSPIPE}" && ! -e "${LESSPIPE}" ]] ; then
-        cat <<EOFLESSPIPE > "${LESSPIPE}"
+        cat <<EOFLESSPIPE >"${LESSPIPE}"
 #!/bin/sh -
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
@@ -1039,7 +1039,7 @@ lesspipe() {
 if [ -d "\$1" ] ; then
         /bin/ls -alF -- "\$1"
 else
-        lesspipe "\$1" 2> /dev/null
+        lesspipe "\$1" 2>/dev/null
 fi
 EOFLESSPIPE
         chmod +x "${LESSPIPE}"
@@ -1047,7 +1047,7 @@ fi
 
 # Start the ssh-agent:  Still will need to ssh-add or else will be
 # asked for passphrase every time
-eval $(ssh-agent -s > /dev/null 2>&1 ) > /dev/null 2>&1
+eval $(ssh-agent -s >/dev/null 2>&1 ) >/dev/null 2>&1
 
 # Sometimes backspace doesn't work:
-stty sane 2> /dev/null
+stty sane 2>/dev/null
