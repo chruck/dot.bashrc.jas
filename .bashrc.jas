@@ -222,7 +222,7 @@ alias path='echo ${PATH}'
 [[ -e "${PORT}" ]] && alias port="${PORT} -v"       # MacPorts
 [[ -e "${SSH}" ]] && alias ssh="${SSH} -Y"
 
-function which()
+which()
 {
         echo "type:  $(type $@)"
         [[ -e "${WHICH}" ]] && echo "${WHICH}: $(${WHICH} $@)"
@@ -275,7 +275,7 @@ if [[ "${PS1}" && "linux" == "$(uname)" ]] ; then
         echo $$ >/sys/fs/cgroup/cpu/user/$$/tasks
 fi
 
-function proml()
+proml()
 {
         case ${TERM} in
                 xterm*)
@@ -302,7 +302,7 @@ proml
 # This section is a set of files included in this file so that I don't
 # have to carry them around separate from this file.
 
-function bak_files()
+bak_files()
 {
         for i in $@
         do
@@ -350,7 +350,7 @@ fi
 ## ~/.bash_profile
 # The reason this is a function instead of simply done is that I don't
 # want to automatically clobber ~/.bash_profile .
-function mkprofile()
+mkprofile()
 {
         cat <<EOFPROFILE >"${HOME}/.bash_profile"
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
@@ -928,7 +928,7 @@ fi
 # from http://technotales.wordpress.com/2009/05/17/git-diff-with-vimdiff/
 # Call this function to show a Git diff using vim as a pager:
 if [[ "x" != "x${GIT}" ]] ; then
-        function git_diff()
+        git_diff()
         {
                 "${GIT}" diff --no-ext-diff -w "$@" | vim -R -
         }
