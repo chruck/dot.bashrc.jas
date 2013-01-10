@@ -92,7 +92,9 @@ for script in /etc/bash_completion.d/*.sh ; do
 done
 
 # For GoboLinux:
-#. ~/Programs/Rootless/Settings/StartGobo
+if [[ -e ~/Programs/Rootless/Settings/StartGobo ]] ; then
+       source ~/Programs/Rootless/Settings/StartGobo
+fi
 
 ### Environment variables
 
