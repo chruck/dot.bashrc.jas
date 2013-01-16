@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2013.01.11
+JAS_ROX=2013.01.15
 THISFILESHOULDBE=".bashrc.jas"
 
 # Section to increment the above JAS_ROX variable automatically,
@@ -226,11 +226,17 @@ alias path='echo ${PATH}'
 [[ -e "${PORT}" ]] && alias port="${PORT} -v"       # MacPorts
 [[ -e "${SSH}" ]] && alias ssh="${SSH} -Y"
 
-which()
-{
-        echo "type:  $(type "$@")"
-        [[ -e "${WHICH}" ]] && echo "${WHICH}: $(${WHICH} "$@")"
-}
+if [[ "redhat" != "${DISTRO}"
+      && "Red Hat Enterprise Linux AS release 4 (Nahant)" != "${RELEASE}" ]]
+then
+        # RHEL4 uses alias which='alias | /usr/bin/which --tty-only
+        #                         --read-alias --show-dot --show-tilde'
+        which()
+        {
+                echo "type:  $(type "$@")"
+                [[ -e "${WHICH}" ]] && echo "${WHICH}: $(${WHICH} "$@")"
+        }
+fi
 
 if [[ "netware" != "${DISTRO}" ]] && RSYNC=$(type -p rsync) ; then
         alias scp="${RSYNC} -Pave ssh"
@@ -331,8 +337,9 @@ FILES_BASHRC_CREATES="${VIMRCJAS} ${GVIM}
                       ${HOME}/.inputrc ${HOME}/bin/myscreensessionname
                       ${LESSPIPE} "
 if [[ "x" != "x${GIT}" ]] ; then
+        GITCONFIG="${HOME}/.gitconfig"
         FILES_BASHRC_CREATES="${FILES_BASHRC_CREATES} \
-                              ${HOME}/.gitconfig ${HOME}/.gitignore \
+                              ${GITCONFIG} ${HOME}/.gitignore \
                               ${HOME}/bin/git_diff_wrapper "
 fi
 if [[ "root" == "$(whoami)" ]] ; then
@@ -940,17 +947,21 @@ if [[ "x" != "x${GIT}" ]] ; then
         }
 
 ## ~/.gitconfig
-        if [[ ! -e "${HOME}/.gitconfig" ]] ; then
+        if [[ ! -e "${GITCONFIG}" ]] ; then
                 # The header
-                cat <<EOFGITCONFIG >"${HOME}/.gitconfig"
+                cat <<EOFGITCONFIG >"${GITCONFIG}"
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 EOFGITCONFIG
 
                 # The rest
                 "${GIT}" config --global user.name "Jas Eckard"
-                read -p "Enter email address for git [Jas@Eckard.com]: " EMAIL
-                [[ "x" == "x${EMAIL}" ]] && EMAIL="Jas@Eckard.com"
+                # Read from and reuse previous email setting
+                if [[ -e "${GITCONFIG}.bak" ]] ; then
+                        eval "$(grep email ${GITCONFIG}.bak | sed 's/\t//;s/ = /=/')"
+                fi
+                read -p "Enter email address for git [${email}]: " EMAIL
+                [[ "x" == "x${EMAIL}" ]] && EMAIL="${email}"
                 "${GIT}" config --global user.email ${EMAIL}
                 "${GIT}" config --global credential.helper cache
                 "${GIT}" config --global diff.external "${HOME}/bin/git_diff_wrapper"
