@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2013.01.15
+JAS_ROX=2013.01.22
 THISFILESHOULDBE=".bashrc.jas"
 
 # Section to increment the above JAS_ROX variable automatically,
@@ -968,6 +968,9 @@ EOFGITCONFIG
                 "${GIT}" config --global pager.diff ""
                 "${GIT}" config --global core.excludesfile "${HOME}/.gitignore"
                 "${GIT}" config --global push.default simple
+                "${GIT}" config --global color.diff auto
+                "${GIT}" config --global color.status auto
+                "${GIT}" config --global color.branch auto
         fi
 
 ## ~/bin/git_diff_wrapper
