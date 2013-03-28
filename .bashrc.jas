@@ -505,6 +505,10 @@ if has("autocmd")
         endif
         " To use syntax highlighting with Wikipedia
         " (see http://en.wikipedia.org/wiki/Wikipedia:Text_editor_support#Vim )
+        " or
+        " git clone https://github.com/vim-scripts/mediawiki.vim.git
+        " ln -s mediawiki.vim/syntax/mediawiki.vim ~/.vim/syntax
+        " ln -s mediawiki.vim/ftdetect/mediawiki.vim ~/.vim/ftdetect
         au BufRead,BufNewFile *.wiki setfiletype Wikipedia
 
         " When creating new files, base them on the following template
