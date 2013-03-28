@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2013.01.22
+JAS_ROX=2013.03.28
 THISFILESHOULDBE=".bashrc.jas"
 
 # Section to increment the above JAS_ROX variable automatically,
@@ -955,19 +955,26 @@ if [[ "x" != "x${GIT}" ]] ; then
 EOFGITCONFIG
 
                 # The rest
-                "${GIT}" config --global user.name "Jas Eckard"
                 # Read from and reuse previous email setting
                 if [[ -e "${GITCONFIG}.bak" ]] ; then
                         eval "$(grep email ${GITCONFIG}.bak | sed 's/\t//;s/ = /=/')"
+                        eval "$(grep name ${GITCONFIG}.bak | sed 's/\t//;s/ = /=/')"
                 fi
+		# default name (or grabbed above)
+                [[ "x" == "x${name}" ]] && name="Jas Eckard"
+                read -p "Enter name for git [${name}]: " NAME
+                [[ "x" == "x${NAME}" ]] && NAME="${name}"
+                "${GIT}" config --global user.name ${NAME}
+
+                [[ "x" == "x${email}" ]] && email="jas@eckard.com"
                 read -p "Enter email address for git [${email}]: " EMAIL
                 [[ "x" == "x${EMAIL}" ]] && EMAIL="${email}"
                 "${GIT}" config --global user.email ${EMAIL}
+
                 "${GIT}" config --global credential.helper cache
                 "${GIT}" config --global diff.external "${HOME}/bin/git_diff_wrapper"
                 "${GIT}" config --global pager.diff ""
                 "${GIT}" config --global core.excludesfile "${HOME}/.gitignore"
-                "${GIT}" config --global push.default simple
                 "${GIT}" config --global color.diff auto
                 "${GIT}" config --global color.status auto
                 "${GIT}" config --global color.branch auto
