@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2013.03.28
+JAS_ROX=2013.04.25
 THISFILESHOULDBE=".bashrc.jas"
 
 # Section to increment the above JAS_ROX variable automatically,
@@ -71,12 +71,6 @@ shopt -s histappend
 shopt -s histreedit
 # make sure the TAB character does completion (esp in cygwin/screen)
 bind 'TAB: complete'
-
-### eRAD
-ISMEDSRV=no
-if [[ "netware" != "${DISTRO}" ]] && grep medsrv /etc/passwd >/dev/null ; then
-        ISMEDSRV=yes
-fi
 
 ### BASH completion
 if [[ -e "${HOME}/.bash_completion" ]] ; then
@@ -153,11 +147,6 @@ if [[ "macosx" == "${DISTRO}" ]] ; then
         [[ -e /opt/local ]] && PATH="/opt/local/bin:/opt/local/sbin:${PATH}"
         # add Fink's /sw
         [[ -e /sw ]] && PATH="/sw/bin:/sw/sbin:${PATH}"
-fi
-
-# eRad's MedServ
-if [[ "yes" == "${ISMEDSRV}" ]] ; then
-        PATH="${HOME}/component/tools:${HOME}/component/utils/bin:${PATH}"
 fi
 
 # If the Novell Client for Linux (ncl) exists on this machine:
