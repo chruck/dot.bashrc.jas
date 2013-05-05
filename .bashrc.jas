@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2013.04.25
+JAS_ROX=2013.05.05
 THISFILESHOULDBE=".bashrc.jas"
 
 # Section to increment the above JAS_ROX variable automatically,
@@ -442,10 +442,7 @@ set viminfo='20,\"50
 if has("syntax")
         syntax on
 endif
-if has("filetype")
-        filetype plugin on
-        filetype indent on
-endif
+filetype plugin indent on
 
 set formatoptions+=tn
 set formatoptions-=l
