@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2013.05.05
+JAS_ROX=2013.05.09
 THISFILESHOULDBE=".bashrc.jas"
 
 # Section to increment the above JAS_ROX variable automatically,
@@ -55,6 +55,12 @@ else case ${OSTYPE} in
         linux*)
                 DISTRO="linux"
                 ;;
+        aix*)
+                DISTRO="aix"
+                ;;
+        *)
+                DISTRO="unassigned"
+                ;;
         esac
 fi
 
@@ -97,12 +103,19 @@ fi
 # At home:
 #export NNTPSERVER=newsgroups.bellsouth.net
 
-# Other BSDs?
-if [[ "macosx" == "${DISTRO}" ]] ; then
-        export LS_OPTIONS='-G'
-else
-        export LS_OPTIONS='--color=auto'
-fi
+case ${DISTRO} in
+        macosx)
+                # Other BSDs?
+                export LS_OPTIONS='-G'
+                ;;
+        aix)
+                export LS_OPTIONS=''
+                [[ "screen" == "${TERM}" ]] && export TERM='xterm'
+                ;;
+        *)
+                export LS_OPTIONS='--color=auto'
+                ;;
+esac
 
 #export LS_COLORS='no=00:fi=00:di=01;34:ln=01;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.gz=01;31:*.bz2=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.avi=01;35:*.fli=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.ogg=01;35:*.mp3=01;35:*.wav=01;35:'
 export LS_COLORS='*.Z=01;31:*.arj=01;31:*.bat=01;32:*.avi=01;35:*.bmp=01;35:*.btm=01;32:*.bz2=01;31:*.bz=01;31:*.cmd=01;32:*.com=01;32:*.cpio=01;31:*.csh=01;32:*.exe=01;32:*.deb=01;31:*.dl=01;35:*.fli=01;35:*.gif=01;35:*.gl=01;35:*.gz=01;31:*.jar=01;31:*.jpeg=01;35:*.jpg=01;35:*.lzh=01;31:*.mov=01;35:*.mp3=01;35:*.mpeg=01;35:*.mpg=01;35:*.ogg=01;35:*.pbm=01;35:*.pgm=01;35:*.png=01;35:*.ppm=01;35:*.rpm=01;31:*.sh=01;32:*.tar=01;31:*.taz=01;31:*.tga=01;35:*.tgz=01;31:*.tif=01;35:*.tiff=01;35:*.tz=01;31:*.wav=01;35:*.xbm=01;35:*.xcf=01;35:*.xpm=01;35:*.xwd=01;35:*.z=01;31:*.zip=01;31:bd=40;33;01:cd=40;33;01:di=01;34:do=01;35:ex=01;32:fi=00:ln=01;36:mi=01;05;37;41:no=00:or=40;31;01:pi=40;33:so=01;35:'
@@ -233,7 +246,7 @@ if [[ "netware" != "${DISTRO}" ]] && RSYNC=$(type -p rsync) ; then
 fi
 
 # Make sure this system's `vi' is vim
-[[ "netware" != "${DISTRO}" ]] && VI_1ST_WORD=$(vi -h | head -n1 | cut -d' '  -f1)
+[[ "netware" != "${DISTRO}" ]] && VI_1ST_WORD=$(vi -h 2>&1 | head -n1 | cut -d' '  -f1)
 if [[ 'xVIM' == "x${VI_1ST_WORD}" ]] ; then
         PATH_TO_VIM="$(type -P vi)"
         VIMRCJAS="${HOME}/.vimrc.jas"
@@ -365,43 +378,49 @@ screen -wipe
 EOFPROFILE
 }  # mkprofile
 
+# Vim section of files
+if [[ 'xVIM' == "x${VI_1ST_WORD}" ]] ; then
+
 ## ~/.vim/systags
-# Add a tags file for all headers in /usr/include .  This file is used
-# by the vimrc created above.
-SYSTAGS="${HOME}/.vim/systags"
-if [[ "netware" != "${DISTRO}" ]] && CTAGS=$(type -p ctags) &&
-   [[ ! -e "${SYSTAGS}" ]] ; then
-        INCLUDEPATH="/usr/include"
-        if [[ -e /usr/local/include ]] ; then
-                INCLUDEPATH="${INCLUDEPATH} /usr/local/include"
-        fi
-        if [[ -e /var/opensuse/usr/include ]] ; then
-                INCLUDEPATH="${INCLUDEPATH} /var/opensuse/usr/include"
-        fi
-        if [[ -e /opt/novell/include/xplat ]] ; then
-                INCLUDEPATH="/opt/novell/include/xplat ${INCLUDEPATH}"
-        fi
-        if [[ -e /opt/novell/ndk/novell-cldap-devel-2007.04.17-1linux64/include ]]
-        then
-                INCLUDEPATH="/opt/novell/ndk/novell-cldap-devel-2007.04.17-1linux64/include ${INCLUDEPATH}"
-        fi
-        if [[ -e /opt/novell/ndk/cldap/include ]] ; then
-                INCLUDEPATH="/opt/novell/ndk/cldap/include ${INCLUDEPATH}"
-        fi
-        if [[ -e /cygdrive/c/novell-nwsdkc-devel-2007.02.27-1netware_windows/clib/include ]]
-        then
-                INCLUDEPATH="${INCLUDEPATH} /cygdrive/c/novell-nwsdkc-devel-2007.02.27-1netware_windows/clib/include"
-        fi
-        if [[ -e /opt/cc/include ]] ; then
-                INCLUDEPATH="/opt/cc/include ${INCLUDEPATH}"
-        fi
-        echo "creating ctags file for ${INCLUDEPATH} ." >&2  # to stderr
-        ${CTAGS} -R -f "${SYSTAGS}" ${INCLUDEPATH}
-fi # ctags
+        # Add a tags file for all headers in /usr/include .  This file
+        # is used by the vimrc created above.
+        SYSTAGS="${HOME}/.vim/systags"
+        if [[ "netware" != "${DISTRO}" ]] && CTAGS=$(type -p ctags) &&
+           [[ ! -e "${SYSTAGS}" ]] ; then
+                INCLUDEPATH="/usr/include"
+                if [[ -e /usr/local/include ]] ; then
+                        INCLUDEPATH="${INCLUDEPATH} /usr/local/include"
+                fi
+                if [[ -e /var/opensuse/usr/include ]] ; then
+                        INCLUDEPATH="${INCLUDEPATH} /var/opensuse/usr/include"
+                fi
+                if [[ -e /opt/novell/include/xplat ]] ; then
+                        INCLUDEPATH="/opt/novell/include/xplat ${INCLUDEPATH}"
+                fi
+                if [[ -e /opt/novell/ndk/novell-cldap-devel-2007.04.17-1linux64/include ]]
+                then
+                        INCLUDEPATH="/opt/novell/ndk/novell-cldap-devel-2007.04.17-1linux64/include ${INCLUDEPATH}"
+                fi
+                if [[ -e /opt/novell/ndk/cldap/include ]] ; then
+                        INCLUDEPATH="/opt/novell/ndk/cldap/include ${INCLUDEPATH}"
+                fi
+                if [[ -e /cygdrive/c/novell-nwsdkc-devel-2007.02.27-1netware_windows/clib/include ]]
+                then
+                        INCLUDEPATH="${INCLUDEPATH} /cygdrive/c/novell-nwsdkc-devel-2007.02.27-1netware_windows/clib/include"
+                fi
+                if [[ -e /opt/cc/include ]] ; then
+                        INCLUDEPATH="/opt/cc/include ${INCLUDEPATH}"
+                fi
+                echo "creating ctags file for ${INCLUDEPATH} ." >&2  # to stderr
+                if [[ "aix" != "${DISTRO}" ]] ; then
+                        CTAGSFLAG="-R"
+                fi
+                ${CTAGS} ${CTAGSFLAG} -f "${SYSTAGS}" ${INCLUDEPATH}
+        fi # ctags
 
 ## ~/.vimrc.jas
-if [[ ! -e "${VIMRCJAS}" ]] ; then
-        cat <<EOFVIMRC >"${VIMRCJAS}"
+        if [[ ! -e "${VIMRCJAS}" ]] ; then
+                cat <<EOFVIMRC >"${VIMRCJAS}"
 " Stuff that I like in vim  --Jas
 " Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
@@ -648,37 +667,37 @@ if has("autocmd")
 "set whichwrap=<,>,[,],b,s
 "
 EOFVIMRC
-fi  # ~/.vimrc.jas
+        fi  # ~/.vimrc.jas
 
 ## ~/bin/gvim.sh
-# Setting up aliases only works at the commandline.  Create a file for
-# gvim stuff:
-if [[ ! -e "${GVIM}" ]] ; then
-        cat <<EOFGVIM >"${GVIM}"
+        # Setting up aliases only works at the commandline.  Create a file for
+        # gvim stuff:
+        if [[ ! -e "${GVIM}" ]] ; then
+                cat <<EOFGVIM >"${GVIM}"
 #!/bin/bash
 
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 \$(type -p gvim) -u "${VIMRCJAS}" '+colorscheme ron' '+set number' '+set columns=84' '+set lines=60' "\$@"
 EOFGVIM
-        chmod +x "${GVIM}"
-fi
+                chmod +x "${GVIM}"
+        fi
 
 ## ~/bin/gvimdiff.sh
-if [[ ! -e "${GVIMDIFF}" ]] ; then
-        cat <<EOFGVIMDIFF >"${GVIMDIFF}"
+        if [[ ! -e "${GVIMDIFF}" ]] ; then
+                cat <<EOFGVIMDIFF >"${GVIMDIFF}"
 #!/bin/bash
 
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 \$(type -p gvim) -u "${VIMRCJAS}" '+colorscheme ron' '+set number' '+set columns=84' '+set lines=60' '+set columns=168' -d "\$@"
 EOFGVIMDIFF
-        chmod +x "${GVIMDIFF}"
-fi
+                chmod +x "${GVIMDIFF}"
+        fi
 
 ## ~/.vim/templates/src.c
-if [[ ! -e "${HOME}/.vim/templates/src.c" ]] ; then
-        cat <<EOFCSRC >"${HOME}/.vim/templates/src.c"
+        if [[ ! -e "${HOME}/.vim/templates/src.c" ]] ; then
+                cat <<EOFCSRC >"${HOME}/.vim/templates/src.c"
 " Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 :insert
 /**
@@ -696,11 +715,11 @@ if [[ ! -e "${HOME}/.vim/templates/src.c" ]] ; then
 
 .
 EOFCSRC
-fi
+        fi
 
 ## ~/.vim/templates/src.h
-if [[ ! -e "${HOME}/.vim/templates/src.h" ]] ; then
-        cat <<EOFHSRC >"${HOME}/.vim/templates/src.h"
+        if [[ ! -e "${HOME}/.vim/templates/src.h" ]] ; then
+                cat <<EOFHSRC >"${HOME}/.vim/templates/src.h"
 " Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 :insert
 /**
@@ -722,7 +741,8 @@ if [[ ! -e "${HOME}/.vim/templates/src.h" ]] ; then
 #endif  // FILE_
 .
 EOFHSRC
-fi
+        fi
+fi  #  Vim section
 
 ## ~/.gdbinit
 if [[ ! -e "${HOME}/.gdbinit" ]] ; then
