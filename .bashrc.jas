@@ -75,6 +75,8 @@ shopt -s cdspell
 shopt -s histappend
 # failed history substitions get another try
 shopt -s histreedit
+# the glob `**' will match all files and zero or more subdirs
+shopt -s globstar
 # make sure the TAB character does completion (esp in cygwin/screen)
 bind 'TAB: complete'
 
