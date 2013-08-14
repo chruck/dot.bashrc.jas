@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2013.05.09
+JAS_ROX=2013.08.14
 THISFILESHOULDBE=".bashrc.jas"
 
 # Section to increment the above JAS_ROX variable automatically,
@@ -976,7 +976,7 @@ EOFGITCONFIG
                 [[ "x" == "x${name}" ]] && name="Jas Eckard"
                 read -p "Enter name for git [${name}]: " NAME
                 [[ "x" == "x${NAME}" ]] && NAME="${name}"
-                "${GIT}" config --global user.name ${NAME}
+                "${GIT}" config --global user.name "${NAME}"
 
                 [[ "x" == "x${email}" ]] && email="jas@eckard.com"
                 read -p "Enter email address for git [${email}]: " EMAIL
