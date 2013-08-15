@@ -1104,7 +1104,7 @@ fi
 
 # Start the ssh-agent:  Still will need to ssh-add or else will be
 # asked for passphrase every time
-eval $(ssh-agent -s >/dev/null 2>&1 ) >/dev/null 2>&1
+eval $(ssh-agent -s) >/dev/null 2>&1
 
 # Sometimes backspace doesn't work:
 stty sane 2>/dev/null
