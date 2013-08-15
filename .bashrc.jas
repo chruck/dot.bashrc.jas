@@ -247,10 +247,17 @@ if [[ "netware" != "${DISTRO}" ]] && RSYNC=$(type -p rsync) ; then
         alias cp="${RSYNC} -Pav"
 fi
 
-# Make sure this system's `vi' is vim
-[[ "netware" != "${DISTRO}" ]] && VI_1ST_WORD=$(vi -h 2>&1 | head -n1 | cut -d' '  -f1)
-if [[ 'xVIM' == "x${VI_1ST_WORD}" ]] ; then
+# Make an alias for `vi' to vim
+PATH_TO_VIM="$(type -P vim)"
+if [[ 'x' != "x${PATH_TO_VIM}" ]] ; then
+	VI_1ST_WORD="VIM"
+else
+	# check for "minimal vim"
+	[[ "netware" != "${DISTRO}" ]] && VI_1ST_WORD=$(vi -h 2>&1 | head -n1 | cut -d' '  -f1)
         PATH_TO_VIM="$(type -P vi)"
+fi
+
+if [[ 'xVIM' == "x${VI_1ST_WORD}" ]] ; then
         VIMRCJAS="${HOME}/.vimrc.jas"
 	alias vi="${PATH_TO_VIM} -u ${VIMRCJAS}"
 	GVIM="${HOME}/bin/gvim.sh"
