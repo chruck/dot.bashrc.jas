@@ -977,7 +977,7 @@ EOFGITCONFIG
                 # Read from and reuse previous email setting
                 if [[ -e "${GITCONFIG}.bak" ]] ; then
                         eval "$(grep email ${GITCONFIG}.bak | sed 's/\t//;s/ = /=/')"
-                        eval "$(grep name ${GITCONFIG}.bak | sed 's/\t//;s/ = /=/')"
+                        eval "$(grep name ${GITCONFIG}.bak | sed 's/\t//;s/ = \(.*\)/="\1"/')"
                 fi
 		# default name (or grabbed above)
                 [[ "x" == "x${name}" ]] && name="Jas Eckard"
