@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2013.08.15
+JAS_ROX=2013.12.17
 THISFILESHOULDBE=".bashrc.jas"
 
 # Section to increment the above JAS_ROX variable automatically,
@@ -288,6 +288,9 @@ if LESSPATH="$(type -p less)" ; then
         LESSPIPE="${HOME}/bin/lesspipe.sh"
         export LESSOPEN="| ${HOME}/bin/lesspipe.sh %s"
 fi
+
+# Prefer Universal diff:
+alias diff="diff -u"
 
 # This section is from http://lkml.org/lkml/2010/11/16/330 .
 # In addition to these, root has to:
