@@ -47,6 +47,8 @@ elif [[ "x$(uname)" == "xDarwin" ]] ; then
         fi
 elif [[ -e /KNOPPIX ]] ; then
         DISTRO="knoppix"
+        # Knoppix de-stupified
+        unalias rm mv 2>/dev/null  
 else case ${OSTYPE} in
         cygwin)
                 DISTRO="cygwin"
