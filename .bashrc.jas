@@ -129,6 +129,7 @@ export LS_COLORS='*.Z=01;31:*.arj=01;31:*.bat=01;32:*.avi=01;35:*.bmp=01;35:*.bt
 export LESS="-ReXM"
 #export LANG=C       # Since RedHat likes en-US
 export LC_ALL=      # Unset LC_ALL
+export LANGUAGE="en"
 export LC_COLLATE=C # Okay, so en-US.UTF8 is okay, but I prefer ASCII ordering
 
 export VISUAL=vi
