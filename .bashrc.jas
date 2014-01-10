@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2013.12.26
+JAS_ROX=2014.01.10
 THISFILESHOULDBE=".bashrc.jas"
 
 # Section to increment the above JAS_ROX variable automatically,
@@ -79,8 +79,8 @@ shopt -s cdspell
 shopt -s histappend
 # failed history substitions get another try
 shopt -s histreedit
-# the glob `**' will match all files and zero or more subdirs
-shopt -s globstar
+# the glob `**' will match all files and zero or more subdirs (BASH-4)
+[[ 4 -le ${BASH_VERSINFO} ]] && shopt -s globstar
 # make sure the TAB character does completion (esp in cygwin/screen)
 bind 'TAB: complete'
 
