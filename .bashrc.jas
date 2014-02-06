@@ -45,6 +45,10 @@ elif [[ "x$(uname)" == "xDarwin" ]] ; then
                         DISTRO="macosx-gentoo"
                 fi
         fi
+elif [[ -e /KNOPPIX ]] ; then
+        DISTRO="knoppix"
+        # Knoppix de-stupified
+        unalias rm mv 2>/dev/null  
 else case ${OSTYPE} in
         cygwin)
                 DISTRO="cygwin"
@@ -75,8 +79,8 @@ shopt -s cdspell
 shopt -s histappend
 # failed history substitions get another try
 shopt -s histreedit
-# the glob `**' will match all files and zero or more subdirs
-shopt -s globstar
+# the glob `**' will match all files and zero or more subdirs (BASH-4)
+[[ 4 -le ${BASH_VERSINFO} ]] && shopt -s globstar
 # make sure the TAB character does completion (esp in cygwin/screen)
 bind 'TAB: complete'
 
@@ -125,6 +129,7 @@ export LS_COLORS='*.Z=01;31:*.arj=01;31:*.bat=01;32:*.avi=01;35:*.bmp=01;35:*.bt
 export LESS="-ReXM"
 #export LANG=C       # Since RedHat likes en-US
 export LC_ALL=      # Unset LC_ALL
+export LANGUAGE="en"
 export LC_COLLATE=C # Okay, so en-US.UTF8 is okay, but I prefer ASCII ordering
 
 export VISUAL=vi
@@ -230,12 +235,12 @@ alias path='echo "${PATH}"'
 [[ -e "${PORT}" ]] && alias port="${PORT} -v"       # MacPorts
 [[ -e "${SSH}" ]] && alias ssh="${SSH} -Y"
 
-if [[ "redhat" != "${DISTRO}"
-      && "Red Hat Enterprise Linux AS release 4 (Nahant)" != "${RELEASE}" ]]
+if [[ "x" != "x${WHICH}" ]]
 then
         # RHEL4 uses alias which='alias | /usr/bin/which --tty-only
         #                         --read-alias --show-dot --show-tilde'
-        which()
+	# KNOPPIX uses alias which='type -path'
+        function which()
         {
                 echo "type:  $(type "$@")"
                 [[ -e "${WHICH}" ]] && echo "${WHICH}: $(${WHICH} "$@")"
@@ -691,7 +696,7 @@ EOFVIMRC
 ## ~/bin/gvim.sh
         # Setting up aliases only works at the commandline.  Create a file for
         # gvim stuff:
-        if [[ ! -e "${GVIM}" ]] ; then
+        if [[ ! -e "${GVIM}" && "x" != "x$(type -P gvim)" ]] ; then
                 cat <<EOFGVIM >"${GVIM}"
 #!/bin/bash
 
@@ -703,7 +708,7 @@ EOFGVIM
         fi
 
 ## ~/bin/gvimdiff.sh
-        if [[ ! -e "${GVIMDIFF}" ]] ; then
+        if [[ ! -e "${GVIMDIFF}" && "x" != "x$(type -P gvim)" ]] ; then
                 cat <<EOFGVIMDIFF >"${GVIMDIFF}"
 #!/bin/bash
 
