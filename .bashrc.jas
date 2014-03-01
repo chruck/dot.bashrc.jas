@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2014.02.05
+JAS_ROX=2014.02.28
 THISFILESHOULDBE=".bashrc.jas"
 
 # Section to increment the above JAS_ROX variable automatically,
@@ -353,7 +353,9 @@ bak_files()
 # ~/.jas_rox_file .
 FILES_BASHRC_CREATES="${VIMRCJAS} ${GVIM}
                       ${GVIMDIFF} ${HOME}/.vim/templates/src.c
-                      ${HOME}/.vim/templates/src.h ${HOME}/.gdbinit
+                      ${HOME}/.vim/templates/src.h 
+                      ${HOME}/.vim/templates/src.sh 
+                      ${HOME}/.gdbinit
                       ${HOME}/bin/gfilt ${HOME}/bin/jasindent
                       ${HOME}/bin/myscreensessionname ${HOME}/.screenrc
                       ${HOME}/.ssh/config ${HOME}/.Xdefaults
@@ -549,10 +551,14 @@ if has("autocmd")
         "au BufNewFile *.h so ${HOME}/.vim/templates/src.h
         "au BufNewFile *.hpp so ${HOME}/.vim/templates/src.h
         au BufNewFile *.h{,pp} so ${HOME}/.vim/templates/src.h
+        au BufNewFile *.sh so ${HOME}/.vim/templates/src.sh
         au BufNewFile *.[ch]{,pp} exe "%s/FILE/" . expand("%")
         au BufNewFile *.h{,pp} exe "%s/FILE_/" . tr( expand("%"), "a-z.", "A-Z_")
+        au BufNewFile *.sh exe "%s/FILE/" . expand("%")
         au BufWritePre,FileWritePre *.[ch]{,pp} exe "normal ma"
+        au BufWritePre,FileWritePre *.sh exe "normal ma"
         au BufWritePost,FileWritePost *.[ch]{,pp} exe "normal 'a"
+        au BufWritePost,FileWritePost *.sh exe "normal 'a"
 
         autocmd FocusLost * silent wall  " gvim:  write on loss of focus
         endif
@@ -765,6 +771,149 @@ EOFCSRC
 #endif  // FILE_
 .
 EOFHSRC
+        fi
+
+## ~/.vim/templates/src.sh
+        if [[ ! -e "${HOME}/.vim/templates/src.sh" ]] ; then
+                cat <<EOFSHSRC >"${HOME}/.vim/templates/src.sh"
+" Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+:insert
+#!/bin/bash
+
+##
+# @file FILE
+# @author Jas Eckard <jas@eckard.com>
+#
+# @section LICENSE
+#
+# (GPL license?)
+# 
+# @section DESCRIPTION
+#
+# This file is ...
+
+# Return codes:  1 = bad parameter(s)
+#                2 = required parameter missing
+
+readonly localDir="\$(cd \${BASH_SOURCE[0]%/*} && pwd -P && cd - >/dev/null)"
+
+# To get some debug output call this file like:
+# DEBUG=true ./FILE ...
+
+echoStderr() { echo "\$@" 1>&2; }
+
+if [[ 'x' == "x\${DEBUG}" ]]; then
+        # Make \`debug' a no-op
+        debug() { :; }
+else
+        debug() { echoStderr "DEBUG:  \$@"; }
+fi
+
+declare rc=0
+declare optionA=0
+declare optionB=bogus
+declare REQUIRED
+declare OPTIONAL=bogus
+readonly pi="3.1415"
+
+Usage() {
+        cat 1>&2 <<EOFUsage
+
+Usage:  \$0 [OPTION]... REQUIRED [OPTIONAL]
+
+  -a, --optionA         Description
+  -b, --optionB VAL     Desc that takes VAL
+  -h, -?, --help        Display this help and exit
+
+EOFUsage
+        exit \${rc}
+}
+
+parseOptions() {
+        debug "Original args:  \$@"
+
+        local shortopts="h?" ; local longopts="help,"
+        shortopts+="a"; longopts+="optionA,"
+        shortopts+="b:"; longopts+="optionB:,"
+
+        debug "shortopts=\${shortopts} longopts=\${longopts}"
+
+        ARGS=\$(getopt -o "\${shortopts}" -l "\${longopts}" -n "getopt.sh" -- "\$@")
+
+        getoptRc=\$?
+        if [[ 0 -ne "\${getoptRc}" ]]; then
+                echoStderr "ERROR:  getopt called incorrectly, rc=\${getoptRc}"
+                rc=1
+                exit
+                #Usage
+        fi
+
+        eval set -- "\${ARGS}"
+
+        while true; do
+                param=\$1
+                case "\${param}" in
+                        -a|--optionA)
+                                debug "-a used"
+                                optionA=1
+                                shift
+                                ;;
+                        -b|--optionB)
+                                shift
+                                if [[ -n "\$1" ]]; then
+                                        debug "-b used: \$1";
+                                        optionB=\$1
+                                        shift;
+                                fi
+                                ;;
+                        -h|-\\?|--help)
+                                debug "Asked for help"
+                                Usage
+                                ;;
+                        --)
+                                shift;
+                                break;
+                                ;;
+                        *)
+                                echoStderr "ERROR:  Unimplemented option: \${param}"
+                                break;
+                                ;;
+                esac
+        done
+
+        debug "New args:  \$@"
+
+        # For 1 required and one optional argument
+        if [[ 1 != \${#@} && 2 != \${#@} ]]; then
+                rc=2
+                echoStderr "ERROR:  REQUIRED required."
+                Usage
+        fi
+
+        REQUIRED=\$1
+        OPTIONAL=\$2
+
+        if [[ 'bogus' == "\${optionB}" ]]; then
+                rc=2
+                echoStderr "ERROR:  --optionB field required."
+                Usage
+        fi
+}
+
+# TODO:  Verify the parameters passed are valid
+verifyParams() {
+        :
+#       if [[ "\${optionB}" =~ /reg[ex]/ ]]; then
+#               echoStderr "ERROR:  --optionB should be of the form: reg[ex]"
+#               rc=2
+#       fi      
+}
+
+#        while read line; do
+#                echoStderr "WARNING:  I do not like \${line}"
+#        done < <(grep "^\${softwarebom}" \${steutabFName})  
+.
+EOFSHSRC
         fi
 fi  #  Vim section
 
@@ -1130,3 +1279,4 @@ eval $(ssh-agent -s) >/dev/null 2>&1
 
 # Sometimes backspace doesn't work:
 stty sane 2>/dev/null
+
