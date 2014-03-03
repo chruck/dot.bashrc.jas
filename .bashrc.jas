@@ -887,7 +887,6 @@ parseOptions() {
         if [[ 1 != \${#@} && 2 != \${#@} ]]; then
                 rc=2
                 echoStderr "ERROR:  REQUIRED required."
-                Usage
         fi
 
         REQUIRED=\$1
@@ -896,6 +895,9 @@ parseOptions() {
         if [[ 'bogus' == "\${optionB}" ]]; then
                 rc=2
                 echoStderr "ERROR:  --optionB field required."
+        fi
+
+        if [[ 0 != ${rc} ]]; then
                 Usage
         fi
 }
