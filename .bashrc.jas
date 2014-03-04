@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2014.02.28
+JAS_ROX=2014.03.03
 THISFILESHOULDBE=".bashrc.jas"
 
 # Section to increment the above JAS_ROX variable automatically,
@@ -808,6 +808,11 @@ if [[ 'x' == "x\${DEBUG}" ]]; then
 else
         debug() { echoStderr "DEBUG:  \$@"; }
 fi
+
+# Usages:
+#echo “regular stdout output”
+#echoStderr “regular stderr output”
+#debug “stderr output only seen when DEBUG set”
 
 declare rc=0
 declare optionA=0
