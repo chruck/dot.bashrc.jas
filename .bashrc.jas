@@ -809,6 +809,11 @@ else
         debug() { echoStderr "DEBUG:  \$@"; }
 fi
 
+# Usages:
+#echo “regular stdout output”
+#echoStderr “regular stderr output”
+#debug “stderr output only seen when DEBUG set”
+
 declare rc=0
 declare optionA=0
 declare optionB=bogus
