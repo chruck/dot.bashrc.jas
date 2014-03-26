@@ -824,7 +824,8 @@ declare REQUIRED
 declare OPTIONAL=bogus
 readonly pi="3.1415"
 
-Usage() {
+Usage()
+{
         cat 1>&2 <<EOFUsage
 
 Usage:  \$0 [OPTION]... REQUIRED [OPTIONAL]
@@ -837,7 +838,8 @@ EOFUsage
         exit \${rc}
 }
 
-parseOptions() {
+parseOptions()
+{
         debug "Original args:  \$@"
 
         local shortopts="h?" ; local longopts="help,"
@@ -911,7 +913,8 @@ parseOptions() {
 }
 
 # TODO:  Verify the parameters passed are valid
-verifyParams() {
+verifyParams()
+{
         :
 #       if [[ "\${optionB}" =~ /reg[ex]/ ]]; then
 #               echoStderr "ERROR:  --optionB should be of the form: reg[ex]"
