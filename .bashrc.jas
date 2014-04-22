@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2014.03.26
+JAS_ROX=2014.04.22
 THISFILESHOULDBE=".bashrc.jas"
 
 # Section to increment the above JAS_ROX variable automatically,
@@ -925,6 +925,10 @@ verifyParams()
 #        while read line; do
 #                echoStderr "WARNING:  I do not like \${line}"
 #        done < <(grep "^\${softwarebom}" \${steutabFName})  
+
+parseOptions
+verifyParams
+doOtherStuff
 .
 EOFSHSRC
         fi
