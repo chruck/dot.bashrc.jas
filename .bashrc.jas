@@ -907,7 +907,7 @@ parseOptions()
                 echoStderr "ERROR:  --optionB field required."
         fi
 
-        if [[ 0 != ${rc} ]]; then
+        if [[ 0 != \${rc} ]]; then
                 Usage
         fi
 }
