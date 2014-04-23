@@ -367,7 +367,9 @@ if [[ "x" != "x${GIT}" ]] ; then
                               ${GITCONFIG} ${HOME}/.gitignore \
                               ${HOME}/bin/git_diff_wrapper "
 fi
+IAMROOT=false
 if [[ "root" == "$(whoami)" ]] ; then
+        IAMROOT=true
         FILES_BASHRC_CREATES="${FILES_BASHRC_CREATES} \
                               /root/bin/mntmountall /root/bin/build32 \
                               /root/bin/build32on64 "
@@ -926,7 +928,7 @@ verifyParams()
 #                echoStderr "WARNING:  I do not like \${line}"
 #        done < <(grep "^\${softwarebom}" \${steutabFName})  
 
-parseOptions
+parseOptions "\$@"
 verifyParams
 doOtherStuff
 .
@@ -1005,7 +1007,7 @@ EOFJASINDENT
 fi
 
 ## /root/bin/mntmountall
-if [[ "root" == "$(whoami)" && ! -e "${HOME}/bin/mntmountall" ]] ; then
+if ${IAMROOT} && [[ ! -e "${HOME}/bin/mntmountall" ]] ; then
         cat <<EOFMNTMOUNTALL >"${HOME}/bin/mntmountall"
 #!/bin/sh
 
@@ -1025,7 +1027,7 @@ EOFMNTMOUNTALL
 fi
 
 ## /root/bin/build32
-if [[ "root" == "$(whoami)" && ! -e "${HOME}/bin/build32" ]] ; then
+if ${IAMROOT} && [[ ! -e "${HOME}/bin/build32" ]] ; then
         cat <<EOFBUILD32 >"${HOME}/bin/build32"
 #!/bin/bash
 
@@ -1038,7 +1040,7 @@ EOFBUILD32
 fi
 
 ## /root/bin/build32on64
-if [[ "root" == "$(whoami)" && ! -e "${HOME}/bin/build32on64" ]] ; then
+if ${IAMROOT} && [[ ! -e "${HOME}/bin/build32on64" ]] ; then
         cat <<EOFBUILD32ON64 >"${HOME}/bin/build32on64"
 #!/bin/bash
 
