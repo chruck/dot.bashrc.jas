@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2014.04.23
+JAS_ROX=2014.05.12
 THISFILESHOULDBE=".bashrc.jas"
 
 # Section to increment the above JAS_ROX variable automatically,
@@ -212,7 +212,7 @@ GCC_CONFIG="$(type -p gcc-config)"
 GIT="$(type -p git)"
 NSLOOKUP="$(type -p nslookup)"
 PORT="$(type -p port)"      # MacPorts
-RANDPASS="$(type -p curl)"
+CURL="$(type -p curl)"
 RLWRAP="$(type -p rlwrap)"  # the readline wrapper program, if on system
 SED="$(type -p sed)"
 SSH="$(type -p ssh)"
