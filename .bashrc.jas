@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2014.04.23
+JAS_ROX=2014.05.30
 THISFILESHOULDBE=".bashrc.jas"
 
 # Section to increment the above JAS_ROX variable automatically,
@@ -300,6 +300,9 @@ alias diff="diff -u"
 # To paste TAB characters into the commandline (disable tab-completion):
 alias tabOff='bind "set disable-completion on"'
 alias tabOn='bind "set disable-completion off"'
+
+# When I want to know about this xterm or tty
+alias mydisplay="echo \$COLUMNS x \$LINES \$DISPLAY"
 
 # This section is from http://lkml.org/lkml/2010/11/16/330 .
 # In addition to these, root has to:
