@@ -15,7 +15,7 @@ me know what version of this file is currently on the current system.
 
 A list of files that .bashrc.jas creates:
 
-        $ grep '^## ' .bashrc
+        $ grep '^## ' .bashrc.jas
         ## ~/.jas_rox_file
         ## ~/.bash_profile
         ## ~/.vim/systags
