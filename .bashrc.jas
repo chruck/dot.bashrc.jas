@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2014.05.30
+JAS_ROX=2014.06.02
 THISFILESHOULDBE=".bashrc.jas"
 
 # Section to increment the above JAS_ROX variable automatically,
@@ -34,6 +34,8 @@ if [[ -e /etc/redhat-release ]] ; then
 elif [[ -e /etc/SuSE-release ]] ; then
         DISTRO="suse"
         RELEASE="$(cat /etc/SuSE-release)"
+        unaliasPath="unalias path"
+        aliasPath="alias path=\"echo \${PATH}\""
 elif [[ "x$(uname)" == "xDarwin" ]] ; then
         DISTRO="macosx"
         PREFIXSCRIPT="${HOME}/Gentoo/startprefix"
@@ -302,7 +304,7 @@ alias tabOff='bind "set disable-completion on"'
 alias tabOn='bind "set disable-completion off"'
 
 # When I want to know about this xterm or tty
-alias mydisplay="echo \$COLUMNS x \$LINES \$DISPLAY"
+alias mydisplay="echo \${COLUMNS} x \${LINES} \${DISPLAY}"
 
 # This section is from http://lkml.org/lkml/2010/11/16/330 .
 # In addition to these, root has to:
@@ -399,8 +401,10 @@ mkprofile()
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 OLDPATH="\${PATH}"
+${unaliasPath}
 [[ -e /etc/profile ]] && source /etc/profile
 export PATH="\${OLDPATH}:\${PATH}"
+${aliasPath}
 source "${HOME}/.bashrc"
 # In case this location has a proxy:
 #export http_proxy=http://'user[\domain]':'passwd'@host:port/
