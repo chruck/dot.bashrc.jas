@@ -267,11 +267,14 @@ fi
 if [[ 'xVIM' == "x${VI_1ST_WORD}" ]] ; then
         VIMRCJAS="${HOME}/.vimrc.jas"
 	alias vi="${PATH_TO_VIM} -u ${VIMRCJAS}"
-	[[ -x "${HOME}/bin/gvim.sh" ]] && GVIM="${HOME}/bin/gvim.sh"
+        PATH_TO_GVIM="$(type -P gvim)"
+        if [[ 'x' != "x${PATH_TO_GVIM}" ]] ; then
+	        GVIM="${HOME}/bin/gvim.sh"
+	        GVIMDIFF="${HOME}/bin/gvimdiff.sh"
+        fi
 	alias gvim="${GVIM}"
 	alias vim="${PATH_TO_VIM} -u ${VIMRCJAS}"
 	alias vimdiff="${PATH_TO_VIM} -u ${VIMRCJAS} -d"
-	[[ -x "${HOME}/bin/gvimdiff.sh" ]] && GVIMDIFF="${HOME}/bin/gvimdiff.sh"
 	alias gvimdiff="${GVIMDIFF}"
 	alias view="${PATH_TO_VIM} -u ${VIMRCJAS} -R"
 fi
