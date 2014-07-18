@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2014.07.10
+JAS_ROX=2014.07.18
 THISFILESHOULDBE=".bashrc.jas"
 
 # Section to increment the above JAS_ROX variable automatically,
@@ -31,6 +31,9 @@ if [[ -e /etc/redhat-release ]] ; then
         alias clearr=/usr/bin/clear
         # Red Hat de-stupified
         unalias rm cp mv 2>/dev/null  
+        # A very interesting thing that RH does is change screen's
+        # window titles via bash's $PROMPT_COMMAND .  I don't like it.
+        export PROMPT_COMMAND=
 elif [[ -e /etc/SuSE-release ]] ; then
         DISTRO="suse"
         RELEASE="$(cat /etc/SuSE-release)"
