@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2014.07.18
+JAS_ROX=2014.08.14
 THISFILESHOULDBE=".bashrc.jas"
 
 # Section to increment the above JAS_ROX variable automatically,
@@ -275,10 +275,10 @@ if [[ 'xVIM' == "x${VI_1ST_WORD}" ]] ; then
 	        GVIM="${HOME}/bin/gvim.sh"
 	        GVIMDIFF="${HOME}/bin/gvimdiff.sh"
         fi
-	alias gvim="${GVIM}"
+	alias gvim="${GVIM:-echo gvim not installed}"
 	alias vim="${PATH_TO_VIM} -u ${VIMRCJAS}"
 	alias vimdiff="${PATH_TO_VIM} -u ${VIMRCJAS} -d"
-	alias gvimdiff="${GVIMDIFF}"
+	alias gvimdiff="${GVIMDIFF:-echo gvim not installed}"
 	alias view="${PATH_TO_VIM} -u ${VIMRCJAS} -R"
 fi
 
