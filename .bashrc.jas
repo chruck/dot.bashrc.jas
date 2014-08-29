@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2014.08.14
+JAS_ROX=2014.08.29
 THISFILESHOULDBE=".bashrc.jas"
 
 # Section to increment the above JAS_ROX variable automatically,
@@ -244,7 +244,7 @@ if [[ "x" != "x${WHICH}" ]]
 then
         # RHEL4/Fedora20 uses alias which='alias | /usr/bin/which --tty-only
         #                                  --read-alias --show-dot --show-tilde'
-	# KNOPPIX uses alias which='type -path'
+        # KNOPPIX uses alias which='type -path'
         function which()
         {
                 echo "type:  $(type "$@")"
@@ -260,26 +260,26 @@ fi
 # Make an alias for `vi' to vim
 PATH_TO_VIM="$(type -P vim)"
 if [[ 'x' != "x${PATH_TO_VIM}" ]] ; then
-	VI_1ST_WORD="VIM"
+        VI_1ST_WORD="VIM"
 else
-	# check for "minimal vim"
-	[[ "netware" != "${DISTRO}" ]] && VI_1ST_WORD=$(vi -h 2>&1 | head -n1 | cut -d' '  -f1)
+        # check for "minimal vim"
+        [[ "netware" != "${DISTRO}" ]] && VI_1ST_WORD=$(vi -h 2>&1 | head -n1 | cut -d' '  -f1)
         PATH_TO_VIM="$(type -P vi)"
 fi
 
 if [[ 'xVIM' == "x${VI_1ST_WORD}" ]] ; then
         VIMRCJAS="${HOME}/.vimrc.jas"
-	alias vi="${PATH_TO_VIM} -u ${VIMRCJAS}"
+        alias vi="${PATH_TO_VIM} -u ${VIMRCJAS}"
         PATH_TO_GVIM="$(type -P gvim)"
         if [[ 'x' != "x${PATH_TO_GVIM}" ]] ; then
-	        GVIM="${HOME}/bin/gvim.sh"
-	        GVIMDIFF="${HOME}/bin/gvimdiff.sh"
+                GVIM="${HOME}/bin/gvim.sh"
+                GVIMDIFF="${HOME}/bin/gvimdiff.sh"
         fi
-	alias gvim="${GVIM:-echo gvim not installed}"
-	alias vim="${PATH_TO_VIM} -u ${VIMRCJAS}"
-	alias vimdiff="${PATH_TO_VIM} -u ${VIMRCJAS} -d"
-	alias gvimdiff="${GVIMDIFF:-echo gvim not installed}"
-	alias view="${PATH_TO_VIM} -u ${VIMRCJAS} -R"
+        alias gvim="${GVIM:-echo gvim not installed}"
+        alias vim="${PATH_TO_VIM} -u ${VIMRCJAS}"
+        alias vimdiff="${PATH_TO_VIM} -u ${VIMRCJAS} -d"
+        alias gvimdiff="${GVIMDIFF:-echo gvim not installed}"
+        alias view="${PATH_TO_VIM} -u ${VIMRCJAS} -R"
 fi
 
 # My favs for indent:
@@ -362,26 +362,35 @@ bak_files()
 # Whenever this bashrc is changed (JAS_ROX gets incremented), just
 # recreate all the files below.  Done via version file
 # ~/.jas_rox_file .
-FILES_BASHRC_CREATES="${VIMRCJAS} ${GVIM}
-                      ${GVIMDIFF} ${HOME}/.vim/templates/src.c
-                      ${HOME}/.vim/templates/src.h 
-                      ${HOME}/.vim/templates/src.sh 
-                      ${HOME}/.gdbinit
-                      ${HOME}/bin/gfilt ${HOME}/bin/jasindent
-                      ${HOME}/bin/myscreensessionname ${HOME}/.screenrc
-                      ${HOME}/.ssh/config ${HOME}/.Xdefaults
-                      ${HOME}/.inputrc ${HOME}/bin/myscreensessionname
-                      ${LESSPIPE} "
+FILES_BASHRC_CREATES="${VIMRCJAS}"
+FILES_BASHRC_CREATES+=" ${GVIM}"
+FILES_BASHRC_CREATES+=" ${GVIMDIFF}"
+FILES_BASHRC_CREATES+=" ${HOME}/.vim/templates/src.c"
+FILES_BASHRC_CREATES+=" ${HOME}/.vim/templates/src.h"
+FILES_BASHRC_CREATES+=" ${HOME}/.vim/templates/src.sh"
+FILES_BASHRC_CREATES+=" ${HOME}/.gdbinit"
+FILES_BASHRC_CREATES+=" ${HOME}/bin/gfilt"
+FILES_BASHRC_CREATES+=" ${HOME}/bin/jasindent"
+FILES_BASHRC_CREATES+=" ${HOME}/bin/myscreensessionname"
+FILES_BASHRC_CREATES+=" ${HOME}/.screenrc"
+FILES_BASHRC_CREATES+=" ${HOME}/.ssh/config"
+FILES_BASHRC_CREATES+=" ${HOME}/.Xdefaults"
+FILES_BASHRC_CREATES+=" ${HOME}/.inputrc"
+FILES_BASHRC_CREATES+=" ${HOME}/bin/myscreensessionname"
+FILES_BASHRC_CREATES+=" ${LESSPIPE}"
+FILES_BASHRC_CREATES+=" ${HOME}/.irssi/config"
+
 if [[ "x" != "x${GIT}" ]] ; then
         GITCONFIG="${HOME}/.gitconfig"
-        FILES_BASHRC_CREATES+=" ${GITCONFIG} ${HOME}/.gitignore
-                                ${HOME}/bin/git_diff_wrapper "
+        FILES_BASHRC_CREATES+=" ${GITCONFIG} ${HOME}/.gitignore"
+        FILES_BASHRC_CREATES+=" ${HOME}/bin/git_diff_wrapper"
 fi
 IAMROOT=false
 if [[ "root" == "$(whoami)" ]] ; then
         IAMROOT=true
-        FILES_BASHRC_CREATES+=" /root/bin/mntmountall /root/bin/build32
-                                /root/bin/build32on64 "
+        FILES_BASHRC_CREATES+=" /root/bin/mntmountall"
+        FILES_BASHRC_CREATES+=" /root/bin/build32"
+        FILES_BASHRC_CREATES+=" /root/bin/build32on64"
 fi
 
 JAS_ROX_FNAME="${HOME}/.jas_rox_file"
@@ -1170,19 +1179,15 @@ EOFGITCONFIG
                 # The rest
                 # Read from and reuse previous email setting
                 if [[ -e "${GITCONFIG}.bak" ]] ; then
-                        eval "$(grep email ${GITCONFIG}.bak | sed 's/\t//;s/ = /=/')"
-                        eval "$(grep name ${GITCONFIG}.bak | sed 's/\t//;s/ = \(.*\)/="\1"/')"
+                        eval "$(grep email ${GITCONFIG}.bak | tr -d '\t ')"
+                        eval "$(grep name ${GITCONFIG}.bak | tr -d '\t ')"
                 fi
-		# default name (or grabbed above)
-                [[ "x" == "x${name}" ]] && name="Jas Eckard"
-                read -p "Enter name for git [${name}]: " NAME
-                [[ "x" == "x${NAME}" ]] && NAME="${name}"
-                "${GIT}" config --global user.name "${NAME}"
+                # default name (or grabbed above)
+                read -p "Enter name for git [${name:='Jas Eckard'}]: " NAME
+                "${GIT}" config --global user.name "${NAME:=${name}}"
 
-                [[ "x" == "x${email}" ]] && email="jas@eckard.com"
-                read -p "Enter email address for git [${email}]: " EMAIL
-                [[ "x" == "x${EMAIL}" ]] && EMAIL="${email}"
-                "${GIT}" config --global user.email ${EMAIL}
+                read -p "Enter email address for git [${email:='jas@eckard.com'}]: " EMAIL
+                "${GIT}" config --global user.email ${EMAIL:=${email}}
 
                 "${GIT}" config --global credential.helper cache
                 if [[ -e "${HOME}/bin/git_diff_wrapper" ]] ; then
@@ -1225,7 +1230,7 @@ EOFGITIGNORE
         fi
 fi  #  if `git' is on the system
 
-## ~/bin/lesspipe.sh"
+## ~/bin/lesspipe.sh
 if [[ "x" != "x${LESSPIPE}" && ! -e "${LESSPIPE}" ]] ; then
         cat <<EOFLESSPIPE >"${LESSPIPE}"
 #!/bin/sh -
@@ -1288,6 +1293,57 @@ else
 fi
 EOFLESSPIPE
         chmod +x "${LESSPIPE}"
+fi
+
+## ~/.irssi/config
+if [[ ! -e "${HOME}/.irssi/config" ]] ; then
+        read -p "Enter nick for irssi [${nick:=ja-s}]: " NICK
+        while read -p "Enter nickserv password for '${NICK:=${nick}}': " NICKSERVPASSWD
+        do
+                [[ "x" != "x${NICKSERVPASSWD}" ]] && break
+        done
+        read -p "Enter name for irssi [${name:=Jas Eckard}]: " NAME
+        cat <<EOFIRSSICFG >${HOME}/.irssi/config
+# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+servers = (
+  {
+    address = "irc.freenode.net";
+    chatnet = "Freenode";
+    port = "6697";
+    use_ssl = "yes";
+    ssl_verify = "no";
+    autoconnect = "yes";
+  }
+);
+
+chatnets = {
+  Freenode = {
+    type = "IRC";
+    nick = "${NICK}";
+    autosendcmd = "/msg nickserv identify ${NICKSERVPASSWD};wait";
+    max_kicks = "1";
+    max_msgs = "4";
+    max_whois = "1";
+  };
+};
+
+settings = {
+  core = { real_name = "${NAME:=${name}}"; user_name = "jas"; nick = "${NICK}"; };
+  "fe-text" = { actlist_sort = "refnum"; };
+};
+channels = (
+  { name = "#uclug"; chatnet = "Freenode"; autojoin = "yes"; },
+  { name = "#greenville"; chatnet = "Freenode"; autojoin = "yes"; },
+  { name = "#southeastlinuxfest"; chatnet = "Freenode"; autojoin = "yes"; },
+  { name = "#self-offtopic"; chatnet = "Freenode"; autojoin = "yes"; }
+);
+ignores = (
+  { mask = "MODES"; level = "JOINS PARTS QUITS"; },
+  { level = "JOINS PARTS QUITS MODES"; channels = ( "#greenville" ); },
+  { level = "JOINS PARTS QUITS MODES"; channels = ( "#southeastlinuxfest" ); },
+  { level = "JOINS PARTS QUITS MODES"; channels = ( "#self-offtopic" ); }
+);
+EOFIRSSICFG
 fi
 
 rm_files()
