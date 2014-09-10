@@ -121,6 +121,10 @@ case ${DISTRO} in
                 # Other BSDs?
                 export LS_OPTIONS='-G'
                 ;;
+        solaris)
+                # Other BSDs?
+                export LS_OPTIONS='-F'
+                ;;
         aix)
                 export LS_OPTIONS=''
                 [[ "screen" == "${TERM}" ]] && export TERM='xterm'
