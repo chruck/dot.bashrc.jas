@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2014.08.29
+JAS_ROX=2014.09.10
 THISFILESHOULDBE=".bashrc.jas"
 
 # Section to increment the above JAS_ROX variable automatically,
@@ -50,6 +50,8 @@ elif [[ "x$(uname)" == "xDarwin" ]] ; then
                         DISTRO="macosx-gentoo"
                 fi
         fi
+elif [[ "x$(uname)" == "xSunOS" ]] ; then
+        DISTRO="solaris"
 elif [[ -e /KNOPPIX ]] ; then
         DISTRO="knoppix"
         # Knoppix de-stupified
@@ -212,12 +214,13 @@ fi
 [[ -e /opt/pb/man ]] && export MANPATH=$MANPATH:/opt/pb/man
 
 # Program full paths
+CURL="$(type -p curl)"
 EMERGE="$(type -p emerge)"  # Gentoo's portage
 GCC_CONFIG="$(type -p gcc-config)"
 GIT="$(type -p git)"
+IRSSI="$(type -p irssi)"
 NSLOOKUP="$(type -p nslookup)"
 PORT="$(type -p port)"      # MacPorts
-CURL="$(type -p curl)"
 RLWRAP="$(type -p rlwrap)"  # the readline wrapper program, if on system
 SED="$(type -p sed)"
 SSH="$(type -p ssh)"
@@ -386,7 +389,7 @@ if [[ "x" != "x${GIT}" ]] ; then
         FILES_BASHRC_CREATES+=" ${HOME}/bin/git_diff_wrapper"
 fi
 IAMROOT=false
-if [[ "root" == "$(whoami)" ]] ; then
+if [[ "root" == "$(who am i | cut -d\  -f1)" ]] ; then
         IAMROOT=true
         FILES_BASHRC_CREATES+=" /root/bin/mntmountall"
         FILES_BASHRC_CREATES+=" /root/bin/build32"
@@ -1296,7 +1299,8 @@ EOFLESSPIPE
 fi
 
 ## ~/.irssi/config
-if [[ ! -e "${HOME}/.irssi/config" ]] ; then
+if [[ "x" != "x${IRSSI}" && ! -e "${HOME}/.irssi/config" ]] ; then
+        [[ ! -e "${HOME}/.irssi" ]] && mkdir "${HOME}/.irssi"
         read -p "Enter nick for irssi [${nick:=ja-s}]: " NICK
         while read -p "Enter nickserv password for '${NICK:=${nick}}': " NICKSERVPASSWD
         do
