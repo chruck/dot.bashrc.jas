@@ -1190,10 +1190,10 @@ EOFGITCONFIG
                         eval "$(grep name ${GITCONFIG}.bak | tr -d '\t ')"
                 fi
                 # default name (or grabbed above)
-                read -p "Enter name for git [${name:='Jas Eckard'}]: " NAME
+                read -p "Enter name for git [${name:=Jas Eckard}]: " NAME
                 "${GIT}" config --global user.name "${NAME:=${name}}"
 
-                read -p "Enter email address for git [${email:='jas@eckard.com'}]: " EMAIL
+                read -p "Enter email address for git [${email:=jas@eckard.com}]: " EMAIL
                 "${GIT}" config --global user.email ${EMAIL:=${email}}
 
                 "${GIT}" config --global credential.helper cache
