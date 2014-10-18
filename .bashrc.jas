@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2014.09.23
+JAS_ROX=2014.10.17
 THISFILESHOULDBE=".bashrc.jas"
 
 # Section to increment the above JAS_ROX variable automatically,
@@ -69,6 +69,9 @@ else case ${OSTYPE} in
         aix*)
                 DISTRO="aix"
                 ;;
+        solaris*)
+                DISTRO="solaris"
+                ;;
         *)
                 DISTRO="unassigned"
                 ;;
@@ -128,6 +131,9 @@ case ${DISTRO} in
         aix)
                 export LS_OPTIONS=''
                 [[ "screen" == "${TERM}" ]] && export TERM='xterm'
+                ;;
+        solaris)
+                export LS_OPTIONS='-F'
                 ;;
         *)
                 export LS_OPTIONS='--color=auto'
