@@ -1195,7 +1195,7 @@ EOFGITCONFIG
                 # Read from and reuse previous email setting
                 if [[ -e "${GITCONFIG}.bak" ]] ; then
                         eval "$(grep email ${GITCONFIG}.bak | tr -d '\t ')"
-                        eval "$(grep name ${GITCONFIG}.bak | tr -d '\t ')"
+                        eval "$(sed -n 's/name = \(.*\) */name=\"\1\"/p' ${GITCONFIG}.bak)"
                 fi
                 # default name (or grabbed above)
                 read -p "Enter name for git [${name:=Jas Eckard}]: " NAME
