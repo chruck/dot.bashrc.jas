@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-JAS_ROX=2014.11.13
+JAS_ROX=2014.11.19
 THISFILESHOULDBE=".bashrc.jas"
 
 # Section to increment the above JAS_ROX variable automatically,
@@ -14,7 +14,7 @@ if [[ "${THISFILE}" == $0 && "incr" == $1 ]] ; then
         # TODO:  fix for MacOS 'sed`
         sed -i "/^JAS[_]ROX=/s/[0-9.]\+/${DATE}/" "${THISFILE}"
         JAS_ROX="${DATE}"
-        exit
+        exit 0
 fi
 
 # There may be something necessary in the original .bashrc
@@ -889,7 +889,8 @@ parseOptions()
         if [[ 0 -ne "\${getoptRc}" ]]; then
                 echoStderr "ERROR:  getopt called incorrectly, rc=\${getoptRc}"
                 rc=1
-                exit
+                exit \${rc}
+                # Alternatively, do:
                 #Usage
         fi
 
