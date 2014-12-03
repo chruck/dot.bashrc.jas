@@ -6,6 +6,8 @@ THISFILE=$_   # This must be the first line of this file
 readonly JAS_ROX=2014.11.26
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
+declare ARG0
+declare ARG1
 declare DISTRO="unassigned"
 declare unaliasPath=""
 declare aliasPath=""
@@ -15,25 +17,47 @@ declare GIT="$(type -p git)"
 declare IRSSI="$(type -p irssi)"
 declare SED="$(type -p sed)"
 
+declare FILES_BASHRC_CREATES=""
+
+parseArgs()
+{
+        ARG0=$0
+        ARG1=$1
+
+        unset -f parseArgs
+}  # parseArgs()
+
 # Section to increment the above JAS_ROX variable automatically,
 # when this file is updated
 # Usage:  ~/.bashrc.jas incr
 increment()
 {
-        if [[ "${THISFILE}" == $0 && "incr" == $1 ]] ; then
+        if [[ "${THISFILE}" == ${ARG0} && "incr" == ${ARG1} ]] ; then
                 DATE=$(date +%Y.%m.%d)
                 # TODO:  fix for MacOS 'sed`
                 ${SED} -i "/^readonly JAS_ROX=/s/[0-9.]\+/${DATE}/" "${THISFILE}"
                 #JAS_ROX="${DATE}"
                 exit 0
         fi
-}
+}  # increment()
+
+uninstall()
+{
+        # Usage:  ~/.bashrc.jas uninstall
+        if [[ "${THISFILE}" == ${ARG0} && "uninstall" == ${ARG1} ]] ; then
+                rm_files ${FILES_BASHRC_CREATES} ${JAS_ROX_FNAME} ${SYSTAGS} \
+                        ${THISFILESHOULDBE}*
+                mv "${BASHRCORIG}" "${HOME}/.bashrc" || rm "${HOME}/.bashrc"
+                mv "${THISFILE}.orig" "${THISFILE}"
+                mv "${HOME}/.bash_profile.orig" "${HOME}/.bash_profile"
+        fi
+}  # uninstall()
 
 # There may be something necessary in the original .bashrc
 sourceOrig()
 {
         [[ -e "${BASHRCORIG}" ]] && source "${BASHRCORIG}"
-}
+}  # sourceOrig()
 
 detectDistro()
 {
@@ -93,7 +117,7 @@ detectDistro()
                         ;;
                 esac
         fi
-}
+}  # detectDistro()
 
 bashSettings()
 {
@@ -111,7 +135,7 @@ bashSettings()
         [[ 4 -le ${BASH_VERSINFO} ]] && shopt -s globstar
         # make sure the TAB character does completion (esp in cygwin/screen)
         bind 'TAB: complete'
-}
+}  # bashSettings()
 
 bashCompletion()
 {
@@ -128,7 +152,7 @@ bashCompletion()
         for script in /etc/bash_completion.d/*.sh ; do
                 [[ -r ${script} ]] && source ${script}
         done
-}
+}  # bashCompletion()
 
 # For GoboLinux:
 startGobo()
@@ -136,7 +160,7 @@ startGobo()
         if [[ -e ~/Programs/Rootless/Settings/StartGobo ]] ; then
                 source ~/Programs/Rootless/Settings/StartGobo
         fi
-}
+}  # startGobo()
 
 setPath()
 {
@@ -178,7 +202,7 @@ setPath()
         [[ -e "${HOME}/bin" ]] && PATH="${HOME}/bin:${PATH}"
 
         export PATH
-}
+}  # setPath()
 
 ### Environment variables
 setEnvVars()
@@ -247,7 +271,7 @@ setEnvVars()
 
         # PowerBroker man pages
         [[ -e /opt/pb/man ]] && export MANPATH=$MANPATH:/opt/pb/man
-}
+}  # setEnvVars()
 
 createAliases()
 {
@@ -347,7 +371,10 @@ createAliases()
 
         # When I want to know about this xterm or tty
         alias mydisplay="echo \${COLUMNS} x \${LINES} \${DISPLAY}"
+}  # createAliases()
 
+setupCGroups()
+{
         # This section is from http://lkml.org/lkml/2010/11/16/330 .
         # In addition to these, root has to:
         #mount -t cgroup cgroup /sys/fs/cgroup/cpu -o cpu
@@ -357,47 +384,55 @@ createAliases()
                 mkdir -m 0700 /sys/fs/cgroup/cpu/user/$$
                 echo "$$" >/sys/fs/cgroup/cpu/user/$$/tasks
         fi
+}  # setupCGroups()
 
-        proml()
-        {
-                case ${TERM} in
-                        xterm*)
-                                TITLEBAR="\[\033]0;[\$(lastcmd)] (\$?) \w\007\]"
-                                ;;
-                        *)
-                                TITLEBAR=''
-                                ;;
-                esac
-                HOST_NAME='\h'
-                [[ -e /etc/HOSTNAME ]] && HOST_NAME=$(</etc/HOSTNAME)
-                PS1="${TITLEBAR}\[\033[40m\]\[\033[33m\]${HOST_NAME/.*}\[\033[1;33m\][\t]\[\033[1;34m\](\$?)\[\033[1;36m\]\w\[\033[31m\]\\$\\[\033[0m\] "
-        }
+proml()
+{
+        case ${TERM} in
+                xterm*)
+                        TITLEBAR="\[\033]0;[\$(lastcmd)] (\$?) \w\007\]"
+                        ;;
+                *)
+                        TITLEBAR=''
+                        ;;
+        esac
+        HOST_NAME='\h'
+        [[ -e /etc/HOSTNAME ]] && HOST_NAME=$(</etc/HOSTNAME)
+        PS1="${TITLEBAR}\[\033[40m\]\[\033[33m\]${HOST_NAME/.*}\[\033[1;33m\][\t]\[\033[1;34m\](\$?)\[\033[1;36m\]\w\[\033[31m\]\\$\\[\033[0m\] "
+}  # proml()
 
-        proml
-
+createSubdirs()
+{
         # Directories to be created if they don't exist (to be used in the
         # following section)
         [[ ! -e "${HOME}/.ssh" ]] && mkdir "${HOME}/.ssh"
         [[ ! -e "${HOME}/.vim/templates" ]] && mkdir -p "${HOME}/.vim/templates"
         [[ ! -e "${HOME}/bin" ]] && mkdir "${HOME}/bin"
+}  # createSubdirs()
 
-        ### FILES ###
-        # This section is a set of files included in this file so that I don't
-        # have to carry them around separate from this file.
+### FILES ###
+# This section is a set of files included in this file so that I don't
+# have to carry them around separate from this file.
 
-        bak_files()
-        {
-                for i ; do  # `in "$@"' assumed
-                        [[ ! -e "${i}" ]] && continue
-                        mv "${i}" "${i}.bak"
-                        chmod -x "${i}.bak"
-                done
-        }
+bak_files()
+{
+        for i ; do  # `in "$@"' assumed
+                [[ ! -e "${i}" ]] && continue
+                mv "${i}" "${i}.bak"
+                chmod -x "${i}.bak"
+        done
+}  # bak_files()
 
-        ## ~/.jas_rox_file
-        # Whenever this bashrc is changed (JAS_ROX gets incremented), just
-        # recreate all the files below.  Done via version file
-        # ~/.jas_rox_file .
+rm_files()
+{
+        for i ; do  # `in "$@"' assumed
+                [[ ! -e "${i}" ]] && continue
+                rm -rf "${i}" "${i}.bak"
+        done
+}  # rm_files()
+
+mkFileList()
+{
         FILES_BASHRC_CREATES="${VIMRCJAS}"
         FILES_BASHRC_CREATES+=" ${GVIM}"
         FILES_BASHRC_CREATES+=" ${GVIMDIFF}"
@@ -428,7 +463,14 @@ createAliases()
                 FILES_BASHRC_CREATES+=" /root/bin/build32"
                 FILES_BASHRC_CREATES+=" /root/bin/build32on64"
         fi
+}  # mkFileList()
 
+mkJasRoxFile()
+{
+        ## ~/.jas_rox_file
+        # Whenever this bashrc is changed (JAS_ROX gets incremented), just
+        # recreate all the files below.  Done via version file
+        # ~/.jas_rox_file .
         JAS_ROX_FNAME="${HOME}/.jas_rox_file"
         if [[ ! -e "${JAS_ROX_FNAME}" ]] ; then
                 bak_files ${FILES_BASHRC_CREATES}
@@ -440,32 +482,33 @@ createAliases()
                         echo "JAS_ROX_FILE=${JAS_ROX}" >"${JAS_ROX_FNAME}"
                 fi
         fi
+}  # mkJasRoxFile()
 
-        ## ~/.bash_profile
-        # The reason this is a function instead of simply done is that I don't
-        # want to automatically clobber ~/.bash_profile .
-        mkprofile()
-        {
-                cat <<EOFPROFILE >"${HOME}/.bash_profile"
-        # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+## ~/.bash_profile
+mkprofile()
+{
+        cat <<EOFPROFILE >"${HOME}/.bash_profile"
+# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
-        OLDPATH="\${PATH}"
-        ${unaliasPath}
-        [[ -e /etc/profile ]] && source /etc/profile
-        export PATH="\${OLDPATH}:\${PATH}"
-        ${aliasPath}
-        source "${HOME}/.bashrc"
-        # In case this location has a proxy:
-        #export http_proxy=http://'user[\domain]':'passwd'@host:port/
+OLDPATH="\${PATH}"
+${unaliasPath}
+[[ -e /etc/profile ]] && source /etc/profile
+export PATH="\${OLDPATH}:\${PATH}"
+${aliasPath}
+source "${HOME}/.bashrc"
+# In case this location has a proxy:
+#export http_proxy=http://'user[\domain]':'passwd'@host:port/
 
-        screen -wipe
-        EOFPROFILE
-        }  # mkprofile
+screen -wipe
+EOFPROFILE
+}  # mkprofile()
 
+mkVimFiles()
+{
         # Vim section of files
         if [[ 'xVIM' == "x${VI_1ST_WORD}" ]] ; then
 
-        ## ~/.vim/systags
+## ~/.vim/systags
                 # Add a tags file for all headers in /usr/include .  This file
                 # is used by the vimrc created above.
                 SYSTAGS="${HOME}/.vim/systags"
@@ -502,531 +545,537 @@ createAliases()
                         ${CTAGS} ${CTAGSFLAG} -f "${SYSTAGS}" ${INCLUDEPATH}
                 fi # ctags
 
-        ## ~/.vimrc.jas
+## ~/.vimrc.jas
                 if [[ ! -e "${VIMRCJAS}" ]] ; then
                         cat <<EOFVIMRC >"${VIMRCJAS}"
-        " Stuff that I like in vim  --Jas
-        " Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+" Stuff that I like in vim  --Jas
+" Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
-        " set number
+" set number
 
-        set autoindent
-        set autoread      " automatically read externally modified files
-        set autowrite     " write when leaving buffer
-        set autowriteall  " write when leaving buffer (always)
-        set background=dark
-        set backspace=indent,eol,start
-        set backup        " backup files
-        set cmdheight=2
-        set expandtab
-        if has("foldenable")
-                set foldenable
-                set foldmethod=syntax
+set autoindent
+set autoread      " automatically read externally modified files
+set autowrite     " write when leaving buffer
+set autowriteall  " write when leaving buffer (always)
+set background=dark
+set backspace=indent,eol,start
+set backup        " backup files
+set cmdheight=2
+set expandtab
+if has("foldenable")
+        set foldenable
+        set foldmethod=syntax
+endif
+set history=100
+set hlsearch
+set ignorecase
+set smartcase
+set incsearch
+set joinspaces
+set modeline
+set nocompatible
+set pastetoggle=<F2>
+set printoptions=paper:letter,duplex:off,formfeed:y  " <CTRL-L> for <FF>
+set ruler
+set shiftround
+set shiftwidth=${TABSIZE}
+set showcmd
+set showmatch
+set tabstop=${TABSIZE}
+set textwidth=70
+set viminfo='20,\"50
+
+if has("syntax")
+        syntax on
+endif
+filetype plugin indent on
+
+set formatoptions+=tn
+set formatoptions-=l
+
+" Suffixes that get lower priority when doing tab completion for filenames.
+" These are files we are not likely to want to edit or read.
+set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out
+
+" Add tags file for headers in /usr/include .  This should be
+" generated by .bashrc.jas .
+set tags+=${SYSTAGS}
+
+" shortcuts I use:
+" remap 'gf' to create the file under the cursor if it doesn't exist:
+map gf :e <cfile><CR>
+" Format current line using 'fmt':
+map ff !!fmt<CR>
+" Format the comments on the current line using 'fmt':
+map ff/ !!fmt<CR>jI// <ESC>
+map ff# !!fmt<CR>jI# <ESC>
+" Join strings from line below: ,J for strings, ;J for comments
+map ,J JxxX
+map ;J Jwdw
+" Format current xml line to be indented:
+map xml !!XMLLINT_INDENT="    " xmllint --format -<CR>dd
+" Condrey's lprintf() looks terrible after it has been jasindent'd:
+map lp JffA "<ESC>jI           "<ESC>Jff
+" For C++ files:  change 'x(y);\n' to 'x = y;\n'
+map c( 0f(s = <ESC>\$X
+" For C++ files:  change 'x = y;\n' to 'x(y);\n'
+map c= 0t=c2w(<ESC>\$i)<ESC>
+" Goto next/prev fold
+map z<Down> zj
+map z<Up> zk
+
+" Add ^W deletions in insert mode into the undo tree:
+inoremap <C-W> <C-G>u<C-W>
+
+if has("autocmd") 
+        if exists("+omnifunc")
+                "autocmd Filetype *
+                "    \   if &omnifunc == "" |
+                "    \           setlocal omnifunc=syntaxcomplete#Complete |
+                "    \   endif
+                set ofu=syntaxcomplete#Complete
         endif
-        set history=100
-        set hlsearch
-        set ignorecase
-        set smartcase
-        set incsearch
-        set joinspaces
-        set modeline
-        set nocompatible
-        set pastetoggle=<F2>
-        set printoptions=paper:letter,duplex:off,formfeed:y  " <CTRL-L> for <FF>
-        set ruler
-        set shiftround
-        set shiftwidth=${TABSIZE}
-        set showcmd
-        set showmatch
-        set tabstop=${TABSIZE}
-        set textwidth=70
-        set viminfo='20,\"50
+        " To use syntax highlighting with Wikipedia
+        " (see http://en.wikipedia.org/wiki/Wikipedia:Text_editor_support#Vim )
+        " or
+        " git clone https://github.com/vim-scripts/mediawiki.vim.git
+        " ln -s mediawiki.vim/syntax/mediawiki.vim ~/.vim/syntax
+        " ln -s mediawiki.vim/ftdetect/mediawiki.vim ~/.vim/ftdetect
+        au BufRead,BufNewFile *.wiki setfiletype Wikipedia
 
-        if has("syntax")
-                syntax on
+        " When creating new files, base them on the following template
+        " files:
+
+        "au BufNewFile *.c so ${HOME}/.vim/templates/src.c
+        "au BufNewFile *.cpp so ${HOME}/.vim/templates/src.c
+        au BufNewFile *.c{,pp} so ${HOME}/.vim/templates/src.c
+        "au BufNewFile *.h so ${HOME}/.vim/templates/src.h
+        "au BufNewFile *.hpp so ${HOME}/.vim/templates/src.h
+        au BufNewFile *.h{,pp} so ${HOME}/.vim/templates/src.h
+        au BufNewFile *.sh so ${HOME}/.vim/templates/src.sh
+        au BufNewFile *.[ch]{,pp} exe "%s/FILE/" . expand("%")
+        au BufNewFile *.h{,pp} exe "%s/FILE_/" . tr( expand("%"), "a-z.", "A-Z_")
+        au BufNewFile *.sh exe "%s/FILE/" . expand("%")
+        au BufWritePre,FileWritePre *.[ch]{,pp} exe "normal ma"
+        au BufWritePre,FileWritePre *.sh exe "normal ma"
+        au BufWritePost,FileWritePost *.[ch]{,pp} exe "normal 'a"
+        au BufWritePost,FileWritePost *.sh exe "normal 'a"
+
+        autocmd FocusLost * silent wall  " gvim:  write on loss of focus
         endif
-        filetype plugin indent on
 
-        set formatoptions+=tn
-        set formatoptions-=l
-
-        " Suffixes that get lower priority when doing tab completion for filenames.
-        " These are files we are not likely to want to edit or read.
-        set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out
-
-        " Add tags file for headers in /usr/include .  This should be
-        " generated by .bashrc.jas .
-        set tags+=${SYSTAGS}
-
-        " shortcuts I use:
-        " remap 'gf' to create the file under the cursor if it doesn't exist:
-        map gf :e <cfile><CR>
-        " Format current line using 'fmt':
-        map ff !!fmt<CR>
-        " Format the comments on the current line using 'fmt':
-        map ff/ !!fmt<CR>jI// <ESC>
-        map ff# !!fmt<CR>jI# <ESC>
-        " Join strings from line below: ,J for strings, ;J for comments
-        map ,J JxxX
-        map ;J Jwdw
-        " Format current xml line to be indented:
-        map xml !!XMLLINT_INDENT="    " xmllint --format -<CR>dd
-        " Condrey's lprintf() looks terrible after it has been jasindent'd:
-        map lp JffA "<ESC>jI           "<ESC>Jff
-        " For C++ files:  change 'x(y);\n' to 'x = y;\n'
-        map c( 0f(s = <ESC>\$X
-        " For C++ files:  change 'x = y;\n' to 'x(y);\n'
-        map c= 0t=c2w(<ESC>\$i)<ESC>
-        " Goto next/prev fold
-        map z<Down> zj
-        map z<Up> zk
-
-        " Add ^W deletions in insert mode into the undo tree:
-        inoremap <C-W> <C-G>u<C-W>
-
-        if has("autocmd") 
-                if exists("+omnifunc")
-                        "autocmd Filetype *
-                        "    \   if &omnifunc == "" |
-                        "    \           setlocal omnifunc=syntaxcomplete#Complete |
-                        "    \   endif
-                        set ofu=syntaxcomplete#Complete
-                endif
-                " To use syntax highlighting with Wikipedia
-                " (see http://en.wikipedia.org/wiki/Wikipedia:Text_editor_support#Vim )
-                " or
-                " git clone https://github.com/vim-scripts/mediawiki.vim.git
-                " ln -s mediawiki.vim/syntax/mediawiki.vim ~/.vim/syntax
-                " ln -s mediawiki.vim/ftdetect/mediawiki.vim ~/.vim/ftdetect
-                au BufRead,BufNewFile *.wiki setfiletype Wikipedia
-
-                " When creating new files, base them on the following template
-                " files:
-
-                "au BufNewFile *.c so ${HOME}/.vim/templates/src.c
-                "au BufNewFile *.cpp so ${HOME}/.vim/templates/src.c
-                au BufNewFile *.c{,pp} so ${HOME}/.vim/templates/src.c
-                "au BufNewFile *.h so ${HOME}/.vim/templates/src.h
-                "au BufNewFile *.hpp so ${HOME}/.vim/templates/src.h
-                au BufNewFile *.h{,pp} so ${HOME}/.vim/templates/src.h
-                au BufNewFile *.sh so ${HOME}/.vim/templates/src.sh
-                au BufNewFile *.[ch]{,pp} exe "%s/FILE/" . expand("%")
-                au BufNewFile *.h{,pp} exe "%s/FILE_/" . tr( expand("%"), "a-z.", "A-Z_")
-                au BufNewFile *.sh exe "%s/FILE/" . expand("%")
-                au BufWritePre,FileWritePre *.[ch]{,pp} exe "normal ma"
-                au BufWritePre,FileWritePre *.sh exe "normal ma"
-                au BufWritePost,FileWritePost *.[ch]{,pp} exe "normal 'a"
-                au BufWritePost,FileWritePost *.sh exe "normal 'a"
-
-                autocmd FocusLost * silent wall  " gvim:  write on loss of focus
-                endif
-
-        " From distrocast's JD:
-        "
-        "put this in your /etc/vimrc (or your distros' version of it):
-        "
-        "if v:lang =~ "utf8$" || v:lang =~ "UTF-8$"
-        "   set fileencodings=utf-8,latin1
-        "endif
-        "
-        "set nocompatible    " Use Vim defaults (much better!)
-        "set bs=indent,eol,start     " allow backspacing over everything in insert mode
-        ""set ai         " always set autoindenting on
-        ""set backup     " keep a backup file
-        "set viminfo='20,\"50    " read/write a .viminfo file, don't store more
-        "            " than 50 lines of registers
-        "set history=50      " keep 50 lines of command line history
-        "set ruler       " show the cursor position all the time
-        "
-        "" Only do this part when compiled with support for autocommands
-        "if has("autocmd")
-        "  " In text files, always limit the width of text to 78 characters
-        "  autocmd BufRead *.txt set tw=78
-        "  " When editing a file, always jump to the last cursor position
-        "  autocmd BufReadPost *
-        "  \ if line("'\"") > 0 && line ("'\"") <= line("$") |
-        "  \   exe "normal! g'\"" |
-        "  \ endif
-        "endif
-        "
-        "if has("cscope") && filereadable("/usr/bin/cscope")
-        "   set csprg=/usr/bin/cscope
-        "   set csto=0
-        "   set cst
-        "   set nocsverb
-        "   " add any database in current directory
-        "   if filereadable("cscope.out")
-        "      cs add cscope.out
-        "   " else add database pointed to by environment
-        "   elseif \$CSCOPE_DB != ""
-        "      cs add \$CSCOPE_DB
-        "   endif
-        "   set csverb
-        "endif
-        "
-        "" Switch syntax highlighting on, when the terminal has colors
-        "" Also switch on highlighting the last used search pattern.
-        "if &t_Co > 2 || has("gui_running")
-        "  syntax on
-        "  set hlsearch
-        "endif
-        "
-        "
-        "
-        "put this in your ~/.vimrc:
-        "
-        """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-        "" Vimrc File                                                                 "
-        """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-        ""
-        "" General Settings
-        """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-        "set nocompatible
-        "filetype on
-        "set history=1000
-        "set cf
-        "set ffs=unix,dos,mac
-        "filetype indent plugin on
-        ""set foldmethod=indent
-        """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-        ""
-        "" Theme Settings
-        """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-        "set background=dark
-        "syntax on
-        "colorscheme easydark
-        "
-        """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-        ""
-        "" UI Tweaks
-        """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-        "set lsp=0
-        "set ruler
-        "set cmdheight=2
-        "set backspace=2
-        """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-        ""
-        "" Visual Reference
-        """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-        "set showmatch
-        "set mat=10
-        "set nohlsearch
-        "set incsearch
-        "set novisualbell
-        "set noerrorbells
-        "set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\ [TYPE=%Y]\ [HEX=\%02.2B]\ [BUF=\#%n]\ [POS=%04l,%04v][%p%%]\ [LEN=%L]
-        "set laststatus=2
-        """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-        ""
-        "" Layout
-        """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-        "set ai
-        "set cindent
-        "set tabstop=4
-        "set softtabstop=4
-        "set shiftwidth=4
-        "set noexpandtab
-        "set nowrap
-        "set smarttab
-        """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-        ""
-        "" Macros
-        """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-        "map <F3> gg=G:w<cr>
-        "map <F4> :q!<cr>
-        "map <F5> ZZ
-        "map <F6> :TlistToggle<cr>
-        "map <F7> :BufExplorerVerticalSplit<cr>
-        "map <F8> :set paste<CR>
-        "map <F9> :set nopaste<CR>
-        "imap <F8> <C-O>:set paste<CR>
-        "imap <F9> <nop>
-        "set pastetoggle=<F9>
-        "
-        "" JD options
-        "" Sets a actual menu for tab-completion.
-        "set wildmenu
-        "
-        "" Allow backgrounding buffers without writing them. This makes multi-buffer
-        "" not a pain in the ass. It also remembers marks for backgrounded buffers.
-        "set hidden
-        "
-        "" Wrap on arrowkeys as well as backspace and space (defaults)
-        "set whichwrap=<,>,[,],b,s
-        "
-        EOFVIMRC
+" From distrocast's JD:
+"
+"put this in your /etc/vimrc (or your distros' version of it):
+"
+"if v:lang =~ "utf8$" || v:lang =~ "UTF-8$"
+"   set fileencodings=utf-8,latin1
+"endif
+"
+"set nocompatible    " Use Vim defaults (much better!)
+"set bs=indent,eol,start     " allow backspacing over everything in insert mode
+""set ai         " always set autoindenting on
+""set backup     " keep a backup file
+"set viminfo='20,\"50    " read/write a .viminfo file, don't store more
+"            " than 50 lines of registers
+"set history=50      " keep 50 lines of command line history
+"set ruler       " show the cursor position all the time
+"
+"" Only do this part when compiled with support for autocommands
+"if has("autocmd")
+"  " In text files, always limit the width of text to 78 characters
+"  autocmd BufRead *.txt set tw=78
+"  " When editing a file, always jump to the last cursor position
+"  autocmd BufReadPost *
+"  \ if line("'\"") > 0 && line ("'\"") <= line("$") |
+"  \   exe "normal! g'\"" |
+"  \ endif
+"endif
+"
+"if has("cscope") && filereadable("/usr/bin/cscope")
+"   set csprg=/usr/bin/cscope
+"   set csto=0
+"   set cst
+"   set nocsverb
+"   " add any database in current directory
+"   if filereadable("cscope.out")
+"      cs add cscope.out
+"   " else add database pointed to by environment
+"   elseif \$CSCOPE_DB != ""
+"      cs add \$CSCOPE_DB
+"   endif
+"   set csverb
+"endif
+"
+"" Switch syntax highlighting on, when the terminal has colors
+"" Also switch on highlighting the last used search pattern.
+"if &t_Co > 2 || has("gui_running")
+"  syntax on
+"  set hlsearch
+"endif
+"
+"
+"
+"put this in your ~/.vimrc:
+"
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"" Vimrc File                                                                 "
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""
+"" General Settings
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"set nocompatible
+"filetype on
+"set history=1000
+"set cf
+"set ffs=unix,dos,mac
+"filetype indent plugin on
+""set foldmethod=indent
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""
+"" Theme Settings
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"set background=dark
+"syntax on
+"colorscheme easydark
+"
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""
+"" UI Tweaks
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"set lsp=0
+"set ruler
+"set cmdheight=2
+"set backspace=2
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""
+"" Visual Reference
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"set showmatch
+"set mat=10
+"set nohlsearch
+"set incsearch
+"set novisualbell
+"set noerrorbells
+"set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\ [TYPE=%Y]\ [HEX=\%02.2B]\ [BUF=\#%n]\ [POS=%04l,%04v][%p%%]\ [LEN=%L]
+"set laststatus=2
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""
+"" Layout
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"set ai
+"set cindent
+"set tabstop=4
+"set softtabstop=4
+"set shiftwidth=4
+"set noexpandtab
+"set nowrap
+"set smarttab
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""
+"" Macros
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"map <F3> gg=G:w<cr>
+"map <F4> :q!<cr>
+"map <F5> ZZ
+"map <F6> :TlistToggle<cr>
+"map <F7> :BufExplorerVerticalSplit<cr>
+"map <F8> :set paste<CR>
+"map <F9> :set nopaste<CR>
+"imap <F8> <C-O>:set paste<CR>
+"imap <F9> <nop>
+"set pastetoggle=<F9>
+"
+"" JD options
+"" Sets a actual menu for tab-completion.
+"set wildmenu
+"
+"" Allow backgrounding buffers without writing them. This makes multi-buffer
+"" not a pain in the ass. It also remembers marks for backgrounded buffers.
+"set hidden
+"
+"" Wrap on arrowkeys as well as backspace and space (defaults)
+"set whichwrap=<,>,[,],b,s
+"
+EOFVIMRC
                 fi  # ~/.vimrc.jas
 
-        ## ~/bin/gvim.sh
-                # Setting up aliases only works at the commandline.  Create a file for
-                # gvim stuff:
+## ~/bin/gvim.sh
+                # Setting up aliases only works at the commandline.
+                # Create a file for gvim stuff:
                 if [[ ! -e "${GVIM}" && "x" != "x$(type -P gvim)" ]] ; then
                         cat <<EOFGVIM >"${GVIM}"
-        #!/bin/bash
+#!/bin/bash
 
-        # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
-        \$(type -p gvim) -u "${VIMRCJAS}" '+colorscheme ron' '+set number' '+set columns=84' '+set lines=60' "\$@"
-        EOFGVIM
+\$(type -p gvim) -u "${VIMRCJAS}" '+colorscheme ron' '+set number' '+set columns=84' '+set lines=60' "\$@"
+EOFGVIM
                         chmod +x "${GVIM}"
                 fi
 
-        ## ~/bin/gvimdiff.sh
+## ~/bin/gvimdiff.sh
                 if [[ ! -e "${GVIMDIFF}" && "x" != "x$(type -P gvim)" ]] ; then
                         cat <<EOFGVIMDIFF >"${GVIMDIFF}"
-        #!/bin/bash
+#!/bin/bash
 
-        # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
-        \$(type -p gvim) -u "${VIMRCJAS}" '+colorscheme ron' '+set number' '+set columns=84' '+set lines=60' '+set columns=168' -d "\$@"
-        EOFGVIMDIFF
+\$(type -p gvim) -u "${VIMRCJAS}" '+colorscheme ron' '+set number' '+set columns=84' '+set lines=60' '+set columns=168' -d "\$@"
+EOFGVIMDIFF
                         chmod +x "${GVIMDIFF}"
                 fi
 
-        ## ~/.vim/templates/src.c
+## ~/.vim/templates/src.c
                 if [[ ! -e "${HOME}/.vim/templates/src.c" ]] ; then
                         cat <<EOFCSRC >"${HOME}/.vim/templates/src.c"
-        " Created by .bashrc.jas JAS_ROX=${JAS_ROX}
-        :insert
-        /**
-        * @file FILE
-        * @author Jas Eckard <jas@eckard.com>
-        *
-        * @section LICENSE
-        *
-        * (GPL license?)
-        * 
-        * @section DESCRIPTION
-        *
-        * This file is ...
-        */
+" Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+:insert
+/**
+* @file FILE
+* @author Jas Eckard <jas@eckard.com>
+*
+* @section LICENSE
+*
+* (GPL license?)
+* 
+* @section DESCRIPTION
+*
+* This file is ...
+*/
 
-        .
-        EOFCSRC
+.
+EOFCSRC
                 fi
 
-        ## ~/.vim/templates/src.h
+## ~/.vim/templates/src.h
                 if [[ ! -e "${HOME}/.vim/templates/src.h" ]] ; then
                         cat <<EOFHSRC >"${HOME}/.vim/templates/src.h"
-        " Created by .bashrc.jas JAS_ROX=${JAS_ROX}
-        :insert
-        /**
-        * @file FILE
-        * @author Jas Eckard <jas@eckard.com>
-        *
-        * @section LICENSE
-        *
-        * (GPL license?)
-        * 
-        * @section DESCRIPTION
-        *
-        * This file is ...
-        */
+" Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+:insert
+/**
+* @file FILE
+* @author Jas Eckard <jas@eckard.com>
+*
+* @section LICENSE
+*
+* (GPL license?)
+* 
+* @section DESCRIPTION
+*
+* This file is ...
+*/
 
-        #ifndef FILE_
-        #define FILE_
+#ifndef FILE_
+#define FILE_
 
-        #endif  // FILE_
-        .
-        EOFHSRC
+#endif  // FILE_
+.
+EOFHSRC
                 fi
 
-        ## ~/.vim/templates/src.sh
+## ~/.vim/templates/src.sh
                 if [[ ! -e "${HOME}/.vim/templates/src.sh" ]] ; then
                         cat <<EOFSHSRC >"${HOME}/.vim/templates/src.sh"
-        " Created by .bashrc.jas JAS_ROX=${JAS_ROX}
-        :insert
-        #!/bin/bash
+" Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+:insert
+#!/bin/bash
 
-        ##
-        # @file FILE
-        # @author Jas Eckard <jas@eckard.com>
-        #
-        # @section LICENSE
-        #
-        # (GPL license?)
-        # 
-        # @section DESCRIPTION
-        #
-        # This file is ...
+##
+# @file FILE
+# @author Jas Eckard <jas@eckard.com>
+#
+# @section LICENSE
+#
+# (GPL license?)
+# 
+# @section DESCRIPTION
+#
+# This file is ...
 
-        # Return codes:  1 = bad parameter(s)
-        #                2 = required parameter missing
+# Return codes:  1 = bad parameter(s)
+#                2 = required parameter missing
 
-        readonly localDir="\$(cd \${BASH_SOURCE[0]%/*} && pwd -P && cd - >/dev/null)"
+readonly localDir="\$(cd \${BASH_SOURCE[0]%/*} && pwd -P && cd - >/dev/null)"
 
-        # To get some debug output call this file like:
-        # DEBUG=true ./FILE ...
+# To get some debug output call this file like:
+# DEBUG=true ./FILE ...
 
-        echoStderr() { echo "\$@" 1>&2; }
+echoStderr() { echo "\$@" 1>&2; }
 
-        if [[ 'x' == "x\${DEBUG}" ]]; then
-                # Make \`debug' a no-op
-                debug() { :; }
-        else
-                debug() { 
-                        echoStderr -n "DEBUG:  "
-                        echoStderr "\$@"
-                }
+if [[ 'x' == "x\${DEBUG}" ]]; then
+        # Make \`debug' a no-op
+        debug() { :; }
+else
+        debug() { 
+                echoStderr -n "DEBUG:  "
+                echoStderr "\$@"
+        }
+fi
+
+# Usages:
+#echo “regular stdout output”
+#echoStderr “regular stderr output”
+#debug “stderr output only seen when DEBUG set”
+
+declare rc=0
+declare optionA=0
+declare optionB=bogus
+declare REQUIRED
+declare OPTIONAL=bogus
+readonly pi="3.1415"
+
+Usage()
+{
+        cat 1>&2 <<EOFUsage
+
+Usage:  \$0 [OPTION]... REQUIRED [OPTIONAL]
+
+-a, --optionA         Description
+-b, --optionB VAL     Desc that takes VAL
+-h, -?, --help        Display this help and exit
+
+EOFUsage
+        exit \${rc}
+}  # Usage()
+
+parseOptions()
+{
+        debug "Original args:  \$@"
+
+        local shortopts="h?" ; local longopts="help,"
+        shortopts+="a"; longopts+="optionA,"
+        shortopts+="b:"; longopts+="optionB:,"
+
+        debug "shortopts=\${shortopts} longopts=\${longopts}"
+
+        ARGS=\$(getopt -o "\${shortopts}" -l "\${longopts}" -n "getopt.sh" -- "\$@")
+
+        getoptRc=\$?
+        if [[ 0 -ne "\${getoptRc}" ]]; then
+                echoStderr "ERROR:  getopt called incorrectly, rc=\${getoptRc}"
+                rc=1
+                exit \${rc}
+                # Alternatively, do:
+                #Usage
         fi
 
-        # Usages:
-        #echo “regular stdout output”
-        #echoStderr “regular stderr output”
-        #debug “stderr output only seen when DEBUG set”
+        eval set -- "\${ARGS}"
 
-        declare rc=0
-        declare optionA=0
-        declare optionB=bogus
-        declare REQUIRED
-        declare OPTIONAL=bogus
-        readonly pi="3.1415"
-
-        Usage()
-        {
-                cat 1>&2 <<EOFUsage
-
-        Usage:  \$0 [OPTION]... REQUIRED [OPTIONAL]
-
-        -a, --optionA         Description
-        -b, --optionB VAL     Desc that takes VAL
-        -h, -?, --help        Display this help and exit
-
-        EOFUsage
-                exit \${rc}
-        }
-
-        parseOptions()
-        {
-                debug "Original args:  \$@"
-
-                local shortopts="h?" ; local longopts="help,"
-                shortopts+="a"; longopts+="optionA,"
-                shortopts+="b:"; longopts+="optionB:,"
-
-                debug "shortopts=\${shortopts} longopts=\${longopts}"
-
-                ARGS=\$(getopt -o "\${shortopts}" -l "\${longopts}" -n "getopt.sh" -- "\$@")
-
-                getoptRc=\$?
-                if [[ 0 -ne "\${getoptRc}" ]]; then
-                        echoStderr "ERROR:  getopt called incorrectly, rc=\${getoptRc}"
-                        rc=1
-                        exit \${rc}
-                        # Alternatively, do:
-                        #Usage
-                fi
-
-                eval set -- "\${ARGS}"
-
-                while true; do
-                        param=\$1
-                        case "\${param}" in
-                                -a|--optionA)
-                                        debug "-a used"
-                                        optionA=1
-                                        shift
-                                        ;;
-                                -b|--optionB)
-                                        shift
-                                        if [[ -n "\$1" ]]; then
-                                                debug "-b used: \$1";
-                                                optionB=\$1
-                                                shift;
-                                        fi
-                                        ;;
-                                -h|-\\?|--help)
-                                        debug "Asked for help"
-                                        Usage
-                                        ;;
-                                --)
+        while true; do
+                param=\$1
+                case "\${param}" in
+                        -a|--optionA)
+                                debug "-a used"
+                                optionA=1
+                                shift
+                                ;;
+                        -b|--optionB)
+                                shift
+                                if [[ -n "\$1" ]]; then
+                                        debug "-b used: \$1";
+                                        optionB=\$1
                                         shift;
-                                        break;
-                                        ;;
-                                *)
-                                        echoStderr "ERROR:  Unimplemented option: \${param}"
-                                        break;
-                                        ;;
-                        esac
-                done
+                                fi
+                                ;;
+                        -h|-\\?|--help)
+                                debug "Asked for help"
+                                Usage
+                                ;;
+                        --)
+                                shift;
+                                break;
+                                ;;
+                        *)
+                                echoStderr "ERROR:  Unimplemented option: \${param}"
+                                break;
+                                ;;
+                esac
+        done
 
-                debug "New args:  \$@"
+        debug "New args:  \$@"
 
-                # For 1 required and one optional argument
-                if [[ 1 != \${#@} && 2 != \${#@} ]]; then
-                        rc=2
-                        echoStderr "ERROR:  REQUIRED required."
-                fi
+        # For 1 required and one optional argument
+        if [[ 1 != \${#@} && 2 != \${#@} ]]; then
+                rc=2
+                echoStderr "ERROR:  REQUIRED required."
+        fi
 
-                REQUIRED=\$1
-                OPTIONAL=\$2
+        REQUIRED=\$1
+        OPTIONAL=\$2
 
-                if [[ 'bogus' == "\${optionB}" ]]; then
-                        rc=2
-                        echoStderr "ERROR:  --optionB field required."
-                fi
+        if [[ 'bogus' == "\${optionB}" ]]; then
+                rc=2
+                echoStderr "ERROR:  --optionB field required."
+        fi
 
-                if [[ 0 != \${rc} ]]; then
-                        Usage
-                fi
-        }
+        if [[ 0 != \${rc} ]]; then
+                Usage
+        fi
+}  # parseOptions()
 
-        # TODO:  Verify the parameters passed are valid
-        verifyParams()
-        {
-                :
-        #       if [[ "\${optionB}" =~ /reg[ex]/ ]]; then
-        #               echoStderr "ERROR:  --optionB should be of the form: reg[ex]"
-        #               rc=2
-        #       fi      
-        }
+# TODO:  Verify the parameters passed are valid
+verifyParams()
+{
+        :
+#       if [[ "\${optionB}" =~ /reg[ex]/ ]]; then
+#               echoStderr "ERROR:  --optionB should be of the form: reg[ex]"
+#               rc=2
+#       fi      
+}  # verifyParams()
 
-        #        while read line; do
-        #                echoStderr "WARNING:  I do not like \${line}"
-        #        done < <(grep "^\${softwarebom}" \${steutabFName})  
+#        while read line; do
+#                echoStderr "WARNING:  I do not like \${line}"
+#        done < <(grep "^\${softwarebom}" \${steutabFName})  
 
-        parseOptions "\$@"
-        verifyParams
-        doOtherStuff
-        .
-        EOFSHSRC
+parseOptions "\$@"
+verifyParams
+doOtherStuff
+.
+EOFSHSRC
                 fi
         fi  #  Vim section
+}  # mkVimFiles()
 
-        ## ~/.gdbinit
+## ~/.gdbinit
+mkGdbInit()
+{
         if [[ ! -e "${HOME}/.gdbinit" ]] ; then
-        cat <<EOFGDBINIT >"${HOME}/.gdbinit"
-        # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+                cat <<EOFGDBINIT >"${HOME}/.gdbinit"
+# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
-        # Notice the space following:
-        set prompt \033[40m\033[1;33m(gdb)\033[0m\033[0m 
+# Notice the space following:
+set prompt \033[40m\033[1;33m(gdb)\033[0m\033[0m 
 
-        set print pretty
+set print pretty
 
-        # only the current thread may run when the inferior is resumed
-        set scheduler-locking on
+# only the current thread may run when the inferior is resumed
+set scheduler-locking on
 
-        # use csh-style ! history commands
-        set history expansion on
-        set history save on
+# use csh-style ! history commands
+set history expansion on
+set history save on
 
-        # STL debugging functions originally from
-        # http://staff.science.uva.nl/~afn/gdb_stl_utils
-        # packaged from a program found at
-        # http://staff.science.uva.nl/~gilad/stl/gdb_stl_utils
-        # (The above seems to be gone, and an improved is here:
-        # http://www.stanford.edu/~afn/gdb_stl_utils/  )
+# STL debugging functions originally from
+# http://staff.science.uva.nl/~afn/gdb_stl_utils
+# packaged from a program found at
+# http://staff.science.uva.nl/~gilad/stl/gdb_stl_utils
+# (The above seems to be gone, and an improved is here:
+# http://www.stanford.edu/~afn/gdb_stl_utils/  )
 
-        source ${HOME}/.gdb/gdb_stl_utils
+source ${HOME}/.gdb/gdb_stl_utils
 
-        # Print wchar_t-based strings using "wchar_print" (or "wc")
-        # from http://www.linux.com/feature/51836
+# Print wchar_t-based strings using "wchar_print" (or "wc")
+# from http://www.linux.com/feature/51836
 
-        source ${HOME}/.gdb/wchar.gdb
-        EOFGDBINIT
+source ${HOME}/.gdb/wchar.gdb
+EOFGDBINIT
         fi
+}  # mkGdbInit()
 
-        ## ~/bin/gfilt
+## ~/bin/gfilt
+mkGfilt()
+{
         # I like the gfilt program; if it exists, create a symlink in ~/bin;
         # otherwise, it means g++
         pushd "${HOME}/bin" >/dev/null 2>/dev/null
@@ -1046,174 +1095,194 @@ createAliases()
                 fi
         fi
         popd >/dev/null 2>/dev/null
+}  # mkGfilt()
 
-        ## ~/bin/jasindent
+## ~/bin/jasindent
+mkJasindent()
+{
         if [[ ! -e "${HOME}/bin/jasindent" ]] ; then
                 cat <<EOFJASINDENT >"${HOME}/bin/jasindent"
-        #!/bin/bash
+#!/bin/bash
 
-        # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
-        if ! INDENT=\$(type -p indent) ; then
-                echo "Indent is not installed"
-                exit 1
-        fi
-        \${INDENT} ${JASINDENT} "\$@" 2>/dev/null
-        EOFJASINDENT
+if ! INDENT=\$(type -p indent) ; then
+        echo "Indent is not installed"
+        exit 1
+fi
+\${INDENT} ${JASINDENT} "\$@" 2>/dev/null
+EOFJASINDENT
                 chmod +x "${HOME}/bin/jasindent"
         fi
+}  # mkJasindent()
 
-        ## /root/bin/mntmountall
+## /root/bin/mntmountall
+mkMntmountall()
+{
         if ${IAMROOT} && [[ ! -e "${HOME}/bin/mntmountall" ]] ; then
                 cat <<EOFMNTMOUNTALL >"${HOME}/bin/mntmountall"
-        #!/bin/sh
+#!/bin/sh
 
-        # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
-        # Bind-mount all the virtual filesystems currently mounted onto /mnt ,
-        # then chroot into /mnt .
-        # Assumes these dirs exist.
+# Bind-mount all the virtual filesystems currently mounted onto /mnt ,
+# then chroot into /mnt .
+# Assumes these dirs exist.
 
-        mount --bind /dev /mnt/dev
-        mount --bind /proc /mnt/proc
-        mount --bind /sys /mnt/sys
-        mount --bind /dev/pts /mnt/dev/pts
-        chroot /mnt
-        EOFMNTMOUNTALL
+mount --bind /dev /mnt/dev
+mount --bind /proc /mnt/proc
+mount --bind /sys /mnt/sys
+mount --bind /dev/pts /mnt/dev/pts
+chroot /mnt
+EOFMNTMOUNTALL
                 chmod +x "${HOME}/bin/mntmountall"
         fi
+}  # mkMntmountall()
 
-        ## /root/bin/build32
+## /root/bin/build32
+mkBuild32()
+{
         if ${IAMROOT} && [[ ! -e "${HOME}/bin/build32" ]] ; then
                 cat <<EOFBUILD32 >"${HOME}/bin/build32"
-        #!/bin/bash
+#!/bin/bash
 
-        # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
-        linux32 build --root /tmp/build32 --arch i586 --rpms \
-                /tmp/rpms:/mnt/sled32/ "\$@"
-        EOFBUILD32
+linux32 build --root /tmp/build32 --arch i586 --rpms \
+        /tmp/rpms:/mnt/sled32/ "\$@"
+EOFBUILD32
                 chmod +x "${HOME}/bin/build32"
         fi
+}  # mkBuild32()
 
-        ## /root/bin/build32on64
+## /root/bin/build32on64
+mkBuild32on64()
+{
         if ${IAMROOT} && [[ ! -e "${HOME}/bin/build32on64" ]] ; then
                 cat <<EOFBUILD32ON64 >"${HOME}/bin/build32on64"
-        #!/bin/bash
+#!/bin/bash
 
-        # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
-        if [[ "x" != "\$@x" ]] ; then
-                names=\${@/.spec}
-        else
-                read -p "Names of Packages: " names
-        fi
-        specs=
-        for i in \${names}
-        do
-                echo "\${i}" >baselibs.conf
-                specs="\${specs} \${i}*.spec"
-        done
-        linux32 build --baselibs --rpms /tmp/rpms:/mnt/sled32/ \
-                --root /tmp/build32 --arch i586 \${specs}
-        EOFBUILD32ON64
+if [[ "x" != "\$@x" ]] ; then
+        names=\${@/.spec}
+else
+        read -p "Names of Packages: " names
+fi
+specs=
+for i in \${names}
+do
+        echo "\${i}" >baselibs.conf
+        specs="\${specs} \${i}*.spec"
+done
+linux32 build --baselibs --rpms /tmp/rpms:/mnt/sled32/ \
+        --root /tmp/build32 --arch i586 \${specs}
+EOFBUILD32ON64
                 chmod +x "${HOME}/bin/build32on64"
         fi
+}  # mkBuild32on64()
 
-        ## ~/bin/myscreensessionname
+## ~/bin/myscreensessionname
+mkMyscreensessionname()
+{
         if [[ ! -e "${HOME}/bin/myscreensessionname" ]] ; then
                 cat <<EOFMYSCREENSESSIONNAME >"${HOME}/bin/myscreensessionname"
-        #!/bin/bash
+#!/bin/bash
 
-        # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
-        screen -ls | grep \${PPID} | awk '{print \$1}' | cut -f2 -d.
-        EOFMYSCREENSESSIONNAME
+screen -ls | grep \${PPID} | awk '{print \$1}' | cut -f2 -d.
+EOFMYSCREENSESSIONNAME
                 chmod +x "${HOME}/bin/myscreensessionname"
         fi
+}  # mkMyscreensessionname()
 
-        ## ~/.screenrc
+## ~/.screenrc
+mkScreenrc()
+{
         if [[ ! -e "${HOME}/.screenrc" ]] ; then
                 cat <<EOFSCREENRC >"${HOME}/.screenrc"
-        # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
-        # Have 10000 lines buffered to go back to via C-a esc
-        defscrollback 10000
-        # On the OLPC, the 'erase' key becomes 'NUL'.  This fixes:
-        bindkey -d "\000" stuff "\010" 
-        backtick 1 0 0 ${HOME}/bin/myscreensessionname
-        #caption always
-        hardstatus on
-        hardstatus alwayslastline
-        hardstatus string "%{.bW}%-w%{.rW}%n %t%{-}%+w %=%{..G} %1\` %H %{..Y}"
-        screen
-        EOFSCREENRC
+# Have 10000 lines buffered to go back to via C-a esc
+defscrollback 10000
+# On the OLPC, the 'erase' key becomes 'NUL'.  This fixes:
+bindkey -d "\000" stuff "\010" 
+backtick 1 0 0 ${HOME}/bin/myscreensessionname
+#caption always
+hardstatus on
+hardstatus alwayslastline
+hardstatus string "%{.bW}%-w%{.rW}%n %t%{-}%+w %=%{..G} %1\` %H %{..Y}"
+screen
+EOFSCREENRC
         fi
+}  # mkScreenrc()
 
-        ## ~/.ssh/config
+## ~/.ssh/config
+mkSshConfig()
+{
         # Per-user ssh configuration
         if [[ ! -e "${HOME}/.ssh/config" ]] ; then
                 cat <<EOFSSHCONFIG >"${HOME}/.ssh/config"
-        # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
-        # Make ssh connections have a faster initial connect:
-        ControlMaster yes
-        EOFSSHCONFIG
+# Make ssh connections have a faster initial connect:
+ControlMaster yes
+EOFSSHCONFIG
                 chmod 600 "${HOME}/.ssh/config"
         fi
+}  # mkSshConfig()
 
-        ## ~/.Xresources (for rxvt{,-unicode}):
+## ~/.Xresources (for rxvt{,-unicode}):
+mkXresources()
+{
         #  (WAS:  .Xdefaults)
         if [[ ! -e "${HOME}/.Xresources" ]] ; then
                 cat <<EOFXRESOURCES >"${HOME}/.Xresources"
-        ! Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+! Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
-        *customization: -color
-        Rxvt.geometry: 80x96
-        Rxvt.background: black
-        Rxvt.foreground: white
-        Rxvt.fading: 30
-        *XtDefaultBackground: black
-        *XtDefaultForeground: white
-        *background: black
-        *foreground: white
-        xterm*scrollBar: false
-        EOFXRESOURCES
+*customization: -color
+Rxvt.geometry: 80x96
+Rxvt.background: black
+Rxvt.foreground: white
+Rxvt.fading: 30
+*XtDefaultBackground: black
+*XtDefaultForeground: white
+*background: black
+*foreground: white
+xterm*scrollBar: false
+EOFXRESOURCES
         fi
+}  # mkXresources()
 
-        ## ~/.inputrc
+## ~/.inputrc
+mkInputrc()
+{
         if [[ ! -e "${HOME}/.inputrc" ]] ; then
                 cat <<EOFINPUTRC >"${HOME}/.inputrc"
-        # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
-        # possible completions show immediately
-        set show-all-if-unmodified on
-        set show-all-if-ambiguous on
+# possible completions show immediately
+set show-all-if-unmodified on
+set show-all-if-ambiguous on
 
-        # type the beginnings of a command, then up arrow, and the history
-        # will be searched for that command
-        "\e[A": history-search-backward
-        "\e[B": history-search-forward
-        EOFINPUTRC
+# type the beginnings of a command, then up arrow, and the history
+# will be searched for that command
+"\e[A": history-search-backward
+"\e[B": history-search-forward
+EOFINPUTRC
         fi
+}  # mkInputrc()
 
-        # Git's diff will use vimdiff:
-        # from http://technotales.wordpress.com/2009/05/17/git-diff-with-vimdiff/
-        # Call this function to show a Git diff using vim as a pager:
-        if [[ "x" != "x${GIT}" ]] ; then
-                git_diff()
-                {
-                        "${GIT}" diff --no-ext-diff -w "$@" | vim -R -
-                }
-
-        ## ~/.gitconfig
+## ~/.gitconfig
+mkGitconfig()
+{
                 if [[ ! -e "${GITCONFIG}" ]] ; then
                         # The header
                         cat <<EOFGITCONFIG >"${GITCONFIG}"
-        # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
-        EOFGITCONFIG
-
+EOFGITCONFIG
                         # The rest
                         # Read from and reuse previous email setting
                         if [[ -e "${GITCONFIG}.bak" ]] ; then
@@ -1238,102 +1307,131 @@ createAliases()
                         "${GIT}" config --global color.status auto
                         "${GIT}" config --global color.branch auto
                 fi
+}  # mkGitconfig()
 
-        ## ~/bin/git_diff_wrapper
+## ~/bin/git_diff_wrapper
+mkGitDiffWrapper()
+{
                 if [[ ! -e "${HOME}/bin/git_diff_wrapper" && -e "${GVIMDIFF}" ]] ; then
                         cat <<EOFGITDIFFWRAPPER >"${HOME}/bin/git_diff_wrapper"
-        #!/bin/bash
-        # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+#!/bin/bash
+# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
-        #vimdiff "\$1" "\$2"   # WAS \$2 \$5
-        cp "\$2" "/tmp/\$(basename \$1)"
-        "${GVIMDIFF}" "\$1" "/tmp/\$(basename \$1)"
-        EOFGITDIFFWRAPPER
+#vimdiff "\$1" "\$2"   # WAS \$2 \$5
+cp "\$2" "/tmp/\$(basename \$1)"
+"${GVIMDIFF}" "\$1" "/tmp/\$(basename \$1)"
+EOFGITDIFFWRAPPER
 
                         chmod +x "${HOME}/bin/git_diff_wrapper"
                 fi
+}  # mkGitDiffWrapper()
 
-        ## ~/.gitignore
+## ~/.gitignore
+mkGitignore()
+{
                 if [[ ! -e "${HOME}/.gitignore" ]] ; then
                         cat <<EOFGITIGNORE >"${HOME}/.gitignore"
-        # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
-        # vi editor backups and swap files:
-        *~
-        .*.swp
-        # objects and archives:
-        *.[oa]
-        EOFGITIGNORE
-
+# vi editor backups and swap files:
+*~
+.*.swp
+# objects and archives:
+*.[oa]
+EOFGITIGNORE
                 fi
-        fi  #  if `git' is on the system
+}  # mkGitignore()
 
-        ## ~/bin/lesspipe.sh
-        if [[ "x" != "x${LESSPIPE}" && ! -e "${LESSPIPE}" ]] ; then
-                cat <<EOFLESSPIPE >"${LESSPIPE}"
-        #!/bin/sh -
-        # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+gitStuff()
+{
+        if [[ "x" == "x${GIT}" ]] ; then
+                return
+        fi
 
-        # Shamefully stolen from RedHat's /usr/bin/lesspipe.sh:
-
-        # To use this filter with less, define LESSOPEN:
-        # export LESSOPEN="|/usr/bin/lesspipe.sh %s"
-
-        lesspipe() {
-        case "\$1" in
-        *.[1-9n]|*.man|*.[1-9n].bz2|*.man.bz2|*.[1-9].gz|*.[1-9]x.gz|*.[1-9].man.gz)
-                case "\$1" in
-                        *.gz)   DECOMPRESSOR="gunzip -c" ;;
-                        *.bz2)  DECOMPRESSOR="bunzip2 -c" ;;
-                        *)      DECOMPRESSOR="cat" ;;
-                esac
-                if \$DECOMPRESSOR -- "\$1" | file - | grep -q troff; then
-                        if echo "\$1" | grep -q ^/; then #absolute path
-                                man -- "\$1" | cat -s
-                        else
-                                man -- "./\$1" | cat -s
-                        fi
-                else
-                        \$DECOMPRESSOR -- "\$1"
-                fi ;;
-        *.tar) tar tvvf "\$1" ;;
-        *.tgz|*.tar.gz|*.tar.[zZ]) tar tzvvf "\$1" ;;
-        *.tar.bz2|*.tbz2) bzip2 -dc "\$1" | tar tvvf - ;;
-        #.xz) xz -dc "\$1" ;;
-        *.[zZ]|*.gz) gzip -dc -- "\$1" ;;
-        *.bz2) bzip2 -dc -- "\$1" ;;
-        *.zip) zipinfo -- "\$1" ;;
-        *.lzma) lzcat "\$1" ;;
-        *.rpm) rpm -qpivl --changelog -- "\$1" ;;
-        *.cpi|*.cpio) cpio -itv < "\$1" ;;
-        *.gif|*.jpeg|*.jpg|*.pcd|*.png|*.tga|*.tiff|*.tif)
-        if [ -x "\`which identify\`" ]; then
-        identify "\$1"
-        else
-        echo "No identify available"
-        echo "Install ImageMagick to browse images"
-        fi ;;
-        *)
-                case "\$1" in
-                        *.gz)   DECOMPRESSOR="gunzip -c" ;;
-                        *.bz2)  DECOMPRESSOR="bunzip2 -c" ;;
-                esac
-                if [ ! -z \$DECOMPRESSOR ] ; then
-                \$DECOMPRESSOR -- "\$1" ;
-                fi
-        esac
+        # Git's diff will use vimdiff:
+        # from http://technotales.wordpress.com/2009/05/17/git-diff-with-vimdiff/
+        # Call this function to show a Git diff using vim as a pager:
+        git_diff()
+        {
+                "${GIT}" diff --no-ext-diff -w "$@" | vim -R -
         }
 
-        if [ -d "\$1" ] ; then
-                /bin/ls -alF -- "\$1"
+        mkGitconfig
+        mkGitDiffWrapper
+        mkGitignore
+}
+
+## ~/bin/lesspipe.sh
+mkLesspipe()
+{
+        if [[ "x" != "x${LESSPIPE}" && ! -e "${LESSPIPE}" ]] ; then
+                cat <<EOFLESSPIPE >"${LESSPIPE}"
+#!/bin/sh -
+# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+
+# Shamefully stolen from RedHat's /usr/bin/lesspipe.sh:
+
+# To use this filter with less, define LESSOPEN:
+# export LESSOPEN="|/usr/bin/lesspipe.sh %s"
+
+lesspipe() {
+case "\$1" in
+*.[1-9n]|*.man|*.[1-9n].bz2|*.man.bz2|*.[1-9].gz|*.[1-9]x.gz|*.[1-9].man.gz)
+        case "\$1" in
+                *.gz)   DECOMPRESSOR="gunzip -c" ;;
+                *.bz2)  DECOMPRESSOR="bunzip2 -c" ;;
+                *)      DECOMPRESSOR="cat" ;;
+        esac
+        if \$DECOMPRESSOR -- "\$1" | file - | grep -q troff; then
+                if echo "\$1" | grep -q ^/; then #absolute path
+                        man -- "\$1" | cat -s
+                else
+                        man -- "./\$1" | cat -s
+                fi
         else
-                lesspipe "\$1" 2>/dev/null
+                \$DECOMPRESSOR -- "\$1"
+        fi ;;
+*.tar) tar tvvf "\$1" ;;
+*.tgz|*.tar.gz|*.tar.[zZ]) tar tzvvf "\$1" ;;
+*.tar.bz2|*.tbz2) bzip2 -dc "\$1" | tar tvvf - ;;
+#.xz) xz -dc "\$1" ;;
+*.[zZ]|*.gz) gzip -dc -- "\$1" ;;
+*.bz2) bzip2 -dc -- "\$1" ;;
+*.zip) zipinfo -- "\$1" ;;
+*.lzma) lzcat "\$1" ;;
+*.rpm) rpm -qpivl --changelog -- "\$1" ;;
+*.cpi|*.cpio) cpio -itv < "\$1" ;;
+*.gif|*.jpeg|*.jpg|*.pcd|*.png|*.tga|*.tiff|*.tif)
+if [ -x "\`which identify\`" ]; then
+identify "\$1"
+else
+echo "No identify available"
+echo "Install ImageMagick to browse images"
+fi ;;
+*)
+        case "\$1" in
+                *.gz)   DECOMPRESSOR="gunzip -c" ;;
+                *.bz2)  DECOMPRESSOR="bunzip2 -c" ;;
+        esac
+        if [ ! -z \$DECOMPRESSOR ] ; then
+        \$DECOMPRESSOR -- "\$1" ;
         fi
-        EOFLESSPIPE
+esac
+}
+
+if [ -d "\$1" ] ; then
+        /bin/ls -alF -- "\$1"
+else
+        lesspipe "\$1" 2>/dev/null
+fi
+EOFLESSPIPE
                 chmod +x "${LESSPIPE}"
         fi
+}  # mkLesspipe()
 
-        ## ~/.irssi/config
+## ~/.irssi/config
+mkIrssiConfig()
+{
         if [[ "x" != "x${IRSSI}" && ! -e "${HOME}/.irssi/config" ]] ; then
                 [[ ! -e "${HOME}/.irssi" ]] && mkdir "${HOME}/.irssi"
                 read -p "Enter nick for irssi [${nick:=ja-s}]: " NICK
@@ -1343,74 +1441,64 @@ createAliases()
                 done
                 read -p "Enter name for irssi [${name:=Jas Eckard}]: " NAME
                 cat <<EOFIRSSICFG >${HOME}/.irssi/config
-        # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
-        servers = (
-        {
-        address = "irc.freenode.net";
-        chatnet = "Freenode";
-        port = "6697";
-        use_ssl = "yes";
-        ssl_verify = "no";
-        autoconnect = "yes";
-        }
-        );
-
-        chatnets = {
-        Freenode = {
-        type = "IRC";
-        nick = "${NICK}";
-        autosendcmd = "/msg nickserv identify ${NICKSERVPASSWD};wait";
-        max_kicks = "1";
-        max_msgs = "4";
-        max_whois = "1";
-        };
-        };
-
-        settings = {
-        core = { real_name = "${NAME:=${name}}"; user_name = "jas"; nick = "${NICK}"; };
-        "fe-text" = { actlist_sort = "refnum"; };
-        };
-        channels = (
-        { name = "#uclug"; chatnet = "Freenode"; autojoin = "yes"; },
-        { name = "#greenville"; chatnet = "Freenode"; autojoin = "yes"; },
-        { name = "#southeastlinuxfest"; chatnet = "Freenode"; autojoin = "yes"; },
-        { name = "#self-offtopic"; chatnet = "Freenode"; autojoin = "yes"; }
-        );
-        ignores = (
-        { mask = "MODES"; level = "JOINS PARTS QUITS"; },
-        { level = "JOINS PARTS QUITS MODES"; channels = ( "#greenville" ); },
-        { level = "JOINS PARTS QUITS MODES"; channels = ( "#southeastlinuxfest" ); },
-        { level = "JOINS PARTS QUITS MODES"; channels = ( "#self-offtopic" ); }
-        );
-        EOFIRSSICFG
-        fi
-
-        rm_files()
-        {
-                for i ; do  # `in "$@"' assumed
-                        [[ ! -e "${i}" ]] && continue
-                        rm -rf "${i}" "${i}.bak"
-                done
-        }
-
-        # Usage:  ~/.bashrc.jas uninstall
-        if [[ "${THISFILE}" == $0 && "uninstall" == $1 ]] ; then
-                rm_files ${FILES_BASHRC_CREATES} ${JAS_ROX_FNAME} ${SYSTAGS} \
-                        ${THISFILESHOULDBE}*
-                mv "${BASHRCORIG}" "${HOME}/.bashrc" || rm "${HOME}/.bashrc"
-                mv "${THISFILE}.orig" "${THISFILE}"
-                mv "${HOME}/.bash_profile.orig" "${HOME}/.bash_profile"
-        fi
-
-        # Start the ssh-agent:  Still will need to ssh-add or else will be
-        # asked for passphrase every time
-        eval $(ssh-agent -s) >/dev/null 2>&1
-
-        # Sometimes backspace doesn't work:
-        stty sane 2>/dev/null
+# Created by .bashrc.jas JAS_ROX=${JAS_ROX}
+servers = (
+{
+address = "irc.freenode.net";
+chatnet = "Freenode";
+port = "6697";
+use_ssl = "yes";
+ssl_verify = "no";
+autoconnect = "yes";
 }
+);
 
-increment "$@"
+chatnets = {
+Freenode = {
+type = "IRC";
+nick = "${NICK}";
+autosendcmd = "/msg nickserv identify ${NICKSERVPASSWD};wait";
+max_kicks = "1";
+max_msgs = "4";
+max_whois = "1";
+};
+};
+
+settings = {
+core = { real_name = "${NAME:=${name}}"; user_name = "jas"; nick = "${NICK}"; };
+"fe-text" = { actlist_sort = "refnum"; };
+};
+channels = (
+{ name = "#uclug"; chatnet = "Freenode"; autojoin = "yes"; },
+{ name = "#greenville"; chatnet = "Freenode"; autojoin = "yes"; },
+{ name = "#southeastlinuxfest"; chatnet = "Freenode"; autojoin = "yes"; },
+{ name = "#self-offtopic"; chatnet = "Freenode"; autojoin = "yes"; }
+);
+ignores = (
+{ mask = "MODES"; level = "JOINS PARTS QUITS"; },
+{ level = "JOINS PARTS QUITS MODES"; channels = ( "#greenville" ); },
+{ level = "JOINS PARTS QUITS MODES"; channels = ( "#southeastlinuxfest" ); },
+{ level = "JOINS PARTS QUITS MODES"; channels = ( "#self-offtopic" ); }
+);
+EOFIRSSICFG
+        fi
+}  # mkIrssiConfig()
+
+# Start the ssh-agent:  Still will need to ssh-add or else will be
+# asked for passphrase every time
+StartSshAgent()
+{
+        eval $(ssh-agent -s) >/dev/null 2>&1
+}  # StartSshAgent()
+
+# Sometimes backspace doesn't work:
+SetSaneTty()
+{
+        stty sane 2>/dev/null
+}  # SetSaneTty()
+
+parseArgs "$@"
+increment
 sourceOrig
 detectDistro
 bashSettings
@@ -1418,3 +1506,25 @@ bashCompletion
 startGobo
 setEnvVars
 createAliases
+setupCGroups
+proml
+createSubdirs
+mkFileList
+mkJasRoxFile
+mkVimFiles
+mkGdbInit
+mkGfilt
+mkJasindent
+mkMntmountall
+mkBuild32
+mkBuild32on64
+mkMyscreensessionname
+mkScreenrc
+mkSshConfig
+mkXresources
+mkInputrc
+gitStuff
+mkLesspipe
+mkIrssiConfig
+StartSshAgent
+SetSaneTty
