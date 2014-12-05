@@ -6,8 +6,8 @@ THISFILE=$_   # This must be the first line of this file
 readonly JAS_ROX=2014.11.26
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
-declare ARG0
-declare ARG1
+declare ARG0=""
+declare ARG1=""
 declare DISTRO="unassigned"
 declare unaliasPath=""
 declare aliasPath=""
@@ -39,6 +39,8 @@ increment()
                 #JAS_ROX="${DATE}"
                 exit 0
         fi
+
+        unset -f parseArgs
 }  # increment()
 
 uninstall()
@@ -51,19 +53,24 @@ uninstall()
                 mv "${THISFILE}.orig" "${THISFILE}"
                 mv "${HOME}/.bash_profile.orig" "${HOME}/.bash_profile"
         fi
+
+        unset -f uninstall
 }  # uninstall()
 
 # There may be something necessary in the original .bashrc
 sourceOrig()
 {
         [[ -e "${BASHRCORIG}" ]] && source "${BASHRCORIG}"
+
+        unset -f sourceOrig
 }  # sourceOrig()
 
 detectDistro()
 {
         if [[ -e /etc/redhat-release ]] ; then
-                # The above file exists in Oracle Linux too, but I
-                # don't think in CentOS
+                # The above file exists in Oracle Linux too (which
+                # also has /etc/oracle-release), but I don't think
+                # this file is in CentOS.
                 DISTRO="redhat"
                 #RELEASE="$(cat /etc/redhat-release)"
                 # Clear the screen after logout is really annoying
@@ -117,6 +124,8 @@ detectDistro()
                         ;;
                 esac
         fi
+
+        unset -f detectDistro
 }  # detectDistro()
 
 bashSettings()
@@ -135,6 +144,8 @@ bashSettings()
         [[ 4 -le ${BASH_VERSINFO} ]] && shopt -s globstar
         # make sure the TAB character does completion (esp in cygwin/screen)
         bind 'TAB: complete'
+
+        unset -f bashSettings
 }  # bashSettings()
 
 bashCompletion()
@@ -152,6 +163,8 @@ bashCompletion()
         for script in /etc/bash_completion.d/*.sh ; do
                 [[ -r ${script} ]] && source ${script}
         done
+
+        unset -f bashCompletion
 }  # bashCompletion()
 
 # For GoboLinux:
@@ -160,6 +173,8 @@ startGobo()
         if [[ -e ~/Programs/Rootless/Settings/StartGobo ]] ; then
                 source ~/Programs/Rootless/Settings/StartGobo
         fi
+
+        unset -f startGobo
 }  # startGobo()
 
 setPath()
@@ -202,6 +217,8 @@ setPath()
         [[ -e "${HOME}/bin" ]] && PATH="${HOME}/bin:${PATH}"
 
         export PATH
+
+        unset -f setPath
 }  # setPath()
 
 ### Environment variables
@@ -228,8 +245,15 @@ setEnvVars()
                         ;;
         esac
 
-        #export LS_COLORS='no=00:fi=00:di=01;34:ln=01;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.gz=01;31:*.bz2=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.avi=01;35:*.fli=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.ogg=01;35:*.mp3=01;35:*.wav=01;35:'
+        # LS_COLORS
         export LS_COLORS='*.Z=01;31:*.arj=01;31:*.bat=01;32:*.avi=01;35:*.bmp=01;35:*.btm=01;32:*.bz2=01;31:*.bz=01;31:*.cmd=01;32:*.com=01;32:*.cpio=01;31:*.csh=01;32:*.exe=01;32:*.deb=01;31:*.dl=01;35:*.fli=01;35:*.gif=01;35:*.gl=01;35:*.gz=01;31:*.jar=01;31:*.jpeg=01;35:*.jpg=01;35:*.lzh=01;31:*.mov=01;35:*.mp3=01;35:*.mpeg=01;35:*.mpg=01;35:*.ogg=01;35:*.pbm=01;35:*.pgm=01;35:*.png=01;35:*.ppm=01;35:*.rpm=01;31:*.sh=01;32:*.tar=01;31:*.taz=01;31:*.tga=01;35:*.tgz=01;31:*.tif=01;35:*.tiff=01;35:*.tz=01;31:*.wav=01;35:*.xbm=01;35:*.xcf=01;35:*.xpm=01;35:*.xwd=01;35:*.z=01;31:*.zip=01;31:bd=40;33;01:cd=40;33;01:di=01;34:do=01;35:ex=01;32:fi=00:ln=01;36:mi=01;05;37;41:no=00:or=40;31;01:pi=40;33:so=01;35:'
+        local DIRCOLORS="$(type -p dircolors)"
+        if [[ -x "${DIRCOLORS}" ]] ; then
+                # Overwrites the above:
+                eval "$(${DIRCOLORS})"
+                # These (from above) were missing on Bodhi:
+                export LS_COLORS+='*.bat=01;32:*.btm=01;32:*.cmd=01;32:*.com=01;32:*.csh=01;32:*.exe=01;32:*.sh=01;32:*.wav=01;35:fi=00:mi=01;05;37;41:no=00:' 
+        fi
 
         export LESS="-ReXM"
         #export LANG=C       # Since RedHat likes en-US
@@ -271,6 +295,8 @@ setEnvVars()
 
         # PowerBroker man pages
         [[ -e /opt/pb/man ]] && export MANPATH=$MANPATH:/opt/pb/man
+
+        unset -f setEnvVars
 }  # setEnvVars()
 
 createAliases()
@@ -371,6 +397,8 @@ createAliases()
 
         # When I want to know about this xterm or tty
         alias mydisplay="echo \${COLUMNS} x \${LINES} \${DISPLAY}"
+
+        unset -f createAliases
 }  # createAliases()
 
 setupCGroups()
@@ -384,22 +412,27 @@ setupCGroups()
                 mkdir -m 0700 /sys/fs/cgroup/cpu/user/$$
                 echo "$$" >/sys/fs/cgroup/cpu/user/$$/tasks
         fi
+
+        unset -f setupCGroups
 }  # setupCGroups()
 
-proml()
+setPrompt()
 {
+        local TITLEBAR=''
+        local HOST_NAME='\h'
+
         case ${TERM} in
                 xterm*)
                         TITLEBAR="\[\033]0;[\$(lastcmd)] (\$?) \w\007\]"
                         ;;
-                *)
-                        TITLEBAR=''
-                        ;;
         esac
-        HOST_NAME='\h'
+
         [[ -e /etc/HOSTNAME ]] && HOST_NAME=$(</etc/HOSTNAME)
-        PS1="${TITLEBAR}\[\033[40m\]\[\033[33m\]${HOST_NAME/.*}\[\033[1;33m\][\t]\[\033[1;34m\](\$?)\[\033[1;36m\]\w\[\033[31m\]\\$\\[\033[0m\] "
-}  # proml()
+
+        export PS1="${TITLEBAR}\[\033[40m\]\[\033[33m\]${HOST_NAME/.*}\[\033[1;33m\][\t]\[\033[1;34m\](\$?)\[\033[1;36m\]\w\[\033[31m\]\\$\\[\033[0m\] "
+
+        unset -f setPrompt
+}  # setPrompt()
 
 createSubdirs()
 {
@@ -408,6 +441,8 @@ createSubdirs()
         [[ ! -e "${HOME}/.ssh" ]] && mkdir "${HOME}/.ssh"
         [[ ! -e "${HOME}/.vim/templates" ]] && mkdir -p "${HOME}/.vim/templates"
         [[ ! -e "${HOME}/bin" ]] && mkdir "${HOME}/bin"
+
+        unset -f createSubdirs
 }  # createSubdirs()
 
 ### FILES ###
@@ -421,6 +456,8 @@ bak_files()
                 mv "${i}" "${i}.bak"
                 chmod -x "${i}.bak"
         done
+
+        unset -f bak_files
 }  # bak_files()
 
 rm_files()
@@ -429,6 +466,8 @@ rm_files()
                 [[ ! -e "${i}" ]] && continue
                 rm -rf "${i}" "${i}.bak"
         done
+
+        unset -f rm_files
 }  # rm_files()
 
 mkFileList()
@@ -463,6 +502,8 @@ mkFileList()
                 FILES_BASHRC_CREATES+=" /root/bin/build32"
                 FILES_BASHRC_CREATES+=" /root/bin/build32on64"
         fi
+
+        unset -f mkFileList
 }  # mkFileList()
 
 mkJasRoxFile()
@@ -482,6 +523,8 @@ mkJasRoxFile()
                         echo "JAS_ROX_FILE=${JAS_ROX}" >"${JAS_ROX_FNAME}"
                 fi
         fi
+
+        unset -f mkJasRoxFile
 }  # mkJasRoxFile()
 
 ## ~/.bash_profile
@@ -1035,6 +1078,8 @@ doOtherStuff
 EOFSHSRC
                 fi
         fi  #  Vim section
+
+        unset -f mkVimFiles
 }  # mkVimFiles()
 
 ## ~/.gdbinit
@@ -1071,6 +1116,8 @@ source ${HOME}/.gdb/gdb_stl_utils
 source ${HOME}/.gdb/wchar.gdb
 EOFGDBINIT
         fi
+
+        unset -f mkGdbInit
 }  # mkGdbInit()
 
 ## ~/bin/gfilt
@@ -1095,6 +1142,8 @@ mkGfilt()
                 fi
         fi
         popd >/dev/null 2>/dev/null
+
+        unset -f mkGfilt
 }  # mkGfilt()
 
 ## ~/bin/jasindent
@@ -1114,6 +1163,8 @@ fi
 EOFJASINDENT
                 chmod +x "${HOME}/bin/jasindent"
         fi
+
+        unset -f mkJasindent
 }  # mkJasindent()
 
 ## /root/bin/mntmountall
@@ -1137,6 +1188,8 @@ chroot /mnt
 EOFMNTMOUNTALL
                 chmod +x "${HOME}/bin/mntmountall"
         fi
+
+        unset -f mkMntmountall
 }  # mkMntmountall()
 
 ## /root/bin/build32
@@ -1153,6 +1206,8 @@ linux32 build --root /tmp/build32 --arch i586 --rpms \
 EOFBUILD32
                 chmod +x "${HOME}/bin/build32"
         fi
+
+        unset -f mkBuild32
 }  # mkBuild32()
 
 ## /root/bin/build32on64
@@ -1180,6 +1235,8 @@ linux32 build --baselibs --rpms /tmp/rpms:/mnt/sled32/ \
 EOFBUILD32ON64
                 chmod +x "${HOME}/bin/build32on64"
         fi
+
+        unset -f mkBuild32on64
 }  # mkBuild32on64()
 
 ## ~/bin/myscreensessionname
@@ -1195,6 +1252,8 @@ screen -ls | grep \${PPID} | awk '{print \$1}' | cut -f2 -d.
 EOFMYSCREENSESSIONNAME
                 chmod +x "${HOME}/bin/myscreensessionname"
         fi
+
+        unset -f mkMyscreensessionname
 }  # mkMyscreensessionname()
 
 ## ~/.screenrc
@@ -1216,6 +1275,8 @@ hardstatus string "%{.bW}%-w%{.rW}%n %t%{-}%+w %=%{..G} %1\` %H %{..Y}"
 screen
 EOFSCREENRC
         fi
+
+        unset -f mkScreenrc
 }  # mkScreenrc()
 
 ## ~/.ssh/config
@@ -1231,6 +1292,8 @@ ControlMaster yes
 EOFSSHCONFIG
                 chmod 600 "${HOME}/.ssh/config"
         fi
+
+        unset -f mkSshConfig
 }  # mkSshConfig()
 
 ## ~/.Xresources (for rxvt{,-unicode}):
@@ -1253,6 +1316,8 @@ Rxvt.fading: 30
 xterm*scrollBar: false
 EOFXRESOURCES
         fi
+
+        unset -f mkXresources
 }  # mkXresources()
 
 ## ~/.inputrc
@@ -1272,6 +1337,8 @@ set show-all-if-ambiguous on
 "\e[B": history-search-forward
 EOFINPUTRC
         fi
+
+        unset -f mkInputrc
 }  # mkInputrc()
 
 ## ~/.gitconfig
@@ -1307,6 +1374,8 @@ EOFGITCONFIG
                         "${GIT}" config --global color.status auto
                         "${GIT}" config --global color.branch auto
                 fi
+
+                unset -f mkGitconfig
 }  # mkGitconfig()
 
 ## ~/bin/git_diff_wrapper
@@ -1324,6 +1393,8 @@ EOFGITDIFFWRAPPER
 
                         chmod +x "${HOME}/bin/git_diff_wrapper"
                 fi
+
+                unset -f mkGitDiffWrapper
 }  # mkGitDiffWrapper()
 
 ## ~/.gitignore
@@ -1340,6 +1411,8 @@ mkGitignore()
 *.[oa]
 EOFGITIGNORE
                 fi
+
+                unset -f mkGitignore
 }  # mkGitignore()
 
 gitStuff()
@@ -1359,6 +1432,8 @@ gitStuff()
         mkGitconfig
         mkGitDiffWrapper
         mkGitignore
+
+        unset -f gitStuff
 }
 
 ## ~/bin/lesspipe.sh
@@ -1427,6 +1502,8 @@ fi
 EOFLESSPIPE
                 chmod +x "${LESSPIPE}"
         fi
+
+        unset -f mkLesspipe
 }  # mkLesspipe()
 
 ## ~/.irssi/config
@@ -1482,20 +1559,26 @@ ignores = (
 );
 EOFIRSSICFG
         fi
+
+        unset -f mkIrssiConfig
 }  # mkIrssiConfig()
 
 # Start the ssh-agent:  Still will need to ssh-add or else will be
 # asked for passphrase every time
-StartSshAgent()
+startSshAgent()
 {
         eval $(ssh-agent -s) >/dev/null 2>&1
-}  # StartSshAgent()
+
+        unset -f startSshAgent
+}  # startSshAgent()
 
 # Sometimes backspace doesn't work:
-SetSaneTty()
+setSaneTty()
 {
         stty sane 2>/dev/null
-}  # SetSaneTty()
+
+        unset -f setSaneTty
+}  # setSaneTty()
 
 parseArgs "$@"
 increment
@@ -1507,7 +1590,7 @@ startGobo
 setEnvVars
 createAliases
 setupCGroups
-proml
+setPrompt
 createSubdirs
 mkFileList
 mkJasRoxFile
@@ -1526,5 +1609,5 @@ mkInputrc
 gitStuff
 mkLesspipe
 mkIrssiConfig
-StartSshAgent
-SetSaneTty
+startSshAgent
+setSaneTty
