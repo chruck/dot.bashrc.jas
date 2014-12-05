@@ -551,6 +551,7 @@ mkVimFiles()
         # Vim section of files
         if [[ 'xVIM' == "x${VI_1ST_WORD}" ]] ; then
                 mkVimSystags
+                mkVimrcjas
 
 ## ~/.vim/systags
 mkVimSystags()
@@ -591,7 +592,12 @@ mkVimSystags()
                         ${CTAGS} ${CTAGSFLAG} -f "${SYSTAGS}" ${INCLUDEPATH}
                 fi # ctags
 
+                unset -f mkVimSystags
+} # mkVimSystags
+
 ## ~/.vimrc.jas
+mkVimrcjas()
+{
                 if [[ ! -e "${VIMRCJAS}" ]] ; then
                         cat <<EOFVIMRC >"${VIMRCJAS}"
 " Stuff that I like in vim  --Jas
