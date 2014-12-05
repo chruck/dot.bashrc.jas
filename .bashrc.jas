@@ -33,7 +33,7 @@ parseArgs()
 increment()
 {
         if [[ "${THISFILE}" == ${ARG0} && "incr" == ${ARG1} ]] ; then
-                DATE=$(date +%Y.%m.%d)
+                local DATE=$(date +%Y.%m.%d)
                 # TODO:  fix for MacOS 'sed`
                 ${SED} -i "/^readonly JAS_ROX=/s/[0-9.]\+/${DATE}/" "${THISFILE}"
                 #JAS_ROX="${DATE}"
@@ -80,7 +80,7 @@ detectDistro()
                 unalias rm cp mv 2>/dev/null  
                 # A very interesting thing that RH does is change screen's
                 # window titles via bash's $PROMPT_COMMAND .  I don't like it.
-                export PROMPT_COMMAND=
+                export PROMPT_COMMAND=''
         elif [[ -e /etc/SuSE-release ]] ; then
                 DISTRO="suse"
                 #RELEASE="$(cat /etc/SuSE-release)"
@@ -257,7 +257,7 @@ setEnvVars()
 
         export LESS="-ReXM"
         #export LANG=C       # Since RedHat likes en-US
-        export LC_ALL=      # Unset LC_ALL
+        export LC_ALL=''      # Unset LC_ALL
         export LANGUAGE="en"
         export LC_COLLATE=C # Okay, so en-US.UTF8 is okay, but I prefer ASCII ordering
 
@@ -1224,7 +1224,7 @@ if [[ "x" != "\$@x" ]] ; then
 else
         read -p "Names of Packages: " names
 fi
-specs=
+specs=''
 for i in \${names}
 do
         echo "\${i}" >baselibs.conf
