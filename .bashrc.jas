@@ -550,8 +550,11 @@ mkVimFiles()
 {
         # Vim section of files
         if [[ 'xVIM' == "x${VI_1ST_WORD}" ]] ; then
+                mkVimSystags
 
 ## ~/.vim/systags
+mkVimSystags()
+{
                 # Add a tags file for all headers in /usr/include .  This file
                 # is used by the vimrc created above.
                 SYSTAGS="${HOME}/.vim/systags"
