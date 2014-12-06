@@ -1410,8 +1410,6 @@ EOFGITCONFIG
                         "${GIT}" config --global color.status auto
                         "${GIT}" config --global color.branch auto
                 fi
-
-                unset -f mkGitconfig
 }  # mkGitconfig()
 
 ## ~/bin/git_diff_wrapper
@@ -1429,8 +1427,6 @@ EOFGITDIFFWRAPPER
 
                         chmod +x "${HOME}/bin/git_diff_wrapper"
                 fi
-
-                unset -f mkGitDiffWrapper
 }  # mkGitDiffWrapper()
 
 ## ~/.gitignore
@@ -1447,29 +1443,30 @@ mkGitignore()
 *.[oa]
 EOFGITIGNORE
                 fi
-
-                unset -f mkGitignore
 }  # mkGitignore()
 
-gitStuff()
+mkGitFiles()
 {
-        if [[ "x" == "x${GIT}" ]] ; then
-                return
+        if [[ "x" != "x${GIT}" ]] ; then
+
+                # Git's diff will use vimdiff:
+                # from http://technotales.wordpress.com/2009/05/17/git-diff-with-vimdiff/
+                # Call this function to show a Git diff using vim as a pager:
+                git_diff()
+                {
+                        "${GIT}" diff --no-ext-diff -w "$@" | vim -R -
+                }
+
+                mkGitconfig
+                mkGitDiffWrapper
+                mkGitignore
         fi
 
-        # Git's diff will use vimdiff:
-        # from http://technotales.wordpress.com/2009/05/17/git-diff-with-vimdiff/
-        # Call this function to show a Git diff using vim as a pager:
-        git_diff()
-        {
-                "${GIT}" diff --no-ext-diff -w "$@" | vim -R -
-        }
+        unset -f mkGitconfig
+        unset -f mkGitDiffWrapper
+        unset -f mkGitignore
 
-        mkGitconfig
-        mkGitDiffWrapper
-        mkGitignore
-
-        unset -f gitStuff
+        unset -f mkGitFiles
 }
 
 ## ~/bin/lesspipe.sh
@@ -1642,7 +1639,7 @@ mkScreenrc
 mkSshConfig
 mkXresources
 mkInputrc
-gitStuff
+mkGitFiles
 mkLesspipe
 mkIrssiConfig
 startSshAgent
