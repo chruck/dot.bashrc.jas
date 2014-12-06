@@ -549,50 +549,48 @@ EOFPROFILE
 ## ~/.vim/systags
 mkVimSystags()
 {
-                # Add a tags file for all headers in /usr/include .  This file
-                # is used by the vimrc created above.
-                SYSTAGS="${HOME}/.vim/systags"
-                if [[ "netware" != "${DISTRO}" ]] && CTAGS=$(type -p ctags) &&
-                [[ ! -e "${SYSTAGS}" ]] ; then
-                        INCLUDEPATH="/usr/include"
-                        if [[ -e /usr/local/include ]] ; then
-                                INCLUDEPATH="${INCLUDEPATH} /usr/local/include"
-                        fi
-                        if [[ -e /var/opensuse/usr/include ]] ; then
-                                INCLUDEPATH="${INCLUDEPATH} /var/opensuse/usr/include"
-                        fi
-                        if [[ -e /opt/novell/include/xplat ]] ; then
-                                INCLUDEPATH="/opt/novell/include/xplat ${INCLUDEPATH}"
-                        fi
-                        if [[ -e /opt/novell/ndk/novell-cldap-devel-2007.04.17-1linux64/include ]]
-                        then
-                                INCLUDEPATH="/opt/novell/ndk/novell-cldap-devel-2007.04.17-1linux64/include ${INCLUDEPATH}"
-                        fi
-                        if [[ -e /opt/novell/ndk/cldap/include ]] ; then
-                                INCLUDEPATH="/opt/novell/ndk/cldap/include ${INCLUDEPATH}"
-                        fi
-                        if [[ -e /cygdrive/c/novell-nwsdkc-devel-2007.02.27-1netware_windows/clib/include ]]
-                        then
-                                INCLUDEPATH="${INCLUDEPATH} /cygdrive/c/novell-nwsdkc-devel-2007.02.27-1netware_windows/clib/include"
-                        fi
-                        if [[ -e /opt/cc/include ]] ; then
-                                INCLUDEPATH="/opt/cc/include ${INCLUDEPATH}"
-                        fi
-                        echo "creating ctags file for ${INCLUDEPATH} ." >&2  # to stderr
-                        if [[ "aix" != "${DISTRO}" ]] ; then
-                                CTAGSFLAG="-R"
-                        fi
-                        ${CTAGS} ${CTAGSFLAG} -f "${SYSTAGS}" ${INCLUDEPATH}
-                fi # ctags
-
-                unset -f mkVimSystags
+        # Add a tags file for all headers in /usr/include .  This file
+        # is used by the vimrc created above.
+        SYSTAGS="${HOME}/.vim/systags"
+        if [[ "netware" != "${DISTRO}" ]] && CTAGS=$(type -p ctags) &&
+        [[ ! -e "${SYSTAGS}" ]] ; then
+                INCLUDEPATH="/usr/include"
+                if [[ -e /usr/local/include ]] ; then
+                        INCLUDEPATH="${INCLUDEPATH} /usr/local/include"
+                fi
+                if [[ -e /var/opensuse/usr/include ]] ; then
+                        INCLUDEPATH="${INCLUDEPATH} /var/opensuse/usr/include"
+                fi
+                if [[ -e /opt/novell/include/xplat ]] ; then
+                        INCLUDEPATH="/opt/novell/include/xplat ${INCLUDEPATH}"
+                fi
+                if [[ -e /opt/novell/ndk/novell-cldap-devel-2007.04.17-1linux64/include ]]
+                then
+                        INCLUDEPATH="/opt/novell/ndk/novell-cldap-devel-2007.04.17-1linux64/include ${INCLUDEPATH}"
+                fi
+                if [[ -e /opt/novell/ndk/cldap/include ]] ; then
+                        INCLUDEPATH="/opt/novell/ndk/cldap/include ${INCLUDEPATH}"
+                fi
+                if [[ -e /cygdrive/c/novell-nwsdkc-devel-2007.02.27-1netware_windows/clib/include ]]
+                then
+                        INCLUDEPATH="${INCLUDEPATH} /cygdrive/c/novell-nwsdkc-devel-2007.02.27-1netware_windows/clib/include"
+                fi
+                if [[ -e /opt/cc/include ]] ; then
+                        INCLUDEPATH="/opt/cc/include ${INCLUDEPATH}"
+                fi
+                echo "creating ctags file for ${INCLUDEPATH} ." >&2  # to stderr
+                if [[ "aix" != "${DISTRO}" ]] ; then
+                        CTAGSFLAG="-R"
+                fi
+                ${CTAGS} ${CTAGSFLAG} -f "${SYSTAGS}" ${INCLUDEPATH}
+        fi # ctags
 } # mkVimSystags
 
 ## ~/.vimrc.jas
 mkVimrcjas()
 {
-                if [[ ! -e "${VIMRCJAS}" ]] ; then
-                        cat <<EOFVIMRC >"${VIMRCJAS}"
+        if [[ ! -e "${VIMRCJAS}" ]] ; then
+                cat <<EOFVIMRC >"${VIMRCJAS}"
 " Stuff that I like in vim  --Jas
 " Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
@@ -843,51 +841,46 @@ if has("autocmd")
 "set whichwrap=<,>,[,],b,s
 "
 EOFVIMRC
-                fi  # ~/.vimrc.jas
-                unset -f  mkVimrcjas
+        fi  # ~/.vimrc.jas
 } # mkVimrcjas()
 
 ## ~/bin/gvim.sh
 mkGvimsh()
 {
-                # Setting up aliases only works at the commandline.
-                # Create a file for gvim stuff:
-                if [[ ! -e "${GVIM}" && "x" != "x$(type -P gvim)" ]] ; then
-                        cat <<EOFGVIM >"${GVIM}"
+        # Setting up aliases only works at the commandline.
+        # Create a file for gvim stuff:
+        if [[ ! -e "${GVIM}" && "x" != "x$(type -P gvim)" ]] ; then
+                cat <<EOFGVIM >"${GVIM}"
 #!/bin/bash
 
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 \$(type -p gvim) -u "${VIMRCJAS}" '+colorscheme ron' '+set number' '+set columns=84' '+set lines=60' "\$@"
 EOFGVIM
-                        chmod +x "${GVIM}"
-                fi
-
-                unset -f mkGvimsh
+                chmod +x "${GVIM}"
+        fi
 } # mkGvimsh()
 
 ## ~/bin/gvimdiff.sh
 mkGvimdiffsh()
 {
-                if [[ ! -e "${GVIMDIFF}" && "x" != "x$(type -P gvim)" ]] ; then
-                        cat <<EOFGVIMDIFF >"${GVIMDIFF}"
+        if [[ ! -e "${GVIMDIFF}" && "x" != "x$(type -P gvim)" ]] ; then
+                cat <<EOFGVIMDIFF >"${GVIMDIFF}"
 #!/bin/bash
 
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 \$(type -p gvim) -u "${VIMRCJAS}" '+colorscheme ron' '+set number' '+set columns=84' '+set lines=60' '+set columns=168' -d "\$@"
 EOFGVIMDIFF
-                        chmod +x "${GVIMDIFF}"
-                fi
-
-                unset -f mkGvimdiffsh
+                chmod +x "${GVIMDIFF}"
+        fi
 } # mkGvimdiffsh()
 
 ## ~/.vim/templates/src.c
 mkVimTmplC()
 {
-                if [[ ! -e "${HOME}/.vim/templates/src.c" ]] ; then
-                        cat <<EOFCSRC >"${HOME}/.vim/templates/src.c"
+        if [[ ! -e "${HOME}/.vim/templates/src.c" ]] ; then
+                cat <<EOFCSRC >"${HOME}/.vim/templates/src.c"
 " Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 :insert
 /**
@@ -905,16 +898,14 @@ mkVimTmplC()
 
 .
 EOFCSRC
-                fi
-
-                unset -f mkVimTmplC
+        fi
 } # mkVimTmplC()
 
 ## ~/.vim/templates/src.h
 mkVimTmplH()
 {
-                if [[ ! -e "${HOME}/.vim/templates/src.h" ]] ; then
-                        cat <<EOFHSRC >"${HOME}/.vim/templates/src.h"
+        if [[ ! -e "${HOME}/.vim/templates/src.h" ]] ; then
+                cat <<EOFHSRC >"${HOME}/.vim/templates/src.h"
 " Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 :insert
 /**
@@ -936,16 +927,14 @@ mkVimTmplH()
 #endif  // FILE_
 .
 EOFHSRC
-                fi
-
-                unset -f mkVimTmplH
+        fi
 } # mkVimTmplH()
 
 ## ~/.vim/templates/src.sh
 mkVimTmplSh()
 {
-                if [[ ! -e "${HOME}/.vim/templates/src.sh" ]] ; then
-                        cat <<EOFSHSRC >"${HOME}/.vim/templates/src.sh"
+        if [[ ! -e "${HOME}/.vim/templates/src.sh" ]] ; then
+                cat <<EOFSHSRC >"${HOME}/.vim/templates/src.sh"
 " Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 :insert
 #!/bin/bash
@@ -1102,9 +1091,7 @@ verifyParams
 doOtherStuff
 .
 EOFSHSRC
-                fi
-
-        unset -f mkVimTmplSh
+        fi
 } # mkVimTmplSh()
 
 mkVimFiles()
@@ -1119,6 +1106,14 @@ mkVimFiles()
                 mkVimTmplH
                 mkVimTmplSh
         fi
+
+        unset -f mkVimSystags
+        unset -f mkVimrcjas
+        unset -f mkGvimsh
+        unset -f mkGvimdiffsh
+        unset -f mkVimTmplC
+        unset -f mkVimTmplH
+        unset -f mkVimTmplSh
 
         unset -f mkVimFiles
 }  # mkVimFiles()
