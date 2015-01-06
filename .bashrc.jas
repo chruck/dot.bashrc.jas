@@ -890,7 +890,7 @@ parseOptions()
                 echoStderr "ERROR:  getopt called incorrectly, rc=\${getoptRc}"
                 rc=1
                 exit \${rc}
-                # Alternatively, do:
+                # Alternatively, (\$rc gets passed):
                 #Usage
         fi
 
