@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-readonly JAS_ROX=2014.11.26
+readonly JAS_ROX='2015.02.02'
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
 declare ARG0=""
@@ -21,8 +21,8 @@ declare FILES_BASHRC_CREATES=""
 
 parseArgs()
 {
-        ARG0=$0
-        ARG1=$1
+        ARG0="$0"
+        ARG1="$1"
 
         unset -f parseArgs
 }  # parseArgs()
@@ -179,7 +179,7 @@ startGobo()
 
 setPath()
 {
-        PATH="${PATH}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+        PATH+=":/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
         # Necessary for Gentoo?
         #PATH="/bin:/usr/bin:/usr/local/bin:/usr/bin/X11:/usr/games"
@@ -1380,43 +1380,43 @@ EOFINPUTRC
 ## ~/.gitconfig
 mkGitconfig()
 {
-                if [[ ! -e "${GITCONFIG}" ]] ; then
-                        # The header
-                        cat <<EOFGITCONFIG >"${GITCONFIG}"
+        if [[ ! -e "${GITCONFIG}" ]] ; then
+                # The header
+                cat <<EOFGITCONFIG >"${GITCONFIG}"
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
 EOFGITCONFIG
-                        # The rest
-                        # Read from and reuse previous email setting
-                        if [[ -e "${GITCONFIG}.bak" ]] ; then
-                                eval "$(grep email ${GITCONFIG}.bak | tr -d '\t ')"
-                                eval "$(${SED} -n 's/name = \(.*\) */name=\"\1\"/p' ${GITCONFIG}.bak)"
-                        fi
-                        # default name (or grabbed above)
-                        read -p "Enter name for git [${name:=Jas Eckard}]: " NAME
-                        "${GIT}" config --global user.name "${NAME:=${name}}"
-
-                        read -p "Enter email address for git [${email:=jas@eckard.com}]: " EMAIL
-                        "${GIT}" config --global user.email ${EMAIL:=${email}}
-
-                        "${GIT}" config --global credential.helper cache
-                        if [[ -e "${HOME}/bin/git_diff_wrapper" ]] ; then
-                                "${GIT}" config --global diff.external \
-                                        "${HOME}/bin/git_diff_wrapper"
-                        fi
-                        "${GIT}" config --global pager.diff ""
-                        "${GIT}" config --global core.excludesfile "${HOME}/.gitignore"
-                        "${GIT}" config --global color.diff auto
-                        "${GIT}" config --global color.status auto
-                        "${GIT}" config --global color.branch auto
+                # The rest
+                # Read from and reuse previous email setting
+                if [[ -e "${GITCONFIG}.bak" ]] ; then
+                        eval "$(grep email ${GITCONFIG}.bak | tr -d '\t ')"
+                        eval "$(${SED} -n 's/name = \(.*\) */name=\"\1\"/p' ${GITCONFIG}.bak)"
                 fi
+                # default name (or grabbed above)
+                read -p "Enter name for git [${name:=Jas Eckard}]: " NAME
+                "${GIT}" config --global user.name "${NAME:=${name}}"
+
+                read -p "Enter email address for git [${email:=jas@eckard.com}]: " EMAIL
+                "${GIT}" config --global user.email ${EMAIL:=${email}}
+
+                "${GIT}" config --global credential.helper cache
+                if [[ -e "${HOME}/bin/git_diff_wrapper" ]] ; then
+                        "${GIT}" config --global diff.external \
+                                "${HOME}/bin/git_diff_wrapper"
+                fi
+                "${GIT}" config --global pager.diff ""
+                "${GIT}" config --global core.excludesfile "${HOME}/.gitignore"
+                "${GIT}" config --global color.diff auto
+                "${GIT}" config --global color.status auto
+                "${GIT}" config --global color.branch auto
+        fi
 }  # mkGitconfig()
 
 ## ~/bin/git_diff_wrapper
 mkGitDiffWrapper()
 {
-                if [[ ! -e "${HOME}/bin/git_diff_wrapper" && -e "${GVIMDIFF}" ]] ; then
-                        cat <<EOFGITDIFFWRAPPER >"${HOME}/bin/git_diff_wrapper"
+        if [[ ! -e "${HOME}/bin/git_diff_wrapper" && -e "${GVIMDIFF}" ]] ; then
+                cat <<EOFGITDIFFWRAPPER >"${HOME}/bin/git_diff_wrapper"
 #!/bin/bash
 # Created by .bashrc.jas JAS_ROX=${JAS_ROX}
 
@@ -1425,8 +1425,8 @@ cp "\$2" "/tmp/\$(basename \$1)"
 "${GVIMDIFF}" "\$1" "/tmp/\$(basename \$1)"
 EOFGITDIFFWRAPPER
 
-                        chmod +x "${HOME}/bin/git_diff_wrapper"
-                fi
+                chmod +x "${HOME}/bin/git_diff_wrapper"
+        fi
 }  # mkGitDiffWrapper()
 
 ## ~/.gitignore
@@ -1467,7 +1467,7 @@ mkGitFiles()
         unset -f mkGitignore
 
         unset -f mkGitFiles
-}
+}  # mkGitFiles()
 
 ## ~/bin/lesspipe.sh
 mkLesspipe()
