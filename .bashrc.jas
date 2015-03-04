@@ -696,9 +696,9 @@ if has("autocmd")
         "au BufNewFile *.hpp so ${HOME}/.vim/templates/src.h
         au BufNewFile *.h{,pp} so ${HOME}/.vim/templates/src.h
         au BufNewFile *.sh so ${HOME}/.vim/templates/src.sh
-        au BufNewFile *.[ch]{,pp} exe "%s/FILE/" . expand("%")
-        au BufNewFile *.h{,pp} exe "%s/FILE_/" . tr( expand("%"), "a-z.", "A-Z_")
-        au BufNewFile *.sh exe "%s/FILE/" . expand("%")
+        au BufNewFile *.[ch]{,pp} exe "%s/FILE/" . expand("%:t")
+        au BufNewFile *.h{,pp} exe "%s/FILE_/" . tr( expand("%:t"), "a-z.", "A-Z_")
+        au BufNewFile *.sh exe "%s/FILE/" . expand("%:t")
         au BufWritePre,FileWritePre *.[ch]{,pp} exe "normal ma"
         au BufWritePre,FileWritePre *.sh exe "normal ma"
         au BufWritePost,FileWritePost *.[ch]{,pp} exe "normal 'a"
