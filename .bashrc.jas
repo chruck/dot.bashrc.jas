@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-readonly JAS_ROX='2015.03.04'
+readonly JAS_ROX='2015.03.15'
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
 declare ARG0=""
@@ -631,7 +631,9 @@ set viminfo='20,\"50
 if has("syntax")
         syntax on
 endif
-filetype plugin indent on
+if has("filetype")
+        filetype plugin indent on
+endif
 
 set formatoptions+=tn
 set formatoptions-=l
