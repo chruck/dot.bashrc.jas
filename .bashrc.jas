@@ -1548,7 +1548,7 @@ mkIrssiConfig()
         if [[ "x" != "x${IRSSI}" && ! -e "${HOME}/.irssi/config" ]] ; then
                 [[ ! -e "${HOME}/.irssi" ]] && mkdir "${HOME}/.irssi"
                 read -p "Enter nick for irssi [${nick:=ja-s}]: " NICK
-                while read -p "Enter nickserv password for '${NICK:=${nick}}': " NICKSERVPASSWD
+                while read -sp "Enter nickserv password for '${NICK:=${nick}}': " NICKSERVPASSWD
                 do
                         [[ "x" != "x${NICKSERVPASSWD}" ]] && break
                 done
