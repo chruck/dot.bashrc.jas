@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-readonly JAS_ROX='2015.03.15'
+readonly JAS_ROX='2015.03.22'
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
 declare ARG0=""
@@ -1550,6 +1550,7 @@ mkIrssiConfig()
                 read -p "Enter nick for irssi [${nick:=ja-s}]: " NICK
                 while read -sp "Enter nickserv password for '${NICK:=${nick}}': " NICKSERVPASSWD
                 do
+                        echo
                         [[ "x" != "x${NICKSERVPASSWD}" ]] && break
                 done
                 read -p "Enter name for irssi [${name:=Jas Eckard}]: " NAME
