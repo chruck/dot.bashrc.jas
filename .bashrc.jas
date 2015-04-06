@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-readonly JAS_ROX='2015.03.22'
+readonly JAS_ROX='2015.04.06'
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
 declare ARG0=""
@@ -1604,7 +1604,7 @@ EOFIRSSICFG
 # asked for passphrase every time
 startSshAgent()
 {
-        [[ -f ~/.ssh/id_*.pub ]] && eval $(ssh-agent -s) >/dev/null 2>&1
+        [[ -f ~/.ssh/id_rsa.pub ]] && eval $(ssh-agent -s) >/dev/null 2>&1
 
         unset -f startSshAgent
 }  # startSshAgent()
