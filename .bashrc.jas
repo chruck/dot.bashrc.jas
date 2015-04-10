@@ -1418,6 +1418,8 @@ EOFGITCONFIG
                 "${GIT}" config --global color.diff auto
                 "${GIT}" config --global color.status auto
                 "${GIT}" config --global color.branch auto
+                "${GIT}" config --global push.default simple
+
         fi
 }  # mkGitconfig()
 
