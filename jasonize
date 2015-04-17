@@ -1,24 +1,12 @@
 #!/bin/bash
-
-##
-# @file jasonize.sh
-# @author Jas Eckard <eckard@clemson.edu>
 #
-# @section LICENSE
-#
-# (GPL license?)
-# 
-# @section DESCRIPTION
-#
-# This file prepares a remote machine to be usable by Jas
+# Prepares a remote machine to be usable by Jas
 
 # Return codes:  1 = bad parameter(s)
 #                2 = required parameter missing
 
-readonly localDir="$(cd ${BASH_SOURCE[0]%/*} && pwd -P && cd - >/dev/null)"
-
 # To get some debug output call this file like:
-# DEBUG=true ./jasonize ...
+# DEBUG=true ./jasonize [user@]remoteMachine
 
 echoStderr() { echo "$@" 1>&2; }
 
@@ -31,11 +19,6 @@ else
                 echoStderr "$@"
         }
 fi
-
-# Usages:
-#echo “regular stdout output”
-#echoStderr “regular stderr output”
-#debug “stderr output only seen when DEBUG set”
 
 declare rc=0
 declare remote
@@ -106,7 +89,6 @@ parseOptions()
         fi
 }  # parseOptions()
 
-# TODO:  Verify the parameters passed are valid
 verifyParams()
 {
         # Not only does this verify, if this is the first time this
@@ -117,17 +99,12 @@ verifyParams()
         fi
 }  # verifyParams()
 
-#        while read line; do
-#                echoStderr "WARNING:  I do not like ${line}"
-#        done < <(grep "^${softwarebom}" ${steutabFName})  
-
 doStuff()
 {
         rsync ${HOME}/src/dot.bashrc.jas/.bashrc.jas ${remote}:
         ssh ${remote} mv .bashrc .bashrc.orig
         ssh ${remote} mv .bash_profile .bash_profile.orig
         ssh ${remote} ln -s .bashrc.jas .bashrc
-        #ssh ${remote} bash -c ". ${HOME}/.bashrc mkprofile"
         ssh ${remote} ./.bashrc.jas mkprofile
         ssh ${remote}
 }  # doStuff()
