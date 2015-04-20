@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-readonly JAS_ROX='2015.04.10'
+readonly JAS_ROX='2015.04.20'
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
 declare ARG0=""
@@ -340,7 +340,7 @@ createAliases()
 
         ### Aliases
         alias hist="history"
-        alias lastcmd="history | ${TAIL} -n1 | ${SED} -e's/ *[0-9]* *//' "
+        alias lastcmd="history | ${TAIL} -1 | ${SED} -e's/ *[0-9]* *//' "
         alias ll='ls ${LS_OPTIONS} -al'
         alias ls='ls ${LS_OPTIONS}'
         alias path='echo "${PATH}"'
