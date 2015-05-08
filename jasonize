@@ -14,7 +14,7 @@ if [[ 'x' == "x${DEBUG}" ]]; then
         # Make `debug' a no-op
         debug() { :; }
 else
-        debug() { 
+        debug() {
                 echoStderr -n "DEBUG:  "
                 echoStderr "$@"
         }
