@@ -1,0 +1,4 @@
+sudo sh -c 'cat <<EOF >/etc/cron.hourly/snapshots
+btrfs subvolume snapshot / /.snapshots/root-\$(date +%Y-%m-%d-%H:%M)
+btrfs subvolume snapshot /home /.snapshots/home-\$(date +%Y-%m-%d-%H:%M)
+EOF'
