@@ -104,6 +104,7 @@ doStuff()
         rsync ${HOME}/src/dot.bashrc.jas/.bashrc.jas ${remote}:
         ssh ${remote} mv .bashrc .bashrc.orig
         ssh ${remote} mv .bash_profile .bash_profile.orig
+        ssh ${remote} mv .bash_logout .bash_logout.orig
         ssh ${remote} ln -s .bashrc.jas .bashrc
         ssh ${remote} ./.bashrc.jas mkprofile
         ssh ${remote}
