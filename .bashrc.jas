@@ -11,6 +11,7 @@ declare ARG1=""
 declare DISTRO="unassigned"
 declare unaliasPath=""
 declare aliasPath=""
+declare HASSSHKEY="false"
 
 # Discover full paths of programs (to change later?)
 declare GIT="$(type -p git)"
@@ -470,6 +471,15 @@ createSubdirs()
 
         unset -f createSubdirs
 }  # createSubdirs()
+
+detectSshKey()
+{
+        if [[ -f ~/.ssh/id_rsa ]] ; then
+                HASSSHKEY="true"
+        fi
+
+        unset -f detectSshKey
+}  # detectSshKey()
 
 ### FILES ###
 # This section is a set of files included in this file so that I don't
@@ -1613,7 +1623,7 @@ EOFIRSSICFG
 # asked for passphrase every time
 startSshAgent()
 {
-        [[ -f ~/.ssh/id_rsa.pub ]] && eval $(ssh-agent -s) >/dev/null 2>&1
+        ${HASSSHKEY} && eval $(ssh-agent -s) >/dev/null 2>&1
 
         unset -f startSshAgent
 }  # startSshAgent()
@@ -1639,6 +1649,7 @@ createAliases
 setupCGroups
 setPrompt
 createSubdirs
+detectSshKey
 mkFileList
 mkJasRoxFile
 mkVimFiles
