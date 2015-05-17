@@ -3,7 +3,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-readonly JAS_ROX='2015.04.20'
+readonly JAS_ROX='2015.05.17'
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
 declare ARG0=""
