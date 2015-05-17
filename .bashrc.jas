@@ -529,7 +529,6 @@ mkFileList()
         FILES_BASHRC_CREATES+=" ${HOME}/.ssh/config"
         FILES_BASHRC_CREATES+=" ${HOME}/.Xresources" # was .Xdefaults
         FILES_BASHRC_CREATES+=" ${HOME}/.inputrc"
-        FILES_BASHRC_CREATES+=" ${HOME}/bin/myscreensessionname"
         FILES_BASHRC_CREATES+=" ${LESSPIPE}"
         FILES_BASHRC_CREATES+=" ${HOME}/.irssi/config"
         FILES_BASHRC_CREATES+=" ${HOME}/bin/jasonize"
@@ -1748,6 +1747,7 @@ parseOptions "\$@"
 verifyParams
 doStuff
 EOFJASONIZE
+                chmod +x "${HOME}/bin/jasonize"
         fi
 
         unset -f mkJasonize
