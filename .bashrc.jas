@@ -1775,17 +1775,18 @@ if [[ "x" == "x\${mounts}" ]] ; then
         exit 1
 fi
 
+sudo mkdir -p /.snapshots
+
 for mount in \$mounts ; do
         mntName=\${mount/\\/}
         if [[ "x" == "x\${mntName}" ]] ; then
                 mntName=Root
         fi
 
-        cat <<EOF | sudo tee -a /etc/cron.hourly/snapshots
+        cat <<EOFSNAP | sudo tee -a /etc/cron.hourly/snapshots >/dev/null
 btrfs subvolume snapshot \${mount} /.snapshots/$(hostname)\${mntName}-\\\$(date +%Y-%m-%d-%H:%M)
-EOF
+EOFSNAP
 done
-EOF'
 EOFSNAPBTR
                 chmod +x "${HOME}/bin/snapshots.btrfs"
         fi
