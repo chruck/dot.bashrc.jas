@@ -1743,8 +1743,9 @@ verifyParams()
 doStuff()
 {
         rsync \${HOME}/src/dot.bashrc.jas/.bashrc.jas \${remote}:
+        err=\$?
 
-        if [[ 127 == \$? ]] ; then
+        if [[ 127 == \${err} ]] ; then
                 # No rsync installed on remote
                 scp \${HOME}/src/dot.bashrc.jas/.bashrc.jas \${remote}:
         fi
