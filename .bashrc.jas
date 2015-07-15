@@ -1751,8 +1751,11 @@ doStuff()
         if [[ 0 == \${rc} ]] ; then
                 echo "\${BASHRC} already exists on \${remote} ."
                 echo
+                # But update it:
+                rsync \${HOME}/src/dot.bashrc.jas/\${BASHRC} \${remote}:
                 ssh \${remote}
                 exit \$?
+
         elif [[ 2 != \${rc} ]] ; then
                 echo "Unknown error, rc=\${rc} for:"
                 echo "        ssh \${remote} ls \${BASHRC} >/dev/null"
