@@ -1763,11 +1763,15 @@ doStuff()
         fi
 
         rsync \${HOME}/src/dot.bashrc.jas/\${BASHRC} \${remote}:
-        err=\$?
+        rc=\$?
 
-        if [[ 127 == \${err} ]] ; then
+        if [[ 127 == \${rc} ]] ; then
                 # No rsync installed on remote
                 scp \${HOME}/src/dot.bashrc.jas/\${BASHRC} \${remote}:
+        else
+                echo "Unknown error, rc=\${rc} for:"
+                echo "        rsync \${HOME}/src/dot.bashrc.jas/\${BASHRC} \${remote}:"
+                exit \${rc}
         fi
 
         ssh \${remote} mv .bashrc .bashrc.orig
