@@ -77,6 +77,7 @@ EOFLOGOUT
         unset -f mkprofile
 }  # mkprofile()
 
+
 uninstall()
 {
         # Usage:  ~/.bashrc.jas uninstall
@@ -121,7 +122,7 @@ detectDistro()
                 #RELEASE="$(cat /etc/SuSE-release)"
                 unaliasPath="unalias path"
                 aliasPath="alias path=\"echo \${PATH}\""
-        elif [[ "x$(uname)" == "xDarwin" ]] ; then
+        elif [[ "xDarwin" == "x$(uname)" ]] ; then
                 DISTRO="macosx"
                 local PREFIXSCRIPT="${HOME}/Gentoo/startprefix"
                 if [[ -e "${PREFIXSCRIPT}" ]] ; then
@@ -132,7 +133,7 @@ detectDistro()
                                 DISTRO="macosx-gentoo"
                         fi
                 fi
-        elif [[ "x$(uname)" == "xSunOS" ]] ; then
+        elif [[ "xSunOS" == "x$(uname)" ]] ; then
                 DISTRO="solaris"
         elif [[ -e /KNOPPIX ]] ; then
                 DISTRO="knoppix"
@@ -226,27 +227,41 @@ setPath()
         # Sun's JDK
         #[[ -e /usr/java/default/bin ]] && PATH="/usr/java/default/bin:${PATH}"
 
-        # for Macintosh
-        if [[ "macosx" == "${DISTRO}" || "macosx-gentoo" == "${DISTRO}" ]] ; then
+        # for Macintosh?
+        # Commented:  Older Linuxes used also?  If path not there, no harm.
+        #             If path is there, won't hurt to append
+        #if [[ "macosx" == "${DISTRO}" || "macosx-gentoo" == "${DISTRO}" ]] ; then
                 # add X
                 # (OS X 10.4)
                 [[ -e /usr/X11R6/bin ]] && PATH="${PATH}:/usr/X11R6/bin"
                 # (OS X 10.8)
                 [[ -e /opt/X11/bin ]] && PATH="${PATH}:/opt/X11/bin"
-        fi
-        if [[ "macosx" == "${DISTRO}" ]] ; then
+        #fi
+        # Commented:  If path not there, no harm.  If path is there, won't
+        #             hurt to append
+        #if [[ "macosx" == "${DISTRO}" ]] ; then
                 # add Homebrew's /usr/local
-                [[ -e /usr/local ]] && PATH="/usr/local/bin:/usr/local/sbin:${PATH}"
+                # Commented:  Already in first line of this fuction
+                #[[ -e /usr/local ]] && PATH="/usr/local/bin:/usr/local/sbin:${PATH}"
                 # add MacPorts' /opt
                 [[ -e /opt/local ]] && PATH="/opt/local/bin:/opt/local/sbin:${PATH}"
                 # add Fink's /sw
                 [[ -e /sw ]] && PATH="/sw/bin:/sw/sbin:${PATH}"
-        fi
+        #fi
 
         # If the Novell Client for Linux (ncl) exists on this machine:
         if [[ -d /opt/novell/ncl/bin ]] ; then
                 PATH="/opt/novell/ncl/bin:${PATH}"
         fi
+
+        # UCB path (Solaris)
+        [[ -e "/usr/ucb" ]] && PATH="${PATH}:/usr/ucb"
+
+        # SUNWspro path (Solaris)
+        [[ -e "/opt/SUNWspro/bin" ]] && PATH="${PATH}:/opt/SUNWspro/bin"
+
+        # CCS (SUNWspro?) path (Solaris)
+        [[ -e "/usr/ccs/bin" ]] && PATH="${PATH}:/usr/ccs/bin"
 
         # This user's programs
         [[ -e "${HOME}/bin" ]] && PATH="${HOME}/bin:${PATH}"
@@ -363,8 +378,9 @@ createAliases()
 
         if [[ "x" != "x${WHICH}" ]]
         then
-                # RHEL4/Fedora20 uses alias which='alias | /usr/bin/which --tty-only
-                #                                  --read-alias --show-dot --show-tilde'
+                # RHEL4/Fedora20 uses:
+                # alias which='alias | /usr/bin/which --tty-only --read-alias
+                #                                     --show-dot --show-tilde'
                 # KNOPPIX uses alias which='type -path'
                 function which()
                 {
@@ -1526,7 +1542,7 @@ lesspipe()
                                 *)      DECOMPRESSOR="cat" ;;
                         esac
                         if \$DECOMPRESSOR -- "\$1" | file - | grep -q troff; then
-                                if echo "\$1" | grep -q ^/; then #absolute path
+                                if echo "\$1" | grep -q ^/; then # absolute path
                                         man -- "\$1" | cat -s
                                 else
                                         man -- "./\$1" | cat -s
