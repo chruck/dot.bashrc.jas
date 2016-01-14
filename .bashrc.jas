@@ -1,9 +1,10 @@
 #!/bin/bash
+
 # Jas' .bashrc file for all OSes
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-readonly JAS_ROX='2015.12.07'
+readonly JAS_ROX='2016.01.13'
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
 readonly CREATED="Created by .bashrc.jas JAS_ROX=${JAS_ROX}"
@@ -643,7 +644,8 @@ mkVimrcjas()
 
 " set number
 
-set autoindent
+"set autoindent
+set cindent
 set autoread      " automatically read externally modified files
 set autowrite     " write when leaving buffer
 set autowriteall  " write when leaving buffer (always)
@@ -745,8 +747,8 @@ if has("autocmd")
         "au BufNewFile *.hpp so ${HOME}/.vim/templates/src.h
         au BufNewFile *.h{,pp} so ${HOME}/.vim/templates/src.h
         au BufNewFile *.sh so ${HOME}/.vim/templates/src.sh
-        au BufNewFile *.[ch]{,pp} exe "%s/FILE/" . expand("%:t")
         au BufNewFile *.h{,pp} exe "%s/FILE_/" . tr( expand("%:t"), "a-z.", "A-Z_")
+        au BufNewFile *.[ch]{,pp} exe "%s/FILE/" . expand("%:t")
         au BufNewFile *.sh exe "%s/FILE/" . expand("%:t")
         au BufWritePre,FileWritePre *.[ch]{,pp} exe "normal ma"
         au BufWritePre,FileWritePre *.sh exe "normal ma"
