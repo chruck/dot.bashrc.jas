@@ -1772,51 +1772,71 @@ verifyParams()
         fi
 }  # verifyParams()
 
-doStuff()
+rsyncOrScpBashrc()
 {
         BASHRC=${THISFILESHOULDBE}
-
-        ssh \${remote} ls \${BASHRC} >/dev/null  2>&1
-
-        rc=\$?
-
-        if [[ 0 == \${rc} ]] ; then
-                echo "\${BASHRC} already exists on \${remote} ."
-                echo
-                # But update it:
-                rsync \${HOME}/src/dot.bashrc.jas/\${BASHRC} \${remote}:
-                ssh \${remote}
-                exit \$?
-
-        elif [[ 2 != \${rc} ]] ; then
-                echo "Unknown error, rc=\${rc} for:"
-                echo "        ssh \${remote} ls \${BASHRC} >/dev/null"
-                exit \${rc}
-        fi
 
         rsync \${HOME}/src/dot.bashrc.jas/\${BASHRC} \${remote}:
         rc=\$?
 
-        if [[ 127 == \${rc} ]] ; then
-                # No rsync installed on remote
-                scp \${HOME}/src/dot.bashrc.jas/\${BASHRC} \${remote}:
-        elif [[ 0 != \${rc} ]] ; then
-                echo "Unknown error, rc=\${rc} for:"
-                echo "        rsync \${HOME}/src/dot.bashrc.jas/\${BASHRC} \${remote}:"
-                exit \${rc}
-        fi
+        case "\${rc}" in
+                127)
+                        # No rsync installed on remote
+                        scp \${HOME}/src/dot.bashrc.jas/\${BASHRC} \${remote}:
+                        rc=0
+                        ;;
+                0)
+                        ;;
+                *)
+                        echo "Unknown error, rc=\${rc} for:"
+                        echo "        rsync \${HOME}/src/dot.bashrc.jas/\${BASHRC} \${remote}:"
+                        exit \${rc}
+                        ;;
+        esac
+}
 
+setupRemote()
+{
+        BASHRC=${THISFILESHOULDBE}
+
+        ssh \${remote} ls \${BASHRC} >/dev/null  2>&1
+        rc=\$?
+
+        case "\${rc}" in
+                0)
+                        echo "\${BASHRC} already exists on \${remote} ."
+                        echo
+                        # But update it:
+                        rsyncOrScpBashrc
+                        return
+                        ;;
+                2)  # No file, fall through
+                        ;;
+                255)
+                        echo "ssh error for:"
+                        echo "        ssh \${remote} ls \${BASHRC} >/dev/null"
+                        exit \${rc}
+                        ;;
+                *)
+                        echo "Unknown error, rc=\${rc} for:"
+                        echo "        ssh \${remote} ls \${BASHRC} >/dev/null"
+                        exit \${rc}
+                        ;;
+        esac
+
+        rsyncOrScpBashrc
         ssh \${remote} mv .bashrc .bashrc.orig
         ssh \${remote} mv .bash_profile .bash_profile.orig
         ssh \${remote} mv .bash_logout .bash_logout.orig
         ssh \${remote} ln -s \${BASHRC} .bashrc
         ssh \${remote} ./\${BASHRC} mkprofile
-        ssh \${remote}
-}  # doStuff()
+}  # setupRemote()
 
 parseOptions "\$@"
 verifyParams
-doStuff
+setupRemote
+# Then do a normal ssh
+ssh \${remote}
 EOFJASONIZE
                 chmod +x "${HOME}/bin/jasonize"
         fi
