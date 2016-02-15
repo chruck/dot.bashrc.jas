@@ -4,7 +4,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-readonly JAS_ROX='2016.01.21'
+readonly JAS_ROX='20160214'
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
 readonly CREATED="Created by .bashrc.jas JAS_ROX=${JAS_ROX}"
@@ -36,10 +36,9 @@ parseArgs()
 increment()
 {
         if [[ "${THISFILE}" == ${ARG0} && "incr" == ${ARG1} ]] ; then
-                local DATE=$(date +%Y.%m.%d)
+                local DATE=$(date +%Y%m%d)
                 # TODO:  fix for MacOS 'sed`
-                ${SED} -i "/^readonly JAS_ROX=/s/[0-9.]\+/${DATE}/" "${THISFILE}"
-                #JAS_ROX="${DATE}"
+                ${SED} -i "/^readonly JAS_ROX=/s/[0-9]\+/${DATE}/" "${THISFILE}"
                 exit 0
         fi
 
@@ -585,7 +584,8 @@ mkJasRoxFile()
                 echo "JAS_ROX_FILE=${JAS_ROX}" >"${JAS_ROX_FNAME}"
         else
                 source "${JAS_ROX_FNAME}"
-                if [[ "${JAS_ROX_FILE}" != "${JAS_ROX}" ]] ; then
+                if (( $(echo "${JAS_ROX_FILE}" |cut -d. -f1) <= "${JAS_ROX}" ))
+                then
                         bak_files ${FILES_BASHRC_CREATES}
                         echo "JAS_ROX_FILE=${JAS_ROX}" >"${JAS_ROX_FNAME}"
                 fi
