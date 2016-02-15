@@ -584,7 +584,7 @@ mkJasRoxFile()
                 echo "JAS_ROX_FILE=${JAS_ROX}" >"${JAS_ROX_FNAME}"
         else
                 source "${JAS_ROX_FNAME}"
-                if (( $(echo "${JAS_ROX_FILE}" |cut -d. -f1) <= "${JAS_ROX}" ))
+                if (( $(echo "${JAS_ROX_FILE}" |cut -d. -f1) < "${JAS_ROX}" ))
                 then
                         bak_files ${FILES_BASHRC_CREATES}
                         echo "JAS_ROX_FILE=${JAS_ROX}" >"${JAS_ROX_FNAME}"
@@ -1775,6 +1775,38 @@ verifyParams()
 rsyncOrScpBashrc()
 {
         BASHRC=${THISFILESHOULDBE}
+
+        ssh -t \${remote} ls ${JAS_ROX_FNAME} >/dev/null 2>&1
+        rc=\$?
+
+        case "\${rc}" in
+                0)  # ${JAS_ROX_FNAME} exists; update \$JAS_ROX_FILE:
+                        eval \$(ssh \${remote} cat ${JAS_ROX_FNAME} 2>/dev/null)
+
+                        VER_TRUNC=\$(echo "\${JAS_ROX_FILE}" |cut -d.  -f1)
+
+                        if (( "\${VER_TRUNC}" = "\${JAS_ROX}" )); then
+                                return
+                        fi
+
+                        if (( "\${VER_TRUNC}" > "\${JAS_ROX}" )); then
+                                echo "Not copying \${BASHRC} , since \${remote} is newer"
+                                return
+                        fi
+                        ;;
+                2)  # No file, fall through
+                        ;;
+                255)
+                        echo "ssh error for:"
+                        echo "        ssh -t \${remote} ls ${JAS_ROX_FNAME} >/dev/null 2>&1"
+                        exit \${rc}
+                        ;;
+                *)
+                        echo "Unknown error, rc=\${rc} for:"
+                        echo "        ssh -t \${remote} ls ${JAS_ROX_FNAME} >/dev/null 2>&1"
+                        exit \${rc}
+                        ;;
+        esac
 
         rsync \${HOME}/src/dot.bashrc.jas/\${BASHRC} \${remote}:
         rc=\$?
