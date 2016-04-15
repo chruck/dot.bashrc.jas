@@ -4,7 +4,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-readonly JAS_ROX='20160215'
+readonly JAS_ROX='20160414'
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
 readonly CREATED="Created by .bashrc.jas JAS_ROX=${JAS_ROX}"
@@ -1790,11 +1790,11 @@ rsyncOrScpBashrc()
 
                         VER_TRUNC=\$(echo "\${JAS_ROX_FILE}" |cut -d.  -f1)
 
-                        if (( "\${VER_TRUNC}" = "\${JAS_ROX}" )); then
+                        if (( VER_TRUNC = JAS_ROX )); then
                                 return
                         fi
 
-                        if (( "\${VER_TRUNC}" > "\${JAS_ROX}" )); then
+                        if (( VER_TRUNC > JAS_ROX )); then
                                 echo "Not copying \${BASHRC} , since \${remote} is newer"
                                 return
                         fi
