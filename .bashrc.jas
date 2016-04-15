@@ -1706,6 +1706,9 @@ parseOptions()
 
         local shortopts="h?" ; local longopts="help,"
         shortopts+="l:"
+        # Added because clusterssh added them?
+        shortopts+="x"
+        shortopts+="o:"
 
         debug "shortopts=\${shortopts} longopts=\${longopts}"
 
@@ -1736,6 +1739,17 @@ parseOptions()
                         -h|-\?|--help)
                                 debug "Asked for help"
                                 Usage
+                                ;;
+                        # Passed by clusterssh; ignore
+                        -x)
+                                shift;
+                                debug "-x used";
+                                ;;
+                        # Passed by clusterssh; ignore
+                        -o)
+                                shift;
+                                debug "-o used: \$1";
+                                shift;
                                 ;;
                         --)
                                 shift;
