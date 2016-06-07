@@ -4,7 +4,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-readonly JAS_ROX='20160414'
+readonly JAS_ROX='20160607'
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
 readonly CREATED="Created by .bashrc.jas JAS_ROX=${JAS_ROX}"
@@ -364,7 +364,7 @@ createAliases()
 
         ### Aliases
         alias hist="history"
-        alias lastcmd="history | ${TAIL} -1 | ${SED} -e's/ *[0-9]* *//' "
+        alias lastcmd="history |${TAIL} -1 |${SED} -e's/ *[0-9]* *//' "
         alias ll='ls ${LS_OPTIONS} -al'
         alias ls='ls ${LS_OPTIONS}'
         alias path='echo "${PATH}"'
@@ -379,8 +379,8 @@ createAliases()
         if [[ "x" != "x${WHICH}" ]]
         then
                 # RHEL4/Fedora20 uses:
-                # alias which='alias | /usr/bin/which --tty-only --read-alias
-                #                                     --show-dot --show-tilde'
+                # alias which='alias |/usr/bin/which --tty-only --read-alias
+                #                                    --show-dot --show-tilde'
                 # KNOPPIX uses alias which='type -path'
                 function which()
                 {
@@ -400,7 +400,7 @@ createAliases()
                 VI_1ST_WORD="VIM"
         else
                 # check for "minimal vim"
-                [[ "netware" != "${DISTRO}" ]] && VI_1ST_WORD=$(vi -h 2>&1 | head -n1 | cut -d' '  -f1)
+                [[ "netware" != "${DISTRO}" ]] && VI_1ST_WORD=$(vi -h 2>&1 |head -n1 |cut -d' '  -f1)
                 PATH_TO_VIM="$(type -P vi)"
         fi
 
@@ -417,6 +417,9 @@ createAliases()
                 alias vimdiff="${PATH_TO_VIM} -u ${VIMRCJAS} -d"
                 alias gvimdiff="${GVIMDIFF:-echo gvim not installed}"
                 alias view="${PATH_TO_VIM} -u ${VIMRCJAS} -R"
+                alias sudovi="${PATH_TO_VIM} -u ${VIMRCJAS}"
+                alias sudovimdiff="${PATH_TO_VIM} -u ${VIMRCJAS} -d"
+                alias sudogvimdiff="${GVIMDIFF:-echo gvim not installed}"
         fi
 
         # My favs for indent:
@@ -436,7 +439,7 @@ createAliases()
         if LESSPATH="$(type -p less)" ; then
                 alias mm="${LESSPATH}"
                 LESSPIPE="${HOME}/bin/lesspipe.sh"
-                export LESSOPEN="| ${HOME}/bin/lesspipe.sh %s"
+                export LESSOPEN="|${HOME}/bin/lesspipe.sh %s"
         fi
 
         # Prefer Universal diff:
@@ -485,7 +488,7 @@ setPrompt()
 
         [[ -e /etc/HOSTNAME ]] && HOST_NAME=$(</etc/HOSTNAME)
 
-        export PS1="${TITLEBAR}\[\033[40m\]\[\033[33m\]${HOST_NAME/.*}\[\033[1;33m\][\t]\[\033[1;34m\](\$?)\[\033[1;36m\]\w\[\033[31m\]\\$\\[\033[0m\] "
+        export PS1="${TITLEBAR}\[\033[40m\]\[\033[33m\]${HOST_NAME/.*}\[\033[1;33m\][\t]\[\033[1;34m\](\$?)\[\033[1;35m\]\$(git_branch)\[\033[1;36m\]\w\[\033[31m\]\\$\\[\033[0m\] "
 
         unset -f setPrompt
 }  # setPrompt()
@@ -562,7 +565,7 @@ mkFileList()
                 FILES_BASHRC_CREATES+=" ${HOME}/bin/git_diff_wrapper"
         fi
         IAMROOT=false
-        if [[ "root" == "$(who am i | cut -d\  -f1)" ]] ; then
+        if [[ "root" == "$(who am i |cut -d\  -f1)" ]] ; then
                 IAMROOT=true
                 FILES_BASHRC_CREATES+=" /root/bin/mntmountall"
                 FILES_BASHRC_CREATES+=" /root/bin/build32"
@@ -1339,7 +1342,7 @@ mkMyscreensessionname()
 
 # ${CREATED}
 
-screen -ls | grep \${PPID} | awk '{print \$1}' | cut -f2 -d.
+screen -ls |grep \${PPID} |awk '{print \$1}' |cut -f2 -d.
 EOFMYSCREENSESSIONNAME
                 chmod +x "${HOME}/bin/myscreensessionname"
         fi
@@ -1444,7 +1447,7 @@ EOFGITCONFIG
                 # The rest
                 # Read from and reuse previous email setting
                 if [[ -e "${GITCONFIG}.bak" ]] ; then
-                        eval "$(grep email ${GITCONFIG}.bak | tr -d '\t ')"
+                        eval "$(grep email ${GITCONFIG}.bak |tr -d '\t ')"
                         eval "$(${SED} -n 's/name = \(.*\) */name=\"\1\"/p' ${GITCONFIG}.bak)"
                 fi
                 # default name (or grabbed above)
@@ -1511,12 +1514,21 @@ mkGitFiles()
                 # Call this function to show a Git diff using vim as a pager:
                 git_diff()
                 {
-                        "${GIT}" diff --no-ext-diff -w "$@" | vim -R -
+                        "${GIT}" diff --no-ext-diff -w "$@" |vim -R -
+                }
+
+                # For use in $PS1:
+                git_branch()
+                {
+                        "${GIT}" branch 2>/dev/null \
+                                |sed '/^[^*]/d;s/* \(.*\)/(\1)/'
                 }
 
                 mkGitconfig
                 mkGitDiffWrapper
                 mkGitignore
+        else
+                unset -f git_branch
         fi
 
         unset -f mkGitconfig
@@ -1925,7 +1937,7 @@ for mount in \$mounts ; do
 
         mntName=\${mntName^}
 
-        cat <<EOFSNAP | sudo tee -a /etc/cron.hourly/snapshots >/dev/null
+        cat <<EOFSNAP |sudo tee -a /etc/cron.hourly/snapshots >/dev/null
 btrfs subvolume snapshot \${mount} /.snapshots/$(hostname)\${mntName}-\\\$(date +%Y-%m-%d-%H:%M)
 
         sudo chmod +x /etc/cron.hourly/snapshots
