@@ -1527,8 +1527,6 @@ mkGitFiles()
                 mkGitconfig
                 mkGitDiffWrapper
                 mkGitignore
-        else
-                unset -f git_branch
         fi
 
         unset -f mkGitconfig
