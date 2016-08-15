@@ -4,7 +4,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-readonly JAS_ROX='20160623'
+readonly JAS_ROX='20160815'
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
 readonly CREATED="Created by .bashrc.jas JAS_ROX=${JAS_ROX}"
@@ -1794,6 +1794,15 @@ parseOptions()
         fi
 }  # parseOptions()
 
+addKey()
+{
+        # Has this session added the key?
+        if ! ssh-add -l; then
+                # Since it hasn't, add it:
+                ssh-add
+        fi
+}  # addKey()
+
 verifyParams()
 {
         # Not only does this verify, if this is the first time this
@@ -1897,6 +1906,7 @@ setupRemote()
 }  # setupRemote()
 
 parseOptions "\$@"
+addKey
 verifyParams
 setupRemote
 # Then do a normal ssh
