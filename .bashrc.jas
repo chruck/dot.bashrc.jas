@@ -1034,7 +1034,7 @@ if [[ 'x' == "x\${DEBUG}" ]]; then
         debug() { :; }
 else
         debug() {
-                echoStderr -n "DEBUG:  "
+                echoStderr -n "DEBUG \${BASH_LINENO[*]}:  "
                 echoStderr "\$@"
         }
 fi
