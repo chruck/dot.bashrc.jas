@@ -4,7 +4,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-readonly JAS_ROX='20160815'
+readonly JAS_ROX='20160825'
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
 readonly CREATED="Created by .bashrc.jas JAS_ROX=${JAS_ROX}"
@@ -1471,6 +1471,10 @@ EOFGITCONFIG
                 "${GIT}" config --global color.diff auto
                 "${GIT}" config --global color.status auto
                 "${GIT}" config --global color.branch auto
+                "${GIT}" config --global alias.co checkout
+                "${GIT}" config --global alias.br branch
+                "${GIT}" config --global alias.ci commit
+                "${GIT}" config --global alias.st status
 
         fi
 }  # mkGitconfig()
