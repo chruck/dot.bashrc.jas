@@ -1472,20 +1472,22 @@ EOFGITCONFIG
                 read -p "Enter email address for git [${email:=jas+git@eckard.com}]: " EMAIL
                 "${GIT}" config --global user.email ${EMAIL:=${email}}
 
-                "${GIT}" config --global credential.helper cache
                 if [[ -e "${HOME}/bin/git_diff_wrapper" ]] ; then
                         "${GIT}" config --global diff.external \
                                 "${HOME}/bin/git_diff_wrapper"
                 fi
-                "${GIT}" config --global pager.diff ""
-                "${GIT}" config --global core.excludesfile "${HOME}/.gitignore"
-                "${GIT}" config --global color.diff auto
-                "${GIT}" config --global color.status auto
-                "${GIT}" config --global color.branch auto
-                "${GIT}" config --global alias.co checkout
+
                 "${GIT}" config --global alias.br branch
                 "${GIT}" config --global alias.ci commit
+                "${GIT}" config --global alias.co checkout
                 "${GIT}" config --global alias.st status
+                "${GIT}" config --global color.branch auto
+                "${GIT}" config --global color.diff auto
+                "${GIT}" config --global color.status auto
+                "${GIT}" config --global core.excludesfile "${HOME}/.gitignore"
+                "${GIT}" config --global credential.helper cache
+                "${GIT}" config --global pager.diff ""
+                "${GIT}" config --global push.default matching
 
         fi
 }  # mkGitconfig()
