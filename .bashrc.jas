@@ -500,6 +500,11 @@ setPrompt()
                 export PS1="${TITLEBAR}\[\033[40m\]\[\033[33m\]${HOST_NAME/.*}\[\033[1;33m\][\t]\[\033[1;34m\](\$?)\[\033[1;35m\]\[\033[1;36m\]\w\[\033[31m\]\\$\\[\033[0m\] "
         fi
 
+        # "Ultimate" Bash debugging prompt, from
+        # http://wiki.bash-hackers.org/scripting/debuggingtips
+        # (also, ${BASH_LINENO[*]} has linenumbers in call stack
+        export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+
         unset -f setPrompt
 }  # setPrompt()
 
@@ -1035,7 +1040,7 @@ if [[ 'x' == "x\${DEBUG}" ]]; then
         debug() { :; }
 else
         debug() {
-                echoStderr -n "DEBUG:  "
+                echoStderr -n "DEBUG \${BASH_LINENO[*]}:  "
                 echoStderr "\$@"
         }
 fi
@@ -1477,6 +1482,10 @@ EOFGITCONFIG
                 "${GIT}" config --global color.diff auto
                 "${GIT}" config --global color.status auto
                 "${GIT}" config --global color.branch auto
+                "${GIT}" config --global alias.co checkout
+                "${GIT}" config --global alias.br branch
+                "${GIT}" config --global alias.ci commit
+                "${GIT}" config --global alias.st status
 
         fi
 }  # mkGitconfig()
