@@ -4,7 +4,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-readonly JAS_ROX='20160815'
+readonly JAS_ROX='20160925'
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
 readonly CREATED="Created by .bashrc.jas JAS_ROX=${JAS_ROX}"
@@ -16,9 +16,9 @@ declare aliasPath=""
 declare HASSSHKEY="false"
 
 # Discover full paths of programs (to change later?)
-declare GIT="$(type -p git)"
-declare IRSSI="$(type -p irssi)"
-declare SED="$(type -p sed)"
+readonly GIT="$(type -p git)"
+readonly IRSSI="$(type -p irssi)"
+readonly SED="$(type -p sed)"
 
 declare FILES_BASHRC_CREATES=""
 
@@ -62,6 +62,12 @@ ${aliasPath}
 source "${HOME}/.bashrc"
 # In case this location has a proxy:
 #export http_proxy=http://'user[\domain]':'passwd'@host:port/
+
+if [[ -r /etc/salt/minion || -r /etc/salt/minion.d/* ]] ; then
+        echo -n Salt
+        /bin/grep -sh ^master: /etc/salt/minion /etc/salt/minion.d/*
+        echo
+fi
 
 screen -wipe
 EOFPROFILE
@@ -1524,7 +1530,7 @@ mkGitFiles()
                 git_branch()
                 {
                         "${GIT}" branch 2>/dev/null \
-                                |sed '/^[^*]/d;s/* \(.*\)/(\1)/'
+                                |${SED} '/^[^*]/d;s/* \(.*\)/(\1)/'
                 }
 
                 mkGitconfig
