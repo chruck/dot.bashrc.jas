@@ -4,7 +4,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-readonly JAS_ROX='20161018'
+readonly JAS_ROX='20161019'
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
 readonly CREATED="Created by .bashrc.jas JAS_ROX=${JAS_ROX}"
@@ -369,6 +369,7 @@ createAliases()
         local PORT="$(type -p port)"      # MacPorts
         local RLWRAP="$(type -p rlwrap)"  # the readline wrapper program, if on system
         local SSH="$(type -p ssh)"
+        local SUDO="$(type -p sudo)"
         local TAIL="$(type -p tail)"
         local WHICH="$(type -p which)"
 
@@ -385,6 +386,9 @@ createAliases()
         [[ -e "${NSLOOKUP}" ]] && alias nslookup="${RLWRAP} ${NSLOOKUP}"
         [[ -e "${PORT}" ]] && alias port="${PORT} -v"       # MacPorts
         [[ -e "${SSH}" ]] && alias ssh="${SSH} -Y"
+        # The only reason (so far) for this sudo alias is because systemd
+        # needs to have $SYSTEMD_LESS passed in, in order to use it.
+        [[ -e "${SUDO}" ]] && alias sudo="${SUDO} -E"
 
         if [[ "x" != "x${WHICH}" ]]
         then
