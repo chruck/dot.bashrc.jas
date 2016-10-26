@@ -4,7 +4,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-readonly JAS_ROX='20161019'
+readonly JAS_ROX='20161026'
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
 readonly CREATED="Created by .bashrc.jas JAS_ROX=${JAS_ROX}"
@@ -1934,8 +1934,8 @@ parseOptions "\$@"
 addKey
 verifyParams
 setupRemote
-# Then do a normal ssh
-ssh \${remote}
+# Then do a normal X11 ssh
+ssh -Y \${remote}
 EOFJASONIZE
                 chmod +x "${HOME}/bin/jasonize"
         fi
