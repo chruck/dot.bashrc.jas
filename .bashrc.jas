@@ -1365,7 +1365,7 @@ mkMyscreensessionname()
 
 # ${CREATED}
 
-screen -ls |grep \${PPID} |awk '{print \$1}' |cut -f2 -d.
+screen -ls |awk "/\${PPID}/ {print \\\$1}" |cut -f2 -d.
 EOFMYSCREENSESSIONNAME
                 chmod +x "${HOME}/bin/myscreensessionname"
         fi
