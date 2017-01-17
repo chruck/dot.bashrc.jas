@@ -1490,6 +1490,7 @@ EOFGITCONFIG
                 "${GIT}" config --global alias.co checkout
                 "${GIT}" config --global alias.st status
                 #  From https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/user/project/merge_requests.md#checkout-merge-requests-locallyhttps://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/user/project/merge_requests.md#checkout-merge-requests-locally
+                # section "Checkout merge requests locally"
                 "${GIT}" config --global alias.mr "!sh -c 'git fetch \$1 merge-requests/\$2/head:mr-\$1-\$2 && git checkout mr-\$1-\$2' -"
                 "${GIT}" config --global color.branch auto
                 "${GIT}" config --global color.diff auto
