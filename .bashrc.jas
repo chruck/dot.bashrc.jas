@@ -322,6 +322,8 @@ setEnvVars()
         export EDITOR=vi
         #export CDPATH=.:${HOME}:${HOME}/FSF_2.5/eDir/Linux  # for my current project
         export HISTTIMEFORMAT='%F %T '          # add timestamp to history
+        export HISTCONTROL='ignoredups'         # ignore dupes in history,
+                                                # but not space-started
         #export GREP_OPTIONS='--color'
 
         setPath
