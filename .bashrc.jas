@@ -585,6 +585,7 @@ mkFileList()
         FILES_BASHRC_CREATES+=" ${HOME}/.irssi/config"
         FILES_BASHRC_CREATES+=" ${HOME}/bin/jasonize"
         FILES_BASHRC_CREATES+=" ${HOME}/bin/snapshots.btrfs"
+        FILES_BASHRC_CREATES+=" ${HOME}/bin/cmd"
 
         if [[ "x" != "x${GIT}" ]] ; then
                 GITCONFIG="${HOME}/.gitconfig"
@@ -2017,7 +2018,7 @@ mkCmd()
 
 sudo salt "\$1" cmd.shell "\$2"
 EOFCMD
-                chmod +x "${HOME}/bin/snapshots.btrfs"
+                chmod +x "${HOME}/bin/cmd"
         fi
 
         unset -f mkCmd
