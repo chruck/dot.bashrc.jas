@@ -4,7 +4,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-readonly JAS_ROX='20170206'
+readonly JAS_ROX='20170329'
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
 readonly CREATED="Created by .bashrc.jas JAS_ROX=${JAS_ROX}"
@@ -2005,6 +2005,24 @@ EOFSNAPBTR
         unset -f mkSnapBtr
 }  # mkSnapBtr()
 
+mkCmd()
+{
+        if [[ ! -e "${HOME}/bin/cmd" ]] ; then
+                cat <<EOFCMD >"${HOME}/bin/cmd"
+#!/bin/bash
+
+# ${CREATED}
+
+# Shortcut to 'sudo salt \$minion cmd.shell \$command'
+
+sudo salt "\$1" cmd.shell "\$2"
+EOFCMD
+                chmod +x "${HOME}/bin/snapshots.btrfs"
+        fi
+
+        unset -f mkCmd
+}  # mkCmd()
+
 # Start the ssh-agent:  Still will need to ssh-add or else will be
 # asked for passphrase every time
 startSshAgent()
@@ -2055,5 +2073,6 @@ mkLesspipe
 mkIrssiConfig
 mkJasonize
 mkSnapBtr
+mkCmd
 #startSshAgent
 setSaneTty
