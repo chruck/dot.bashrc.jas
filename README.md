@@ -16,6 +16,7 @@ me know what version of this file is currently on the current system.
 A list of files that `.bashrc.jas` creates:
 
         $ grep '^## ' .bashrc.jas |sort
+
         ## /root/bin/build32
         ## /root/bin/build32on64
         ## /root/bin/mntmountall
@@ -33,6 +34,7 @@ A list of files that `.bashrc.jas` creates:
         ## ~/.vim/templates/src.h
         ## ~/.vim/templates/src.sh
         ## ~/.vimrc.jas
+        ## ~/bin/cmd
         ## ~/bin/gfilt
         ## ~/bin/git_diff_wrapper
         ## ~/bin/gvim.sh
