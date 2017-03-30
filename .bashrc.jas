@@ -2006,6 +2006,7 @@ EOFSNAPBTR
         unset -f mkSnapBtr
 }  # mkSnapBtr()
 
+## ~/bin/cmd
 mkCmd()
 {
         if [[ ! -e "${HOME}/bin/cmd" ]] ; then
