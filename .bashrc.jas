@@ -2017,12 +2017,12 @@ mkCmd()
 
 # Shortcut to 'sudo salt \$minion cmd.shell \$command \$options'
 
-readonly targets="$1"
-readonly command="$2"
+readonly targets="\$1"
+readonly command="\$2"
 
 shift 2
 
-sudo salt "${targets}" cmd.shell "${command}" $@
+sudo salt "\${targets}" cmd.shell "\${command}" \$@
 EOFCMD
                 chmod +x "${HOME}/bin/cmd"
         fi
