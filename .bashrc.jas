@@ -4,7 +4,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-readonly JAS_ROX='20170330'
+readonly JAS_ROX='20170404'
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
 readonly CREATED="Created by .bashrc.jas JAS_ROX=${JAS_ROX}"
@@ -2015,9 +2015,14 @@ mkCmd()
 
 # ${CREATED}
 
-# Shortcut to 'sudo salt \$minion cmd.shell \$command'
+# Shortcut to 'sudo salt \$minion cmd.shell \$command \$options'
 
-sudo salt "\$1" cmd.shell "\$2"
+readonly targets="$1"
+readonly command="$2"
+
+shift 2
+
+sudo salt "${targets}" cmd.shell "${command}" $@
 EOFCMD
                 chmod +x "${HOME}/bin/cmd"
         fi
