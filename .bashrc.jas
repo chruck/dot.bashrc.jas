@@ -77,7 +77,7 @@ EOFPROFILE
 # ${CREATED}
 
 ssh-agent -k
-. ${HOME}/.bash_logout.orig
+source ${HOME}/.bash_logout.orig
 EOFLOGOUT
         fi
 
