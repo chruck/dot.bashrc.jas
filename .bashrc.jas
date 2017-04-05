@@ -1943,7 +1943,7 @@ setupRemote()
         esac
 
         rsyncOrScpBashrc
-        ssh -p \${port} \${remote} \
+        ssh -p \${port} \${remote} \\
                 "mv .bashrc .bashrc.orig;
                  mv .bash_profile .bash_profile.orig;
                  mv .bash_logout .bash_logout.orig;
