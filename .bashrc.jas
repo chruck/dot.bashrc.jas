@@ -954,7 +954,9 @@ function! HLNext (blinktime)
 endfunction
 
 " Make tabs, trailing whitespace, and non-breaking spaces visible
+" \u2423 is "open box" symbol for spaces
 "exec "se listchars=tab:\u21E5\uB7,trail:\u2423,nbsp:\u2423"
+" \uB7 is "middle dot" symbol for spaces
 exec "se listchars=tab:\u21E5\uB7,trail:\uB7,nbsp:\uB7"
 set list
 EOFVIMRC
