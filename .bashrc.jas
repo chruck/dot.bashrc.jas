@@ -926,7 +926,32 @@ endif
 "
 "" Wrap on arrowkeys as well as backspace and space (defaults)
 "set whichwrap=<,>,[,],b,s
-"
+
+" From Damian Conway, "More Instantly Better Vim" - OSCON 2013
+" https://www.youtube.com/watch?v=aHm36-na4-4
+" https://is.gd/IBV2013
+" https://docs.google.com/file/d/0Bx3f0gFZh5Jqc0MtcUstV3BKdTQ/edit
+
+" Make column 75 stand out
+highlight ColorColumn ctermbg=magenta
+call matchadd('ColorColumn', '\%75v', 100)
+
+" This rewires n and N to do the highlighing...
+nnoremap <silent> n   n:call HLNext(0.4)<cr>
+nnoremap <silent> N   N:call HLNext(0.4)<cr>
+
+" Highlight the match in red...
+function! HLNext (blinktime)
+        let [bufnum, lnum, col, off] = getpos('.')
+        let matchlen = strlen(matchstr(strpart(getline('.'),col-1),@/))
+        let target_pat = '\c\%#\%('.@/.'\)'
+        let ring = matchadd('WhiteOnRed', target_pat, 101)
+        redraw
+        exec 'sleep ' . float2nr(a:blinktime * 1000) . 'm'
+        call matchdelete(ring)
+        redraw
+endfunction
+
 EOFVIMRC
         fi  # ~/.vimrc.jas
 } # mkVimrcjas()
