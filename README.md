@@ -44,3 +44,4 @@ A list of files that `.bashrc.jas` creates:
         ## ~/bin/lesspipe.sh
         ## ~/bin/myscreensessionname
         ## ~/bin/snapshots.btrfs
+        ## ~/bin/state
