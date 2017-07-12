@@ -2093,11 +2093,11 @@ readonly state="\$2"
 shift 2
 
 
-if [[ 'x' != "x${state}" ]] ; then
-        readonly therest="$@"
+if [[ 'x' != "x\${state}" ]] ; then
+        readonly therest="\$@"
 fi
 
-sudo salt "${targets}" state.apply "${state}" ${therest}
+sudo salt "\${targets}" state.apply "\${state}" \${therest}
 EOFCMD
                 chmod +x "${HOME}/bin/state"
         fi
