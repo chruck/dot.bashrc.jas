@@ -4,7 +4,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-readonly JAS_ROX='20170722'
+readonly JAS_ROX='20170806'
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
 readonly CREATED="Created by .bashrc.jas JAS_ROX=${JAS_ROX}"
@@ -938,8 +938,8 @@ highlight ColorColumn ctermbg=magenta
 call matchadd('ColorColumn', '\%75v', 100)
 
 " This rewires n and N to do the highlighing...
-nnoremap <silent> n   n:call HLNext(0.3)<cr>
-nnoremap <silent> N   N:call HLNext(0.3)<cr>
+nnoremap <silent> n   n:call HLNext(0.1)<cr>
+nnoremap <silent> N   N:call HLNext(0.1)<cr>
 
 " Highlight the match in red...
 function! HLNext (blinktime)
@@ -971,12 +971,32 @@ endfunction
 exec "se listchars=tab:\u21E5\uB7,trail:\uB7,nbsp:\uB7"
 set list
 
-" Swap v and CTRL-V, because Block mode is more useful that Visual mode
+" Swap v and CTRL-V, because Block mode is more useful than Visual mode
 
 nnoremap    v   <C-V>
 nnoremap <C-V>     v
 vnoremap    v   <C-V>
 vnoremap <C-V>     v
+
+" Based on Conway's talk, vim-autoswap will switch to the correct
+" window without the "existing swap file" error message.  Requires
+" that 'wmctrl' be installed on the system.
+" https://github.com/gioele/vim-autoswap
+" pre-download above's plugin/autoswap.vim file and put it in
+" ~/.vim/plugin
+set title titlestring=
+
+" Translate a list to bullets or vice-versa.
+" Above referenced tarball assumed to be extracted in ~/src and
+" symlinked to ~/.vim/plugin
+nmap  ;l  :call ListTrans_toggle_format()<CR>
+vmap  ;l  :call ListTrans_toggle_format('visual')<CR>
+
+" Visual mode math.
+" Above referenced tarball assumed to be extracted in ~/src and
+" symlinked to ~/.vim/plugin
+vmap <expr>  ++  VMATH_YankAndAnalyse()
+nmap         ++  vip++
 
 EOFVIMRC
 fi  # ~/.vimrc.jas
