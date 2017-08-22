@@ -1565,7 +1565,7 @@ EOFGITCONFIG
                 "${GIT}" config --global alias.ci commit
                 "${GIT}" config --global alias.co checkout
                 # From Jonathan Nalley:
-                "${GIT}" config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%ce>%Creset %--abbrev-commit'"
+                "${GIT}" config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%ce>%Creset'"
                 "${GIT}" config --global alias.st status
                 #  From https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/user/project/merge_requests.md#checkout-merge-requests-locallyhttps://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/user/project/merge_requests.md#checkout-merge-requests-locally
                 # section "Checkout merge requests locally"
