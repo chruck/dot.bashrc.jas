@@ -2146,7 +2146,7 @@ EOFCMD
 # asked for passphrase every time
 startSshAgent()
 {
-        if ${HASSSHKEY} && [[ "x" != "x${SSH_AGENT_PID}" ]]; then
+        if ${HASSSHKEY} && [[ "x" == "x${SSH_AGENT_PID}" ]]; then
                 eval $(ssh-agent -s) >/dev/null 2>&1
         fi
 
