@@ -4,7 +4,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-readonly JAS_ROX='20170830'
+readonly JAS_ROX='20170906'
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
 readonly CREATED="Created by .bashrc.jas JAS_ROX=${JAS_ROX}"
@@ -2146,7 +2146,9 @@ EOFCMD
 # asked for passphrase every time
 startSshAgent()
 {
-        ${HASSSHKEY} && eval $(ssh-agent -s) >/dev/null 2>&1
+        if ${HASSSHKEY} && [[ "x" != "x${SSH_AGENT_PID}" ]]; then
+                eval $(ssh-agent -s) >/dev/null 2>&1
+        fi
 
         unset -f startSshAgent
 }  # startSshAgent()
@@ -2194,5 +2196,5 @@ mkJasonize
 mkSnapBtr
 mkCmd
 mkState
-#startSshAgent
+startSshAgent
 setSaneTty
