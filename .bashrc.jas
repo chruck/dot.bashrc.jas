@@ -1520,14 +1520,33 @@ mkInputrc()
                 cat <<EOFINPUTRC >"${HOME}/.inputrc"
 # ${CREATED}
 
-# possible completions show immediately
+# Possible completions show immediately
 set show-all-if-unmodified on
 set show-all-if-ambiguous on
+
+
+# For completions, show color
+set colored-completion-prefix on
+set colored-stats on
+
+# When completing in the middle of a filename, doesn't just insert,
+# but goes to the end of the filename
+set skip-completed-text on
+
+set blink-matching-paren on
+set expand-tilde on
+
+# Necessary for below ctrl-w behavior
+set bind-tty-special-chars off
 
 # type the beginnings of a command, then up arrow, and the history
 # will be searched for that command
 "\e[A": history-search-backward
 "\e[B": history-search-forward
+
+# Newer bash changed this, setting back to ctrl-w deletes an entire
+# word on the commandlind
+"\C-w": unix-word-rubout
 EOFINPUTRC
         fi
 
