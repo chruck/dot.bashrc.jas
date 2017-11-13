@@ -4,7 +4,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-readonly JAS_ROX='20171101'
+readonly JAS_ROX='20171113'
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
 readonly CREATED="Created by .bashrc.jas JAS_ROX=${JAS_ROX}"
@@ -480,6 +480,7 @@ createAliases()
         alias slt.d="ssh -Y eckard@hci-inf-d-slt01.clemson.edu"
         alias slt.mem="ssh -Y eckard@hhs-mem-p-slt01.clemson.edu"
         alias slt.mem.d="ssh -Y eckard@hhs-mem-d-slt01.clemson.edu"
+        alias slt.jas="ssh -Y eckard@hci-jas-p-slt02.clemson.edu"
 
         unset -f createAliases
 }  # createAliases()
