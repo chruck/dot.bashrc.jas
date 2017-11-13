@@ -480,7 +480,7 @@ createAliases()
         alias slt.d="ssh -Y eckard@hci-inf-d-slt01.clemson.edu"
         alias slt.mem="ssh -Y eckard@hhs-mem-p-slt01.clemson.edu"
         alias slt.mem.d="ssh -Y eckard@hhs-mem-d-slt01.clemson.edu"
-        alias slt.jas="ssh -Y eckard@hci-jas-p-slt02.clemson.edu"
+        alias slt.jas="ssh -Y eckard@hci-jas-z-slt02.clemson.edu"
 
         unset -f createAliases
 }  # createAliases()
