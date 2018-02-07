@@ -4,7 +4,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-readonly JAS_ROX='20180126'
+readonly JAS_ROX='20180207'
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
 readonly CREATED="Created by .bashrc.jas JAS_ROX=${JAS_ROX}"
@@ -597,6 +597,7 @@ mkFileList()
         FILES_BASHRC_CREATES+=" ${HOME}/bin/snapshots.btrfs"
         FILES_BASHRC_CREATES+=" ${HOME}/bin/cmd"
         FILES_BASHRC_CREATES+=" ${HOME}/bin/state"
+        FILES_BASHRC_CREATES+=" ${HOME}/bin/test.ping"
 
         if [[ "x" != "x${GIT}" ]] ; then
                 GITCONFIG="${HOME}/.gitconfig"
@@ -2171,6 +2172,30 @@ EOFCMD
         unset -f mkState
 }  # mkState()
 
+## ~/bin/test.ping
+mkTestPing()
+{
+        if [[ ! -e "${HOME}/bin/test.ping" ]] ; then
+                cat <<EOFCMD >"${HOME}/bin/test.ping"
+#!/bin/bash
+
+# ${CREATED}
+
+# Shortcut to 'sudo salt \$minion test.ping \$options'
+
+readonly targets="\$1"
+
+shift 1
+
+sudo salt "\${targets}" test.ping \$@
+EOFCMD
+                chmod +x "${HOME}/bin/test.ping"
+        fi
+
+        unset -f mkTestPing
+}  # mkTestPing()
+
+
 # Start the ssh-agent:  Still will need to ssh-add or else will be
 # asked for passphrase every time
 startSshAgent()
@@ -2225,5 +2250,6 @@ mkJasonize
 mkSnapBtr
 mkCmd
 mkState
+mkTestPing
 startSshAgent
 setSaneTty
