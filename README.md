@@ -45,3 +45,4 @@ A list of files that `.bashrc.jas` creates:
         ## ~/bin/myscreensessionname
         ## ~/bin/snapshots.btrfs
         ## ~/bin/state
+        ## ~/bin/test.ping
