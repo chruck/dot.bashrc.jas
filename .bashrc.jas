@@ -4,7 +4,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-readonly JAS_ROX='20180210'
+readonly JAS_ROX='20180405'
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
 readonly CREATED="Created by .bashrc.jas JAS_ROX=${JAS_ROX}"
@@ -577,27 +577,29 @@ rm_files()
 
 mkFileList()
 {
-        FILES_BASHRC_CREATES="${VIMRCJAS}"
-        FILES_BASHRC_CREATES+=" ${GVIM}"
+        FILES_BASHRC_CREATES=""
         FILES_BASHRC_CREATES+=" ${GVIMDIFF}"
+        FILES_BASHRC_CREATES+=" ${GVIM}"
+        FILES_BASHRC_CREATES+=" ${HOME}/.Xresources" # was .Xdefaults
+        FILES_BASHRC_CREATES+=" ${HOME}/.xinitrc"
+        FILES_BASHRC_CREATES+=" ${HOME}/.gdbinit"
+        FILES_BASHRC_CREATES+=" ${HOME}/.inputrc"
+        FILES_BASHRC_CREATES+=" ${HOME}/.irssi/config"
+        FILES_BASHRC_CREATES+=" ${HOME}/.screenrc"
+        FILES_BASHRC_CREATES+=" ${HOME}/.ssh/config"
         FILES_BASHRC_CREATES+=" ${HOME}/.vim/templates/src.c"
         FILES_BASHRC_CREATES+=" ${HOME}/.vim/templates/src.h"
         FILES_BASHRC_CREATES+=" ${HOME}/.vim/templates/src.sh"
-        FILES_BASHRC_CREATES+=" ${HOME}/.gdbinit"
+        FILES_BASHRC_CREATES+=" ${HOME}/bin/cmd"
         FILES_BASHRC_CREATES+=" ${HOME}/bin/gfilt"
         FILES_BASHRC_CREATES+=" ${HOME}/bin/jasindent"
-        FILES_BASHRC_CREATES+=" ${HOME}/bin/myscreensessionname"
-        FILES_BASHRC_CREATES+=" ${HOME}/.screenrc"
-        FILES_BASHRC_CREATES+=" ${HOME}/.ssh/config"
-        FILES_BASHRC_CREATES+=" ${HOME}/.Xresources" # was .Xdefaults
-        FILES_BASHRC_CREATES+=" ${HOME}/.inputrc"
-        FILES_BASHRC_CREATES+=" ${LESSPIPE}"
-        FILES_BASHRC_CREATES+=" ${HOME}/.irssi/config"
         FILES_BASHRC_CREATES+=" ${HOME}/bin/jasonize"
+        FILES_BASHRC_CREATES+=" ${HOME}/bin/myscreensessionname"
         FILES_BASHRC_CREATES+=" ${HOME}/bin/snapshots.btrfs"
-        FILES_BASHRC_CREATES+=" ${HOME}/bin/cmd"
         FILES_BASHRC_CREATES+=" ${HOME}/bin/state"
         FILES_BASHRC_CREATES+=" ${HOME}/bin/test.ping"
+        FILES_BASHRC_CREATES+=" ${LESSPIPE}"
+        FILES_BASHRC_CREATES+=" ${VIMRCJAS}"
 
         if [[ "x" != "x${GIT}" ]] ; then
                 GITCONFIG="${HOME}/.gitconfig"
@@ -615,6 +617,7 @@ mkFileList()
         unset -f mkFileList
 }  # mkFileList()
 
+## ~/.jas_rox_file
 mkJasRoxFile()
 {
         ## ~/.jas_rox_file
@@ -2149,7 +2152,7 @@ EOFCMD
 mkState()
 {
         if [[ ! -e "${HOME}/bin/state" ]] ; then
-                cat <<EOFCMD >"${HOME}/bin/state"
+                cat <<EOFSTATE >"${HOME}/bin/state"
 #!/bin/bash
 
 # ${CREATED}
@@ -2167,7 +2170,7 @@ if [[ 'x' != "x\${state}" ]] ; then
 fi
 
 sudo salt "\${targets}" state.apply "\${state}" \${therest}
-EOFCMD
+EOFSTATE
                 chmod +x "${HOME}/bin/state"
         fi
 
@@ -2178,7 +2181,7 @@ EOFCMD
 mkTestPing()
 {
         if [[ ! -e "${HOME}/bin/test.ping" ]] ; then
-                cat <<EOFCMD >"${HOME}/bin/test.ping"
+                cat <<EOFTESTPING >"${HOME}/bin/test.ping"
 #!/bin/bash
 
 # ${CREATED}
@@ -2190,13 +2193,33 @@ readonly targets="\$1"
 shift 1
 
 sudo salt "\${targets}" test.ping \$@
-EOFCMD
+EOFTESTPING
                 chmod +x "${HOME}/bin/test.ping"
         fi
 
         unset -f mkTestPing
 }  # mkTestPing()
 
+## ~/.xinitrc
+mkXinitrc()
+{
+        ESTART=$(type -p enlightenment_start)
+
+        if [[ "x" == "x${ESTART}" ]] ; then
+                unset -f mkXinitrc
+                return
+        fi
+
+        if [[ ! -e "${HOME}/.xinitrc" ]] ; then
+                cat <<EOFXINITRC >"${HOME}/.xinitrc"
+# ${CREATED}
+exec ${ESTART}
+EOFXINITRC
+                chmod +x "${HOME}/.xinitrc"
+        fi
+
+        unset -f mkXinitrc
+}  # mkXinitrc()
 
 # Start the ssh-agent:  Still will need to ssh-add or else will be
 # asked for passphrase every time
@@ -2253,5 +2276,6 @@ mkSnapBtr
 mkCmd
 mkState
 mkTestPing
+mkXinitrc
 startSshAgent
 setSaneTty
