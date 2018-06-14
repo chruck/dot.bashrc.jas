@@ -4,7 +4,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-readonly JAS_ROX='20180607'
+readonly JAS_ROX='20180614'
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
 readonly CREATED="Created by .bashrc.jas JAS_ROX=${JAS_ROX}"
@@ -581,7 +581,7 @@ mkFileList()
         FILES_BASHRC_CREATES+=" ${GVIMDIFF}"
         FILES_BASHRC_CREATES+=" ${GVIM}"
         FILES_BASHRC_CREATES+=" ${HOME}/.Xresources" # was .Xdefaults
-        FILES_BASHRC_CREATES+=" ${HOME}/.xinitrc"
+        FILES_BASHRC_CREATES+=" ${HOME}/.clusterssh/config"
         FILES_BASHRC_CREATES+=" ${HOME}/.gdbinit"
         FILES_BASHRC_CREATES+=" ${HOME}/.inputrc"
         FILES_BASHRC_CREATES+=" ${HOME}/.irssi/config"
@@ -590,6 +590,7 @@ mkFileList()
         FILES_BASHRC_CREATES+=" ${HOME}/.vim/templates/src.c"
         FILES_BASHRC_CREATES+=" ${HOME}/.vim/templates/src.h"
         FILES_BASHRC_CREATES+=" ${HOME}/.vim/templates/src.sh"
+        FILES_BASHRC_CREATES+=" ${HOME}/.xinitrc"
         FILES_BASHRC_CREATES+=" ${HOME}/bin/cmd"
         FILES_BASHRC_CREATES+=" ${HOME}/bin/gfilt"
         FILES_BASHRC_CREATES+=" ${HOME}/bin/jasindent"
@@ -2225,6 +2226,54 @@ EOFXINITRC
         unset -f mkXinitrc
 }  # mkXinitrc()
 
+## ~/.clusterssh/config
+mkCsshCfg()
+{
+        local CSSHCFG="${HOME}/.clusterssh/config"
+        local SSHSETTING="ssh=${HOME}/bin/jasonize"
+        local TILING="window_tiling=no"
+
+        # File doesn't exist
+        if [[ ! -e "${CSSHCFG}" ]] ; then
+                cat <<EOFCSSHCFG >"${CSSHCFG}"
+${SSHSETTING}
+${TILING}
+EOFCSSHCFG
+        # File exists
+        else
+                # Has "ssh="
+                if grep -q "^ssh=" "${CSSHCFG}" ; then
+                        sed -i "s?^ssh=.*?${SSHSETTING}?" "${CSSHCFG}"
+                # Doesn't have "ssh="
+                else
+                        echo "${SSHSETTING}" >>"${CSSHCFG}"
+                fi
+                # Has "window_tiling="
+                if grep -q "^window_tiling=" "${CSSHCFG}" ; then
+                        sed -i "s?^window_tiling=.*?${TILING}?" "${CSSHCFG}"
+                # Doesn't have "window_tiling="
+                else
+                        echo "${TILING}" >>"${CSSHCFG}"
+                fi
+        fi
+
+        unset -f mkCsshCfg
+}  # mkCsshCfg()
+
+# Template to make function that creates ${file}:
+### ~/${file}
+#mk${file}()
+#{
+#        if [[ ! -e "${HOME}/${file}" ]] ; then
+#                cat <<EOF${file} >"${HOME}/${file}"
+#file contents
+#EOF${file}
+#                #chmod +x "${HOME}/${file}"
+#        fi
+#
+#        unset -f mk${file}
+#}  # mk${file}()
+
 # Start the ssh-agent:  Still will need to ssh-add or else will be
 # asked for passphrase every time
 startSshAgent()
@@ -2281,5 +2330,6 @@ mkCmd
 mkState
 mkTestPing
 mkXinitrc
+mkCsshCfg
 startSshAgent
 setSaneTty
