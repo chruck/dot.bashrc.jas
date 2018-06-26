@@ -4,7 +4,7 @@
 
 ### Versioning
 THISFILE=$_   # This must be the first line of this file
-readonly JAS_ROX='20180614'
+readonly JAS_ROX='20180626'
 readonly THISFILESHOULDBE=".bashrc.jas"
 readonly BASHRCORIG="${HOME}/.bashrc.orig"
 readonly CREATED="Created by .bashrc.jas JAS_ROX=${JAS_ROX}"
@@ -2229,12 +2229,14 @@ EOFXINITRC
 ## ~/.clusterssh/config
 mkCsshCfg()
 {
-        local CSSHCFG="${HOME}/.clusterssh/config"
+        local CSSHDIR="${HOME}/.clusterssh"
+        local CSSHCFG="${CSSHDIR}/config"
         local SSHSETTING="ssh=${HOME}/bin/jasonize"
         local TILING="window_tiling=no"
 
         # File doesn't exist
         if [[ ! -e "${CSSHCFG}" ]] ; then
+                mkdir -p ${CSSHDIR}
                 cat <<EOFCSSHCFG >"${CSSHCFG}"
 ${SSHSETTING}
 ${TILING}
